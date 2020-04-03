@@ -16,6 +16,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisLite.Tests", "RedisLite.Tests\RedisLite.Tests.csproj", "{FDD36451-533A-4436-B6F0-72E3ECB40627}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Logo", "Logo", "{9A93EE3E-7C8E-48B6-AC34-1082A6D3FA35}"
+	ProjectSection(SolutionItems) = preProject
+		Logo\logo-title.png = Logo\logo-title.png
+		Logo\logo-title.svg = Logo\logo-title.svg
+		Logo\logo.png = Logo\logo.png
+		Logo\logo.svg = Logo\logo.svg
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +45,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9A93EE3E-7C8E-48B6-AC34-1082A6D3FA35} = {078DA11E-51C8-4F93-8BE7-6BEE9BA65FBA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {76513C87-57CF-4F44-94E1-551F2D82789E}
