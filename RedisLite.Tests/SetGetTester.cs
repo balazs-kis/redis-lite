@@ -42,6 +42,7 @@ namespace RedisLite.Tests
             Assert.IsNull(thrownException);
         }
 
+
         [TestCleanup]
         public void Cleanup()
         {
