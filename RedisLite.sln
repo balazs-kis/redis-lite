@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisLite.Tests", "RedisLite.Tests\RedisLite.Tests.csproj", "{FDD36451-533A-4436-B6F0-72E3ECB40627}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,6 +30,10 @@ Global
 		{B2BD4CC2-81A9-47CE-B343-C7591B36F2C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B2BD4CC2-81A9-47CE-B343-C7591B36F2C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B2BD4CC2-81A9-47CE-B343-C7591B36F2C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDD36451-533A-4436-B6F0-72E3ECB40627}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDD36451-533A-4436-B6F0-72E3ECB40627}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDD36451-533A-4436-B6F0-72E3ECB40627}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDD36451-533A-4436-B6F0-72E3ECB40627}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
