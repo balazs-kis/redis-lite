@@ -1,6 +1,6 @@
 ﻿using RedisLite.Client.Contracts;
 
-namespace RedisLite.Tests.Setup
+namespace RedisLite.Tests.TestConfigurations
 {
     internal static class LocalHostDefaultPort
     {

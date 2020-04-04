@@ -1,11 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RedisLite.Client;
-using RedisLite.Tests.Setup;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using RedisLite.Client;
+using RedisLite.Tests.TestConfigurations;
 
-namespace RedisLite.Tests
+namespace RedisLite.Tests.TestsWithRedisServer
 {
     [TestClass]
     public class HashTester

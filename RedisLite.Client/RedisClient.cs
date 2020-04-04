@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using RedisLite.Client.Clients;
 using RedisLite.Client.Contracts;
 using RedisLite.Client.Exceptions;
 using RedisLite.Client.Networking;
+
+[assembly: InternalsVisibleTo("RedisLite.Tests")]
 
 namespace RedisLite.Client
 {

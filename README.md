@@ -53,4 +53,4 @@ publisher.Publish("MyChannel", "My interesting message");
 ```
 
 ## Included redis commands
-The list of included redis commands can be seen here: [RedisCommands.cs](/RedisLite.Client/CommandBuilders/RedisCommands.cs)
+The list of included redis commands can be seen here: [RedisCommands.cs](https://raw.githubusercontent.com/balazs-kis/redis-lite/master/RedisLite.Client/CommandBuilders/RedisCommands.cs)

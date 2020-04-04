@@ -8,15 +8,5 @@
         {
             Encoding = System.Text.Encoding.ASCII;
         }
-
-        public static string Decode(byte[] content)
-        {
-            return Encoding.GetString(content);
-        }
-
-        public static byte[] Encode(string content)
-        {
-            return Encoding.GetBytes(content);
-        }
     }
 }
