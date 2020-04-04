@@ -63,9 +63,6 @@ namespace RedisLite.ConsoleTester
                 client.Del(Key);
                 Pass();
             });
-
-            Console.Write("Press enter to exit: ");
-            Console.ReadLine();
         }
 
         private static void FailIfException(Action a)
