@@ -108,9 +108,10 @@ namespace RedisLite.Tests
         }
 
         [TestMethod]
-        [Ignore] // TODO: find out why this fails sometimes on CI build
         public void Test_MultipleUnsubscribe()
         {
+            // TODO: find out why this fails sometimes on CI build
+
             var dutPublisher = new RedisClient();
             var dutSubscriber = new RedisSubscriptionClient();
 
