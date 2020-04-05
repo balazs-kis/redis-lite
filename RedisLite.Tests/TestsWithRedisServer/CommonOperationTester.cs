@@ -79,6 +79,23 @@ namespace RedisLite.Tests.TestsWithRedisServer
             Assert.AreEqual(0, res2);
         }
 
+        [TestMethod]
+        public void Test_SwapDb()
+        {
+            var dut = new RedisClient();
+            dut.Connect(LocalHostDefaultPort.ConnectionSettings);
+
+            dut.Select(0);
+            dut.Set(Key, Value);
+            dut.SwapDb(0, 7);
+            var existsOnDb0 = dut.Exists(Key);
+            dut.Select(7);
+            var result = dut.Get(Key);
+            
+            Assert.IsFalse(existsOnDb0);
+            Assert.AreEqual(Value, result);
+        }
+
 
         [TestCleanup]
         public void Cleanup()

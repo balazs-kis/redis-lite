@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <Authors>balazs.kis</Authors>
-    <Description></Description>
+    <Description>Redis Lite is a small, simple redis client for .NET (Standard). It implements the most often used redic commands.</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/balazs-kis/redis-lite</PackageProjectUrl>
     <PackageIcon>logo.png</PackageIcon>
