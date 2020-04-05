@@ -24,7 +24,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 result = dut.Get(Key);
             };
 
-            dut.Connect(LocalHostDefaultPort.ConnectionSettings);
+            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             Assert.AreEqual(Value, result);
         }
@@ -37,7 +37,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
             {
                 var dut = new RedisClient();
 
-                dut.Connect(LocalHostDefaultPort.ConnectionSettings);
+                dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
                 dut.Del(Key);
             }

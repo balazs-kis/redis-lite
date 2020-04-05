@@ -228,13 +228,50 @@ namespace RedisLite.Client
             return result.Value;
         }
 
+
+        public long SAdd(string key, params string[] members)
+        {
+            var result = _setClient.SAdd(_session, key, members);
+
+            if (result.IsFailure)
+            {
+                throw new RedisException($"Error while adding values to set key '{key}' [REDIS CODE: {result.Error}]", result.Exception);
+            }
+
+            return result.Value;
+        }
+
+        public long SRem(string key, params string[] members)
+        {
+            var result = _setClient.SRem(_session, key, members);
+
+            if (result.IsFailure)
+            {
+                throw new RedisException($"Error while removing values from set key '{key}' [REDIS CODE: {result.Error}]", result.Exception);
+            }
+
+            return result.Value;
+        }
+        
         public IEnumerable<string> SMembers(string key)
         {
             var result = _setClient.SMembers(_session, key);
 
             if (result.IsFailure)
             {
-                throw new RedisException($"Error while getting values from key '{key}' [REDIS CODE: {result.Error}]", result.Exception);
+                throw new RedisException($"Error while getting values from set key '{key}' [REDIS CODE: {result.Error}]", result.Exception);
+            }
+
+            return result.Value;
+        }
+
+        public bool SIsMember(string key, string member)
+        {
+            var result = _setClient.SIsMember(_session, key, member);
+
+            if (result.IsFailure)
+            {
+                throw new RedisException($"Error while checking values existence in set key '{key}' [REDIS CODE: {result.Error}]", result.Exception);
             }
 
             return result.Value;

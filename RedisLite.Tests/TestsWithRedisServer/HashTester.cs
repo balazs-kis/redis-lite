@@ -27,7 +27,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         public void Test_SetAndGetHash()
         {
             var dut = new RedisClient();
-            dut.Connect(LocalHostDefaultPort.ConnectionSettings);
+            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             dut.HSet(_keys[0], Field1, Value1);
             var res = dut.HGet(_keys[0], Field1);
@@ -39,7 +39,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         public void Test_SetMultipleHash()
         {
             var dut = new RedisClient();
-            dut.Connect(LocalHostDefaultPort.ConnectionSettings);
+            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             var additionalFields = new Dictionary<string, string>
             {
@@ -63,7 +63,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         public void Test_GetMultipleHash()
         {
             var dut = new RedisClient();
-            dut.Connect(LocalHostDefaultPort.ConnectionSettings);
+            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             dut.HSet(_keys[2], Field1, Value1);
             dut.HSet(_keys[2], Field2, Value2);
@@ -80,7 +80,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         public void Test_GetAllHash()
         {
             var dut = new RedisClient();
-            dut.Connect(LocalHostDefaultPort.ConnectionSettings);
+            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             dut.HSet(_keys[3], Field1, Value1);
             dut.HSet(_keys[3], Field2, Value2);
@@ -98,7 +98,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         public void Test_GetAllHash_Null()
         {
             var dut = new RedisClient();
-            dut.Connect(LocalHostDefaultPort.ConnectionSettings);
+            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             var res = dut.HGetAll(_keys[3]);
 
@@ -109,7 +109,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         public void Test_GeHash_Null()
         {
             var dut = new RedisClient();
-            dut.Connect(LocalHostDefaultPort.ConnectionSettings);
+            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             var res = dut.HMGet(_keys[3], new[] { Field1, Field2 }).ToList();
 
@@ -125,7 +125,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
             try
             {
                 var dut = new RedisClient();
-                dut.Connect(LocalHostDefaultPort.ConnectionSettings);
+                dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
                 dut.Select(0);
                 _keys.ForEach(k => dut.Del(k));

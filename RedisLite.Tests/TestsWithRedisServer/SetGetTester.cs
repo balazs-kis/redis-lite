@@ -15,7 +15,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         public void Test_Set_Get()
         {
             var dut = new RedisClient();
-            dut.Connect(LocalHostDefaultPort.ConnectionSettings);
+            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             dut.Set(Key, Value);
             var res = dut.Get(Key);
@@ -27,7 +27,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         public void Test_Ping()
         {
             var dut = new RedisClient();
-            dut.Connect(LocalHostDefaultPort.ConnectionSettings);
+            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             Exception thrownException = null;
             try
@@ -49,7 +49,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
             try
             {
                 var dut = new RedisClient();
-                dut.Connect(LocalHostDefaultPort.ConnectionSettings);
+                dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
                 dut.Select(0);
                 dut.Del(Key);

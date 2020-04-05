@@ -20,7 +20,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             var dut = new RedisClient();
 
-            dut.Connect(LocalHostDefaultPort.ConnectionSettings);
+            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             dut.Multi();
             dut.Set(Key, Value1);
@@ -40,7 +40,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
             var dut = new RedisClient();
 
-            dut.Connect(LocalHostDefaultPort.ConnectionSettings);
+            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             dut.Multi();
             dut.RPush(Key, items);
@@ -61,8 +61,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
             var dut1 = new RedisClient();
             var dut2 = new RedisClient();
 
-            dut1.Connect(LocalHostDefaultPort.ConnectionSettings);
-            dut2.Connect(LocalHostDefaultPort.ConnectionSettings);
+            dut1.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            dut2.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             dut1.Watch(new[] { Key });
 
@@ -102,8 +102,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
             var dut1 = new RedisClient();
             var dut2 = new RedisClient();
 
-            dut1.Connect(LocalHostDefaultPort.ConnectionSettings);
-            dut2.Connect(LocalHostDefaultPort.ConnectionSettings);
+            dut1.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            dut2.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             dut1.RPush(Key, items);
 
@@ -135,7 +135,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             var dut = new RedisClient();
 
-            dut.Connect(LocalHostDefaultPort.ConnectionSettings);
+            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             dut.Set(Key, Value1);
 
@@ -155,7 +155,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             var dut = new RedisClient();
 
-            dut.Connect(LocalHostDefaultPort.ConnectionSettings);
+            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             dut.Del(Key);
         }

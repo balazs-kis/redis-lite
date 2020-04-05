@@ -26,9 +26,14 @@ namespace RedisLite.Client.Contracts
         string HGet(string key, string field);
         IEnumerable<string> HMGet(string key, IEnumerable<string> fields);
         IDictionary<string, string> HGetAll(string key);
-
+        
         void RPush(string key, params string[] values);
         IEnumerable<string> LRange(string key, int start, int stop);
+
+        long SAdd(string key, params string[] members);
+        long SRem(string key, params string[] members);
+        IEnumerable<string> SMembers(string key);
+        bool SIsMember(string key, string member);
 
         string LoadScript(string script);
         IEnumerable<object> EvalSha(string sha, string[] parameters);

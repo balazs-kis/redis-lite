@@ -29,6 +29,9 @@ namespace RedisLite.Client.CommandBuilders
         HMGET,
         HGETALL,
         PING,
+        SADD,
+        SREM,
+        SISMEMBER,
         SMEMBERS,
         SWAPDB
     }

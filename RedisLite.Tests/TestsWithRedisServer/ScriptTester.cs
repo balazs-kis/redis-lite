@@ -33,7 +33,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             var dut = new RedisClient();
 
-            dut.Connect(LocalHostDefaultPort.ConnectionSettings);
+            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             var sha = dut.LoadScript(ScriptWithoutParameter);
 
@@ -50,7 +50,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             var dut = new RedisClient();
 
-            dut.Connect(LocalHostDefaultPort.ConnectionSettings);
+            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             var sha = dut.LoadScript(ScriptWithListResult);
 
@@ -69,7 +69,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             var dut = new RedisClient();
 
-            dut.Connect(LocalHostDefaultPort.ConnectionSettings);
+            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             var sha = dut.LoadScript(ScriptWithListInListResult);
 
@@ -101,7 +101,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
             {
                 var dut = new RedisClient();
 
-                dut.Connect(LocalHostDefaultPort.ConnectionSettings);
+                dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
                 dut.Del("foo");
 

@@ -23,8 +23,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
             var dutPublisher = new RedisClient();
             var dutSubscriber = new RedisSubscriptionClient();
 
-            dutPublisher.Connect(LocalHostDefaultPort.ConnectionSettings);
-            dutSubscriber.Connect(LocalHostDefaultPort.ConnectionSettings);
+            dutPublisher.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            dutSubscriber.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             string receivedChannel = null;
             string receivedMessage = null;
@@ -50,8 +50,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
             var dutPublisher = new RedisClient();
             var dutSubscriber = new RedisSubscriptionClient();
 
-            dutPublisher.Connect(LocalHostDefaultPort.ConnectionSettings);
-            dutSubscriber.Connect(LocalHostDefaultPort.ConnectionSettings);
+            dutPublisher.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            dutSubscriber.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             string receivedChannel = null;
             string receivedMessage = null;
@@ -82,8 +82,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
             var dutPublisher = new RedisClient();
             var dutSubscriber = new RedisSubscriptionClient();
 
-            dutPublisher.Connect(LocalHostDefaultPort.ConnectionSettings);
-            dutSubscriber.Connect(LocalHostDefaultPort.ConnectionSettings);
+            dutPublisher.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            dutSubscriber.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             var received = new List<Tuple<string, string>>();
 
@@ -115,8 +115,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
             var dutPublisher = new RedisClient();
             var dutSubscriber = new RedisSubscriptionClient();
 
-            dutPublisher.Connect(LocalHostDefaultPort.ConnectionSettings);
-            dutSubscriber.Connect(LocalHostDefaultPort.ConnectionSettings);
+            dutPublisher.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            dutSubscriber.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             var received = new List<Tuple<string, string>>();
 
@@ -154,8 +154,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
             var dutPublisher = new RedisClient();
             var dutSubscriber = new RedisSubscriptionClient();
 
-            dutPublisher.Connect(LocalHostDefaultPort.ConnectionSettings);
-            dutSubscriber.Connect(LocalHostDefaultPort.ConnectionSettings);
+            dutPublisher.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            dutSubscriber.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             string receivedChannel = null;
             string receivedMessage = null;
