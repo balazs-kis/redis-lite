@@ -82,7 +82,7 @@ namespace RedisLite.Client.Clients
         {
             if (IsError(firstLine))
             {
-                return firstLine.TrimStart(RedisConstants.ErrorPrefix);
+                throw new Exception(firstLine.TrimStart(RedisConstants.ErrorPrefix));
             }
 
             if (IsString(firstLine))
