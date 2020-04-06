@@ -16,12 +16,7 @@ namespace RedisLite.Client
 
         protected Result(bool isSuccess, string error, Exception ex)
         {
-            if (isSuccess && error != string.Empty || isSuccess && ex != null)
-            {
-                throw new InvalidOperationException("Success indicated, but the error message was not empty");
-            }
-
-            if (!isSuccess && error == string.Empty)
+            if (!isSuccess && string.IsNullOrWhiteSpace(error))
             {
                 throw new InvalidOperationException("Failure indicated, but the error message was empty");
             }
@@ -37,13 +32,13 @@ namespace RedisLite.Client
             new Result(false, message, ex);
         
         public static Result<T> Fail<T>(string message, Exception ex = null) =>
-            new Result<T>(default(T), false, message, ex);
+            new Result<T>(default, false, message, ex);
         
         public static Result Ok() =>
-            new Result(true, string.Empty, null);
+            new Result(true, null, null);
 
         public static Result<T> Ok<T>(T value) =>
-            new Result<T>(value, true, string.Empty, null);
+            new Result<T>(value, true, null, null);
 
         public override string ToString()
         {
