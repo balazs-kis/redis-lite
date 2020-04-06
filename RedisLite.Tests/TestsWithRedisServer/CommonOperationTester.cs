@@ -1,7 +1,8 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RedisLite.Client;
+using RedisLite.Client.Exceptions;
 using RedisLite.Tests.TestConfigurations;
+using System;
 
 namespace RedisLite.Tests.TestsWithRedisServer
 {
@@ -29,6 +30,27 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
             Assert.AreEqual(Value, res1);
             Assert.IsNull(res2);
+        }
+
+        [TestMethod]
+        public void TestWrongDbNumber_SelectThrowsException()
+        {
+            Exception thrownException = null;
+
+            var dut = new RedisClient();
+            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+
+            try
+            {
+                dut.Select(int.MaxValue);
+            }
+            catch (Exception ex)
+            {
+                thrownException = ex;
+            }
+
+            Assert.IsNotNull(thrownException);
+            Assert.IsInstanceOfType(thrownException, typeof(RedisException));
         }
 
         [TestMethod]
@@ -62,21 +84,32 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestMethod]
-        public void Test_FlushAndDbSize()
+        public void Test_FlushDb()
         {
             var dut = new RedisClient();
             dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
-            dut.FlushDb();
             dut.Set(Key, Value);
             dut.Set(Key2, Value2);
-            var res1 = dut.DbSize();
-
             dut.FlushDb();
-            var res2 = dut.DbSize();
+            var result1 = dut.Get(Key);
+            var result2 = dut.Get(Key2);
 
-            Assert.AreEqual(2, res1);
-            Assert.AreEqual(0, res2);
+            Assert.IsNull(result1);
+            Assert.IsNull(result2);
+        }
+        
+        [TestMethod]
+        public void Test_DbSize()
+        {
+            var dut = new RedisClient();
+            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+
+            dut.Set(Key, Value);
+            dut.Set(Key2, Value2);
+            var result = dut.DbSize();
+
+            Assert.AreEqual(2, result);
         }
 
         [TestMethod]
@@ -91,9 +124,30 @@ namespace RedisLite.Tests.TestsWithRedisServer
             var existsOnDb0 = dut.Exists(Key);
             dut.Select(7);
             var result = dut.Get(Key);
-            
+
             Assert.IsFalse(existsOnDb0);
             Assert.AreEqual(Value, result);
+        }
+
+        [TestMethod]
+        public void TestWrongDbNumbers_SwapDbThrowsException()
+        {
+            Exception thrownException = null;
+
+            var dut = new RedisClient();
+            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+
+            try
+            {
+                dut.SwapDb(int.MaxValue, int.MaxValue - 1);
+            }
+            catch (Exception ex)
+            {
+                thrownException = ex;
+            }
+
+            Assert.IsNotNull(thrownException);
+            Assert.IsInstanceOfType(thrownException, typeof(RedisException));
         }
 
 
@@ -107,9 +161,11 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
                 dut.Select(0);
                 dut.Del(Key);
+                dut.Del(Key2);
 
                 dut.Select(7);
                 dut.Del(Key);
+                dut.Del(Key2);
             }
             catch (Exception ex)
             {
