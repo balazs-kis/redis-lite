@@ -3,6 +3,7 @@ using RedisLite.Client;
 using RedisLite.Client.Exceptions;
 using RedisLite.Tests.TestConfigurations;
 using System;
+using System.Net.Sockets;
 
 namespace RedisLite.Tests.TestsWithRedisServer
 {
@@ -14,6 +15,108 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
         private const string Key2 = "TestKey2";
         private const string Value2 = "TestValue2";
+
+        [TestMethod]
+        public void Test_Connect()
+        {
+            Exception thrownException = null;
+
+            var dut = new RedisClient();
+
+            try
+            {
+                dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            }
+            catch (Exception ex)
+            {
+                thrownException = ex;
+            }
+
+            Assert.IsNull(thrownException);
+        }
+
+        [TestMethod]
+        public void TestUnknownHost_ConnectThrowsException()
+        {
+            Exception thrownException = null;
+
+            var dut = new RedisClient();
+
+            try
+            {
+                dut.Connect(UnknownHost.AsConnectionSettings());
+            }
+            catch (Exception ex)
+            {
+                thrownException = ex;
+            }
+
+            Assert.IsNotNull(thrownException);
+            Assert.IsInstanceOfType(thrownException, typeof(SocketException));
+        }
+
+        [TestMethod]
+        public void TestKnownHostBadPort_ConnectThrowsException()
+        {
+            Exception thrownException = null;
+
+            var dut = new RedisClient();
+
+            try
+            {
+                dut.Connect(LocalHostPort7000.AsConnectionSettings());
+            }
+            catch (Exception ex)
+            {
+                thrownException = ex;
+            }
+
+            Assert.IsNotNull(thrownException);
+            Assert.IsInstanceOfType(thrownException, typeof(SocketException));
+        }
+
+        [TestMethod]
+        public void TestConnectTwice_ConnectThrowsException()
+        {
+            Exception thrownException = null;
+
+            var dut = new RedisClient();
+
+            try
+            {
+                dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+                dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            }
+            catch (Exception ex)
+            {
+                thrownException = ex;
+            }
+
+            Assert.IsNotNull(thrownException);
+            Assert.IsInstanceOfType(thrownException, typeof(InvalidOperationException));
+        }
+
+        [TestMethod]
+        public void TestCallingAfterDispose_ThrowsException()
+        {
+            Exception thrownException = null;
+
+            var dut = new RedisClient();
+            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            dut.Dispose();
+
+            try
+            {
+                dut.Set(Key, Value);
+            }
+            catch (Exception ex)
+            {
+                thrownException = ex;
+            }
+
+            Assert.IsNotNull(thrownException);
+            Assert.IsInstanceOfType(thrownException, typeof(InvalidOperationException));
+        }
 
         [TestMethod]
         public void Test_Select()
