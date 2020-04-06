@@ -98,7 +98,23 @@ namespace RedisLite.Tests.TestsWithRedisServer
             Assert.IsNull(result1);
             Assert.IsNull(result2);
         }
-        
+
+        [TestMethod]
+        public void Test_FlushDbAsync()
+        {
+            var dut = new RedisClient();
+            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+
+            dut.Set(Key, Value);
+            dut.Set(Key2, Value2);
+            dut.FlushDb(true);
+            var result1 = dut.Get(Key);
+            var result2 = dut.Get(Key2);
+
+            Assert.IsNull(result1);
+            Assert.IsNull(result2);
+        }
+
         [TestMethod]
         public void Test_DbSize()
         {

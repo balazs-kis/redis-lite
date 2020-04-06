@@ -16,5 +16,6 @@
         public const string TransactionAborted = "ABORTED";
 
         public const string Pong = "PONG";
+        public const string Async = "ASYNC";
     }
 }

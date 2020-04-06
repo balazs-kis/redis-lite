@@ -51,11 +51,13 @@ namespace RedisLite.Client.Clients
             }
         }
 
-        public Result FlushDb(ISession session)
+        public Result FlushDb(ISession session, bool async)
         {
             try
             {
-                var command = new BasicCommandBuilder(RedisCommands.FLUSHDB).ToString();
+                var commandBuilder = new BasicCommandBuilder(RedisCommands.FLUSHDB);
+                if (async) commandBuilder.WithParameter(RedisConstants.Async);
+                var command = commandBuilder.ToString();
                 
                 var response = SendCommandAndReadResponse(session, command);
 

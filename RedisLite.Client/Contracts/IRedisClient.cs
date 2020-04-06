@@ -18,7 +18,7 @@ namespace RedisLite.Client.Contracts
         bool Exists(string key);
         long DbSize();
         void Del(string key);
-        void FlushDb();
+        void FlushDb(bool async = false);
         void SwapDb(int index1, int index2);
 
         void HSet(string key, string field, string value);

@@ -128,9 +128,9 @@ namespace RedisLite.Client
             }
         }
 
-        public void FlushDb()
+        public void FlushDb(bool async = false)
         {
-            var result = _commonClient.FlushDb(_session);
+            var result = _commonClient.FlushDb(_session, async);
 
             if (result.IsFailure)
             {
