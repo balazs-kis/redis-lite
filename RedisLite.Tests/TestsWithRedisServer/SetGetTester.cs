@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RedisLite.Client;
+using RedisLite.Client.Exceptions;
 using RedisLite.Tests.TestConfigurations;
 
 namespace RedisLite.Tests.TestsWithRedisServer
@@ -21,6 +22,48 @@ namespace RedisLite.Tests.TestsWithRedisServer
             var res = dut.Get(Key);
 
             Assert.AreEqual(Value, res);
+        }
+
+        [TestMethod]
+        public void TestWrongOperation_GetThrowsException()
+        {
+            Exception thrownException = null;
+
+            var dut = new RedisClient();
+            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+
+            try
+            {
+                dut.SAdd(Key, Value);
+                dut.Get(Key);
+            }
+            catch (Exception ex)
+            {
+                thrownException = ex;
+            }
+
+            Assert.IsNotNull(thrownException);
+            Assert.IsInstanceOfType(thrownException, typeof(RedisException));
+        }
+
+        [TestMethod]
+        public void TestUnconnectedClient_GetThrowsException()
+        {
+            Exception thrownException = null;
+
+            var dut = new RedisClient();
+
+            try
+            {
+                dut.Get(Key);
+            }
+            catch (Exception ex)
+            {
+                thrownException = ex;
+            }
+
+            Assert.IsNotNull(thrownException);
+            Assert.IsInstanceOfType(thrownException, typeof(InvalidOperationException));
         }
 
         [TestMethod]
