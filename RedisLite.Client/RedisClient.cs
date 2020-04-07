@@ -372,20 +372,7 @@ namespace RedisLite.Client
             });
 
 
-        public void Watch(string key) =>
-            ExecuteWithSession(session =>
-            {
-                var result = _transactionClient.Watch(session, key);
-
-                if (result.IsFailure)
-                {
-                    throw new RedisException(
-                        $"Error while watching key '{string.Join(", ", key)}' [REDIS CODE: {result.Error}]",
-                        result.Exception);
-                }
-            });
-
-        public void Watch(string[] keys) =>
+        public void Watch(params string[] keys) =>
             ExecuteWithSession(session =>
             {
                 var result = _transactionClient.Watch(session, keys);

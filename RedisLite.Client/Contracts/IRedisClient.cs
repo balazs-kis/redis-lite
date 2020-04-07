@@ -38,8 +38,7 @@ namespace RedisLite.Client.Contracts
         string LoadScript(string script);
         IEnumerable<object> EvalSha(string sha, string[] parameters);
 
-        void Watch(string key);
-        void Watch(string[] keys);
+        void Watch(params string[] keys);
         void Multi();
         void Exec();
         void Discard();

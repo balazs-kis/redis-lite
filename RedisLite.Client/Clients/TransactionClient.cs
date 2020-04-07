@@ -7,28 +7,6 @@ namespace RedisLite.Client.Clients
 {
     internal sealed class TransactionClient : BaseClient
     {
-        public Result Watch(ISession session, string key)
-        {
-            try
-            {
-                var command =
-                    new BasicCommandBuilder(RedisCommands.WATCH)
-                        .WithKey(key)
-                        .ToString();
-
-                var response = SendCommandAndReadResponse(session, command);
-                var responseString = response[0]?.ToString();
-
-                return string.Equals(responseString, RedisConstants.OkResult)
-                    ? Result.Ok()
-                    : Result.Fail(responseString);
-            }
-            catch (Exception ex)
-            {
-                return Result.Fail(ex.Message, ex);
-            }
-        }
-
         public Result Watch(ISession session, IEnumerable<string> keys)
         {
             try
