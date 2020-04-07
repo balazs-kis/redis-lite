@@ -58,13 +58,7 @@ namespace RedisLite.Client
                 }
             });
 
-        public void Subscribe(string channel) =>
-            ExecuteWithSession(session => { Subscribe(new[] { channel }); });
-
-        public void Unsubscribe(string channel) =>
-            ExecuteWithSession(session => { Unsubscribe(new[] { channel }); });
-
-        public void Subscribe(string[] channels) =>
+        public void Subscribe(params string[] channels) =>
             ExecuteWithSession(session =>
             {
                 if (channels == null || !channels.Any() || channels.All(string.IsNullOrWhiteSpace))
@@ -92,7 +86,7 @@ namespace RedisLite.Client
                 _isSubscribed = true;
             });
 
-        public void Unsubscribe(string[] channels) =>
+        public void Unsubscribe(params string[] channels) =>
             ExecuteWithSession(session =>
             {
                 if (channels == null || !channels.Any() || channels.All(string.IsNullOrWhiteSpace))

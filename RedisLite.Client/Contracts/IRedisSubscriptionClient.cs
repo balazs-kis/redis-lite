@@ -10,11 +10,8 @@ namespace RedisLite.Client.Contracts
         void Connect(ConnectionSettings settings);
 
         void Select(int dbIndex);
-
-        void Subscribe(string channel);
-        void Unsubscribe(string channel);
-
-        void Subscribe(string[] channels);
-        void Unsubscribe(string[] channels);
+        
+        void Subscribe(params string[] channels);
+        void Unsubscribe(params string[] channels);
     }
 }
