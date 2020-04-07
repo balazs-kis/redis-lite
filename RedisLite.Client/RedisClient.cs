@@ -5,6 +5,7 @@ using RedisLite.Client.Networking;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("RedisLite.Tests")]
@@ -375,6 +376,12 @@ namespace RedisLite.Client
         public void Watch(params string[] keys) =>
             ExecuteWithSession(session =>
             {
+                if (keys == null || !keys.Any() || keys.All(string.IsNullOrWhiteSpace))
+                {
+                    throw new InvalidOperationException(
+                        "Key list was null, empty or contained only invalid strings");
+                }
+
                 var result = _transactionClient.Watch(session, keys);
 
                 if (result.IsFailure)

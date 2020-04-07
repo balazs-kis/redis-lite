@@ -16,6 +16,27 @@ namespace RedisLite.Tests.TestsWithRedisServer
         private const string Value3 = "TransactionValue3";
 
         [TestMethod]
+        public void TestInvalidKeyList_WatchThrowsException()
+        {
+            Exception thrownException = null;
+
+            var dut = new RedisClient();
+            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+
+            try
+            {
+                dut.Watch();
+            }
+            catch (Exception ex)
+            {
+                thrownException = ex;
+            }
+
+            Assert.IsNotNull(thrownException);
+            Assert.IsInstanceOfType(thrownException, typeof(InvalidOperationException));
+        }
+
+        [TestMethod]
         public void Test_TransactionExecuted_SimpleSetGet()
         {
             var dut = new RedisClient();
