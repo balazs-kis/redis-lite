@@ -2,6 +2,16 @@
 
 namespace RedisLite.Tests.TestHelpers
 {
+    internal class Arranged
+    {
+        public Acted<TResult> Act<TResult>(Func<TResult> actFunc)
+        {
+            var result = actFunc.Invoke();
+
+            return new Acted<TResult>(result);
+        }
+    }
+
     internal class Arranged<T>
     {
         private readonly T _underTest;

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Dynamic;
 
 namespace RedisLite.Tests.TestHelpers
 {
@@ -9,6 +8,11 @@ namespace RedisLite.Tests.TestHelpers
         {
             var underTest = arrangeAction.Invoke();
             return new Arranged<T>(underTest);
+        }
+
+        public static Arranged ArrangeNotNeeded()
+        {
+            return new Arranged();
         }
 
         public static ExecutionResult ForException(Action action)

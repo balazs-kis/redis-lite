@@ -3,6 +3,8 @@ using RedisLite.Client.Networking;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
+using RedisLite.Tests.TestHelpers;
 
 namespace RedisLite.Tests.UnitTests
 {
@@ -12,187 +14,147 @@ namespace RedisLite.Tests.UnitTests
         private const int Number = 2020;
 
         [TestMethod]
-        public void TryToRunOneAction_Succeeds()
-        {
-            var result = 0;
-            var dut = new Locker();
+        public void TryToRunOneAction_Succeeds() => Test
+            .Arrange(() => new Locker())
+            .Act(underTest =>
+            {
+                var result = 0;
+                underTest.Execute(() => { result = Number; });
 
-            dut.Execute(() => { result = Number; });
-
-            Assert.AreEqual(Number, result);
-        }
+                return result;
+            })
+            .Assert(result => result.Should().Be(Number));
 
         [TestMethod]
-        public void TryToRunSecondActionInParallel_LockerThrowsException()
-        {
-            Exception thrownException = null;
-
-            var are = new AutoResetEvent(false);
-            var result = 0;
-            var dut = new Locker();
-
-            Task.Run(() => dut.Execute(() => { are.WaitOne(); }));
-            Thread.Sleep(100);
-            try
+        public void TryToRunSecondActionInParallel_LockerThrowsException() => Test
+            .Arrange(() => (locker: new Locker(), are: new AutoResetEvent(false)))
+            .Act(underTest =>
             {
-                dut.Execute(() => { result = Number; });
-            }
-            catch (Exception ex)
-            {
-                thrownException = ex;
-            }
-            are.Set();
-
-            Assert.IsNotNull(thrownException);
-            Assert.IsInstanceOfType(thrownException, typeof(InvalidOperationException));
-            Assert.AreNotEqual(Number, result);
-        }
-
-        [TestMethod]
-        public void TryToRunOneFunc_Succeeds()
-        {
-            var dut = new Locker();
-
-            var result = dut.Execute(() => Number);
-
-            Assert.AreEqual(Number, result);
-        }
-
-        [TestMethod]
-        public void TryToRunSecondFuncInParallel_LockerThrowsException()
-        {
-            Exception thrownException = null;
-
-            var are = new AutoResetEvent(false);
-            var result = 0;
-            var dut = new Locker();
-
-            var task = Task.Run(() =>
-            {
-                return dut.Execute(() =>
+                var resultNumber = 0;
+                var exResult = Test.ForException(() =>
                 {
-                    are.WaitOne();
-                    return Number;
+                    Task.Run(() => underTest.locker.Execute(() => { underTest.are.WaitOne(); }));
+                    Thread.Sleep(100);
+                    underTest.locker.Execute(() => { resultNumber = Number; });
                 });
+
+                return (exResult, resultNumber);
+            })
+            .Assert(result =>
+            {
+                result.exResult.ThrewException.Should().BeTrue();
+                result.exResult.Exception.Should().BeAssignableTo<InvalidOperationException>();
+                result.resultNumber.Should().NotBe(Number);
             });
-            Thread.Sleep(100);
-            try
-            {
-                result = dut.Execute(() => Number);
-            }
-            catch (Exception ex)
-            {
-                thrownException = ex;
-            }
-            are.Set();
-
-            Assert.IsNotNull(thrownException);
-            Assert.IsInstanceOfType(thrownException, typeof(InvalidOperationException));
-            Assert.AreNotEqual(Number, result);
-            Assert.AreEqual(Number, task.Result);
-        }
 
         [TestMethod]
-        public void TryToObtainWhileNotLocked_Succeeds()
-        {
-            Exception thrownException = null;
-
-            var dut = new Locker();
-
-            try
-            {
-                dut.Obtain();
-            }
-            catch (Exception ex)
-            {
-                thrownException = ex;
-            }
-
-            Assert.IsNull(thrownException);
-        }
+        public void TryToRunOneFunc_Succeeds() => Test
+            .Arrange(() => new Locker())
+            .Act(underTest => underTest.Execute(() => Number))
+            .Assert(result => result.Should().Be(Number));
 
         [TestMethod]
-        public void TryToObtainWhileLocked_LockerThrowsException()
-        {
-            Exception thrownException = null;
-
-            var are = new AutoResetEvent(false);
-            var dut = new Locker();
-
-            Task.Run(() => dut.Execute(() => { are.WaitOne(); }));
-            Thread.Sleep(100);
-            try
+        public void TryToRunSecondFuncInParallel_LockerThrowsException() => Test
+            .Arrange(() => (locker: new Locker(), are: new AutoResetEvent(false)))
+            .Act(underTest =>
             {
-                dut.Obtain();
-            }
-            catch (Exception ex)
+                var resultNumber = 0;
+                var task = Task.Run(() =>
+                {
+                    return underTest.locker.Execute(() =>
+                    {
+                        underTest.are.WaitOne();
+                        return Number;
+                    });
+                });
+                Thread.Sleep(100);
+                var exResult = Test.ForException(() => resultNumber = underTest.locker.Execute(() => Number));
+                underTest.are.Set();
+
+                return (task, exResult, resultNumber);
+            })
+            .Assert(result =>
             {
-                thrownException = ex;
-            }
-            are.Set();
-
-            Assert.IsNotNull(thrownException);
-            Assert.IsInstanceOfType(thrownException, typeof(InvalidOperationException));
-        }
-
-        [TestMethod]
-        public void TryToObtainTwice_LockerThrowsException()
-        {
-            Exception thrownException = null;
-
-            var are = new AutoResetEvent(false);
-            var dut = new Locker();
-
-            Task.Run(() =>
-            {
-                dut.Obtain();
-                are.WaitOne();
-                dut.Release();
+                result.exResult.ThrewException.Should().BeTrue();
+                result.exResult.Exception.Should().BeAssignableTo<InvalidOperationException>();
+                result.resultNumber.Should().NotBe(Number);
+                result.task.Result.Should().Be(Number);
             });
-            Thread.Sleep(100);
-            try
-            {
-                dut.Obtain();
-            }
-            catch (Exception ex)
-            {
-                thrownException = ex;
-            }
-            are.Set();
-
-            Assert.IsNotNull(thrownException);
-            Assert.IsInstanceOfType(thrownException, typeof(InvalidOperationException));
-        }
 
         [TestMethod]
-        public void TryToObtainAfterReleased_Succeeds()
-        {
-            Exception thrownException = null;
+        public void TryToObtainWhileNotLocked_Succeeds() => Test
+            .Arrange(() => new Locker())
+            .Act(underTest => Test.ForException(underTest.Obtain))
+            .Assert(result => result.ThrewException.Should().BeFalse());
 
-            var result1 = 0;
-            var result2 = 0;
-            var dut = new Locker();
-
-            dut.Obtain();
-            result1 = Number;
-            dut.Release();
-            Task.Run(() =>
+        [TestMethod]
+        public void TryToObtainWhileLocked_LockerThrowsException() => Test
+            .Arrange(() => (locker: new Locker(), are: new AutoResetEvent(false)))
+            .Act(underTest =>
             {
-                try
+                var (locker, are) = underTest;
+                Task.Run(() => locker.Execute(() => { are.WaitOne(); }));
+                Thread.Sleep(100);
+                var exResult = Test.ForException(() => locker.Obtain());
+                are.Set();
+
+                return exResult;
+            })
+            .Assert(result =>
+            {
+                result.ThrewException.Should().BeTrue();
+                result.Exception.Should().BeAssignableTo<InvalidOperationException>();
+            });
+
+        [TestMethod]
+        public void TryToObtainTwice_LockerThrowsException() => Test
+            .Arrange(() => (locker: new Locker(), are: new AutoResetEvent(false)))
+            .Act(underTest =>
+            {
+                Task.Run(() =>
                 {
-                    dut.Obtain();
-                    result2 = Number;
-                    dut.Release();
-                }
-                catch (Exception ex)
+                    underTest.locker.Obtain();
+                    underTest.are.WaitOne();
+                    underTest.locker.Release();
+                });
+                Thread.Sleep(100);
+                var result = Test.ForException(() => underTest.locker.Obtain());
+                underTest.are.Set();
+
+                return result;
+            })
+            .Assert(result =>
+            {
+                result.ThrewException.Should().BeTrue();
+                result.Exception.Should().BeAssignableTo<InvalidOperationException>();
+            });
+
+        [TestMethod]
+        public void TryToObtainAfterReleased_Succeeds() => Test
+            .Arrange(() => (locker: new Locker(), number1: 0, number2: 0))
+            .Act(underTest =>
+            {
+                var (locker, number1, number2) = underTest;
+                locker.Obtain();
+                number1 = Number;
+                locker.Release();
+                var exResult = Task.Run(() =>
                 {
-                    thrownException = ex;
-                }
-            }).GetAwaiter().GetResult();
-            
-            Assert.IsNull(thrownException);
-            Assert.AreEqual(Number, result1);
-            Assert.AreEqual(Number, result2);
-        }
+                    return Test.ForException(() =>
+                    {
+                        locker.Obtain();
+                        number2 = Number;
+                        locker.Release();
+                    });
+                }).GetAwaiter().GetResult();
+
+                return (exResult, number1, number2);
+            })
+            .Assert(result =>
+            {
+                result.exResult.ThrewException.Should().BeFalse();
+                result.number1.Should().Be(Number);
+                result.number2.Should().Be(Number);
+            });
     }
 }

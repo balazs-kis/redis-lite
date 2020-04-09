@@ -1,5 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RedisLite.Client.CommandBuilders;
+using RedisLite.Tests.TestHelpers;
 using System;
 using System.Linq;
 
@@ -8,129 +10,68 @@ namespace RedisLite.Tests.UnitTests
     [TestClass]
     public class CommandBuilderTests
     {
-        [TestMethod]
-        public void Test_WithKey()
-        {
-            const string key = "KEY";
-
-            var commandBuilder = new BasicCommandBuilder(RedisCommands.GET);
-            commandBuilder.WithKey(key);
-            var result = commandBuilder.ToString();
-
-            Assert.IsTrue(result.Contains(key));
-        }
+        private const string Key = "Key";
+        private const string Parameter = "V1";
+        private static readonly string[] Parameters = { "V1", "V2", "V3" };
 
         [TestMethod]
-        public void TestEmptyKey_WithKeyThrowsException()
-        {
-            Exception thrownException = null;
-
-            try
-            {
-                var commandBuilder = new BasicCommandBuilder(RedisCommands.GET);
-                commandBuilder.WithKey(string.Empty);
-            }
-            catch (Exception ex)
-            {
-                thrownException = ex;
-            }
-
-            Assert.IsNotNull(thrownException);
-            Assert.IsInstanceOfType(thrownException, typeof(ArgumentException));
-        }
+        public void WithKey_ResultContainsKey() => Test
+            .Arrange(() => new BasicCommandBuilder(RedisCommands.GET))
+            .Act(underTest => underTest.WithKey(Key).ToString())
+            .Assert(result => result.Should().Contain(Key));
 
         [TestMethod]
-        public void TestNullKey_WithKeyThrowsException()
-        {
-            Exception thrownException = null;
-
-            try
+        public void WithKeyCalledWithEmptyKey_ThrowsException() => Test
+            .Arrange(() => new BasicCommandBuilder(RedisCommands.GET))
+            .Act(underTest => Test.ForException(() => underTest.WithKey(string.Empty)))
+            .Assert(result =>
             {
-                var commandBuilder = new BasicCommandBuilder(RedisCommands.GET);
-                commandBuilder.WithKey(null);
-            }
-            catch (Exception ex)
-            {
-                thrownException = ex;
-            }
-
-            Assert.IsNotNull(thrownException);
-            Assert.IsInstanceOfType(thrownException, typeof(ArgumentException));
-        }
+                result.ThrewException.Should().BeTrue();
+                result.Exception.Should().BeAssignableTo<ArgumentException>();
+            });
 
         [TestMethod]
-        public void TestInvalidKey_WithKeyThrowsException()
-        {
-            Exception thrownException = null;
-
-            try
+        public void WithKeyCalledWithNullKey_ThrowsException() => Test
+            .Arrange(() => new BasicCommandBuilder(RedisCommands.GET))
+            .Act(underTest => Test.ForException(() => underTest.WithKey(null)))
+            .Assert(result =>
             {
-                var commandBuilder = new BasicCommandBuilder(RedisCommands.GET);
-                commandBuilder.WithKey("\t ");
-            }
-            catch (Exception ex)
-            {
-                thrownException = ex;
-            }
-
-            Assert.IsNotNull(thrownException);
-            Assert.IsInstanceOfType(thrownException, typeof(ArgumentException));
-        }
+                result.ThrewException.Should().BeTrue();
+                result.Exception.Should().BeAssignableTo<ArgumentException>();
+            });
 
         [TestMethod]
-        public void Test_WithStringParameter()
-        {
-            const string parameter = "V1";
-
-            var commandBuilder = new BasicCommandBuilder(RedisCommands.GET);
-            commandBuilder.WithParameter(parameter);
-            var result = commandBuilder.ToString();
-
-            Assert.IsTrue(result.Contains(parameter));
-        }
-
-        [TestMethod]
-        public void Test_WithObjectParameter()
-        {
-            const string stringParameter = "V1";
-            var parameter = stringParameter as object;
-
-            var commandBuilder = new BasicCommandBuilder(RedisCommands.GET);
-            commandBuilder.WithParameter(parameter);
-            var result = commandBuilder.ToString();
-
-            Assert.IsTrue(result.Contains(stringParameter));
-        }
-
-        [TestMethod]
-        public void Test_WithStringParameters()
-        {
-            var parameters = new[] { "V1", "V2", "V3" };
-
-            var commandBuilder = new BasicCommandBuilder(RedisCommands.GET);
-            commandBuilder.WithParameters(parameters);
-            var result = commandBuilder.ToString();
-
-            foreach (var p in parameters)
+        public void WithKeyCalledWithInvalidKey_ThrowsException() => Test
+            .Arrange(() => new BasicCommandBuilder(RedisCommands.GET))
+            .Act(underTest => Test.ForException(() => underTest.WithKey("\t ")))
+            .Assert(result =>
             {
-                Assert.IsTrue(result.Contains(p));
-            }
-        }
+                result.ThrewException.Should().BeTrue();
+                result.Exception.Should().BeAssignableTo<ArgumentException>();
+            });
 
         [TestMethod]
-        public void Test_WithObjectParameters()
-        {
-            var stringParameters = new[] { "V1", "V2", "V3" };
-            var parameters = stringParameters.Cast<object>();
+        public void WithStringParameter_ResultContainsParameter() => Test
+            .Arrange(() => new BasicCommandBuilder(RedisCommands.GET))
+            .Act(underTest => underTest.WithParameter(Parameter).ToString())
+            .Assert(result => result.Should().Contain(Parameter));
+        
+        [TestMethod]
+        public void WithObjectParameter_ResultContainsParameter() => Test
+            .Arrange(() => new BasicCommandBuilder(RedisCommands.GET))
+            .Act(underTest => underTest.WithParameter(Parameter as object).ToString())
+            .Assert(result => result.Should().Contain(Parameter));
 
-            var commandBuilder = new BasicCommandBuilder(RedisCommands.GET);
-            commandBuilder.WithParameters(parameters);
-            var result = commandBuilder.ToString();
+        [TestMethod]
+        public void WithStringParameters_ResultContainsParameters() => Test
+            .Arrange(() => new BasicCommandBuilder(RedisCommands.GET))
+            .Act(underTest => underTest.WithParameters(Parameters).ToString())
+            .Assert(result => result.Should().ContainAll(Parameters));
 
-            foreach (var p in stringParameters)
-            {
-                Assert.IsTrue(result.Contains(p));
-            }
-        }
+        [TestMethod]
+        public void WithObjectParameters_ResultContainsParameters() => Test
+            .Arrange(() => new BasicCommandBuilder(RedisCommands.GET))
+            .Act(underTest => underTest.WithParameters(Parameters.Cast<object>()).ToString())
+            .Assert(result => result.Should().ContainAll(Parameters));
     }
 }

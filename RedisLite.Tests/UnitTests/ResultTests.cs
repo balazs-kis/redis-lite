@@ -1,5 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RedisLite.Client;
+using RedisLite.Tests.TestHelpers;
 using System;
 
 namespace RedisLite.Tests.UnitTests
@@ -7,65 +9,45 @@ namespace RedisLite.Tests.UnitTests
     [TestClass]
     public class ResultTests
     {
-        [TestMethod]
-        public void TestFailureWithoutMessage_ResultConstructionThrowsException()
-        {
-            Exception thrownException = null;
-
-            try
-            {
-                Result.Fail(null);
-            }
-            catch (Exception ex)
-            {
-                thrownException = ex;
-            }
-
-            Assert.IsNotNull(thrownException);
-            Assert.IsInstanceOfType(thrownException, typeof(InvalidOperationException));
-        }
+        private const string ErrorMessage = "Message";
+        private const string ExceptionMessage = "Exception message";
 
         [TestMethod]
-        public void TestFailureWithEmptyMessage_ResultConstructionThrowsException()
-        {
-            Exception thrownException = null;
-
-            try
+        public void FailureResultConstructionWithoutMessage_ThrowsException() => Test
+            .ArrangeNotNeeded()
+            .Act(() => Test.ForException(() => Result.Fail(null)))
+            .Assert(result =>
             {
-                Result.Fail(string.Empty);
-            }
-            catch (Exception ex)
-            {
-                thrownException = ex;
-            }
-
-            Assert.IsNotNull(thrownException);
-            Assert.IsInstanceOfType(thrownException, typeof(InvalidOperationException));
-        }
+                result.ThrewException.Should().BeTrue();
+                result.Exception.Should().BeAssignableTo<InvalidOperationException>();
+            });
 
         [TestMethod]
-        public void TestOkResultToString_CorrectStringReturned()
-        {
-            var result = Result.Ok();
-            var resultAsString = result.ToString();
-
-            Assert.IsTrue(resultAsString.Contains("OK"));
-        }
+        public void FailureResultConstructionWithEmptyMessage_ThrowsException() => Test
+            .ArrangeNotNeeded()
+            .Act(() => Test.ForException(() => Result.Fail(string.Empty)))
+            .Assert(result =>
+            {
+                result.ThrewException.Should().BeTrue();
+                result.Exception.Should().BeAssignableTo<InvalidOperationException>();
+            });
 
         [TestMethod]
-        public void TestFailureResultToString_CorrectStringReturned()
-        {
-            const string errorMessage = "Message";
-            const string exceptionMessage = "Exception message";
-            var exceptionType = typeof(Exception);
+        public void OkResultToString_CorrectStringReturned() => Test
+            .ArrangeNotNeeded()
+            .Act(() => Result.Ok().ToString())
+            .Assert(result => result.Should().Contain("OK"));
 
-            var result = Result.Fail(errorMessage, new Exception(exceptionMessage));
-            var resultAsString = result.ToString();
-
-            Assert.IsTrue(resultAsString.Contains("FAIL"));
-            Assert.IsTrue(resultAsString.Contains(errorMessage));
-            Assert.IsTrue(resultAsString.Contains(exceptionMessage));
-            Assert.IsTrue(resultAsString.Contains(exceptionType.Name));
-        }
+        [TestMethod]
+        public void TestFailureResultToString_CorrectStringReturned() => Test
+            .ArrangeNotNeeded()
+            .Act(() => Result.Fail(ErrorMessage, new AccessViolationException(ExceptionMessage)).ToString())
+            .Assert(result =>
+            {
+                result.Should().Contain("FAIL");
+                result.Should().Contain(ErrorMessage);
+                result.Should().Contain(ExceptionMessage);
+                result.Should().Contain(typeof(AccessViolationException).Name);
+            });
     }
 }
