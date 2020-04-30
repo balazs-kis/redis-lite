@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+// ReSharper disable InconsistentNaming
 namespace RedisLite.Client.Contracts
 {
     public interface IRedisClient : IDisposable
@@ -34,6 +35,7 @@ namespace RedisLite.Client.Contracts
         long SRem(string key, params string[] members);
         IEnumerable<string> SMembers(string key);
         bool SIsMember(string key, string member);
+        long SCard(string key);
 
         string LoadScript(string script);
         IEnumerable<object> EvalSha(string sha, string[] parameters);

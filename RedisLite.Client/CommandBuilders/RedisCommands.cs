@@ -33,6 +33,7 @@ namespace RedisLite.Client.CommandBuilders
         SREM,
         SISMEMBER,
         SMEMBERS,
+        SCARD,
         SWAPDB
     }
 }

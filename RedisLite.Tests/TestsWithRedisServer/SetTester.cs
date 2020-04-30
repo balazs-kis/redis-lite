@@ -156,6 +156,43 @@ namespace RedisLite.Tests.TestsWithRedisServer
             Assert.IsInstanceOfType(thrownException, typeof(RedisException));
         }
 
+        [TestMethod]
+        public void Test_SCard()
+        {
+            var dut = new RedisClient();
+            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+
+            dut.SAdd(SetKey, SetValue1);
+            dut.SAdd(SetKey, SetValue2);
+            var result = dut.SCard(SetKey);
+
+            Assert.AreEqual(2, result);
+        }
+
+        [TestMethod]
+        public void TestWrongOperation_SCardThrowsException()
+        {
+            Exception thrownException = null;
+
+            var dut = new RedisClient();
+            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            long result = 0;
+
+            try
+            {
+                dut.Set(SetKey, SetValue1);
+                result = dut.SCard(SetKey);
+            }
+            catch (Exception ex)
+            {
+                thrownException = ex;
+            }
+
+            Assert.AreEqual(0, result);
+            Assert.IsNotNull(thrownException);
+            Assert.IsInstanceOfType(thrownException, typeof(RedisException));
+        }
+
 
         [TestCleanup]
         public void Cleanup()

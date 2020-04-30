@@ -339,6 +339,21 @@ namespace RedisLite.Client
                 return result.Value;
             });
 
+        public long SCard(string key) =>
+            ExecuteWithSession(session =>
+            {
+                var result = _setClient.SCard(session, key);
+
+                if (result.IsFailure)
+                {
+                    throw new RedisException(
+                        $"Error while getting the cardinality of the set '{key}' [REDIS CODE: {result.Error}]",
+                        result.Exception);
+                }
+
+                return result.Value;
+            });
+
 
         public string LoadScript(string script) =>
             ExecuteWithSession(session =>

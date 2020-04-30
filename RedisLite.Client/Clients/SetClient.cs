@@ -99,5 +99,28 @@ namespace RedisLite.Client.Clients
                 return Result.Fail<List<string>>(ex.Message, ex);
             }
         }
+
+        public Result<long> SCard(ISession session, string key)
+        {
+            try
+            {
+                var command =
+                    new BasicCommandBuilder(RedisCommands.SCARD)
+                        .WithKey(key)
+                        .ToString();
+
+                var response = SendCommandAndReadResponse(session, command);
+                var responseString = response[0]?.ToString();
+
+                var isOk = long.TryParse(responseString, out var result);
+                return isOk
+                    ? Result.Ok(result)
+                    : Result.Fail<long>(responseString);
+            }
+            catch (Exception ex)
+            {
+                return Result.Fail<long>(ex.Message, ex);
+            }
+        }
     }
 }
