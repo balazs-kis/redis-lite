@@ -39,6 +39,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
             })
             .Assert(result => result.StringValue.Should().Be(Value));
         
+        
         [TestCleanup]
         public void Cleanup()
         {

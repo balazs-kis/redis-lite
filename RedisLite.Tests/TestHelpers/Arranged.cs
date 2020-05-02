@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 
 namespace RedisLite.Tests.TestHelpers
 {
@@ -24,6 +25,25 @@ namespace RedisLite.Tests.TestHelpers
         public Acted<TResult> Act<TResult>(Func<T, TResult> actFunc)
         {
             var result = actFunc.Invoke(_underTest);
+
+            return new Acted<TResult>(result);
+        }
+    }
+    
+    internal class Arranged<T, TParameter>
+    {
+        private readonly T _underTest;
+        private readonly TParameter _parameter;
+
+        public Arranged(T underTest, TParameter parameter)
+        {
+            _underTest = underTest;
+            _parameter = parameter;
+        }
+
+        public Acted<TResult> Act<TResult>(Func<T, TParameter,  TResult> actFunc)
+        {
+            var result = actFunc.Invoke(_underTest, _parameter);
 
             return new Acted<TResult>(result);
         }

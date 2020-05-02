@@ -9,6 +9,12 @@ namespace RedisLite.Tests.TestHelpers
             var underTest = arrangeAction.Invoke();
             return new Arranged<T>(underTest);
         }
+        
+        public static Arranged<T, TParameter> Arrange<T, TParameter>(Func<Tuple<T, TParameter>> arrangeAction)
+        {
+            var (underTest, parameter) = arrangeAction.Invoke();
+            return new Arranged<T, TParameter>(underTest, parameter);
+        }
 
         public static Arranged ArrangeNotNeeded()
         {
