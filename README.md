@@ -13,15 +13,18 @@ Redis Lite is a small, simple redis client for .NET (Standard). It implements th
 ### RedisClient
 Create a `RedisClient` and connect it to the redis server of your choosing:
 ```csharp
-var client = new RedisClient();
-var connectionSettings = new ConnectionSettings(address: "127.0.0.1", port: 6379);
-client.Connect(connectionSettings);
+using(var client = new RedisClient())
+{
+    var connectionSettings = new ConnectionSettings(address: "127.0.0.1", port: 6379);
+    client.Connect(connectionSettings);
 ```
 Then you can start *commanding*:
 ```csharp
-client.Set("MyKey", "MyValue");
-var result = client.Get("MyKey");
-client.Del("MyKey");
+    client.Set("MyKey", "MyValue");
+    var result = client.Get("MyKey");
+    client.Del("MyKey");
+    ...
+}
 ```
 
 ### RedisSubscriptionClient
