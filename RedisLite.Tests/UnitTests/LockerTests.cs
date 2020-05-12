@@ -105,26 +105,17 @@ namespace RedisLite.Tests.UnitTests
             {
                 Task.Run(() => locker.Execute(() => { are.WaitOne(); }));
                 Thread.Sleep(100);
-
-                Exception thrownException = default;
-                try
-                {
-                    locker.Obtain();
-                }
-                catch (Exception ex)
-                {
-                    thrownException = ex;
-                }
+                var exResult = Test.ForException(locker.Obtain);
                 are.Set();
 
-                return thrownException;
+                return exResult;
             })
             .Assert(result =>
             {
                 //result.IsFailure.Should().BeTrue();
                 //result.Exception.Should().BeAssignableTo<InvalidOperationException>();
-                result.Value.Should().NotBeNull();
-                result.Value.Should().BeAssignableTo<InvalidOperationException>();
+                result.Value.IsFailure.Should().BeTrue();
+                result.Value.Exception.Should().BeAssignableTo<InvalidOperationException>();
             });
 
         [TestMethod]
@@ -145,26 +136,17 @@ namespace RedisLite.Tests.UnitTests
                     locker.Release();
                 });
                 Thread.Sleep(100);
-
-                Exception thrownException = default;
-                try
-                {
-                    locker.Obtain();
-                }
-                catch (Exception ex)
-                {
-                    thrownException = ex;
-                }
+                var result = Test.ForException(locker.Obtain);
                 are.Set();
 
-                return thrownException;
+                return result;
             })
             .Assert(result =>
             {
                 //result.IsFailure.Should().BeTrue();
                 //result.Exception.Should().BeAssignableTo<InvalidOperationException>();
-                result.Value.Should().NotBeNull();
-                result.Value.Should().BeAssignableTo<InvalidOperationException>();
+                result.Value.IsFailure.Should().BeTrue();
+                result.Value.Exception.Should().BeAssignableTo<InvalidOperationException>();
             });
 
         [TestMethod]

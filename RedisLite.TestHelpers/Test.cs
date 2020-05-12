@@ -27,5 +27,19 @@ namespace RedisLite.TestHelpers
             var (underTest, parameter1, parameter2) = arrangeFunc.Invoke();
             return new Arranged<T, TParameter1, TParameter2>(underTest, parameter1, parameter2);
         }
+
+        public static ActResult ForException(Action action)
+        {
+            try
+            {
+                action.Invoke();
+            }
+            catch (Exception ex)
+            {
+                return ActResult.ThrewException(ex);
+            }
+
+            return ActResult.Ok();
+        }
     }
 }
