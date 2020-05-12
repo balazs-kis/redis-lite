@@ -103,7 +103,7 @@ namespace RedisLite.Tests.UnitTests
             .Act((locker, are) =>
             {
                 Task.Run(() => locker.Execute(() => { are.WaitOne(); }));
-                Thread.Sleep(100);
+                Thread.Sleep(200);
                 locker.Obtain();
             })
             .Assert(result =>
@@ -128,7 +128,7 @@ namespace RedisLite.Tests.UnitTests
                     are.WaitOne();
                     locker.Release();
                 });
-                Thread.Sleep(100);
+                Thread.Sleep(200);
                 locker.Obtain();
             })
             .Assert(result =>
