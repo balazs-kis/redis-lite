@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RedisLite.Client\RedisLite.Client.csproj" />
+    <ProjectReference Include="..\RedisLite.TestHelpers\RedisLite.TestHelpers.csproj" />
   </ItemGroup>
 
 </Project>

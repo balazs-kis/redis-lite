@@ -14,7 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisLite.Tests", "RedisLite.Tests\RedisLite.Tests.csproj", "{FDD36451-533A-4436-B6F0-72E3ECB40627}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RedisLite.Tests", "RedisLite.Tests\RedisLite.Tests.csproj", "{FDD36451-533A-4436-B6F0-72E3ECB40627}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Logo", "Logo", "{9A93EE3E-7C8E-48B6-AC34-1082A6D3FA35}"
 	ProjectSection(SolutionItems) = preProject
@@ -23,6 +23,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Logo", "Logo", "{9A93EE3E-7
 		Logo\logo.png = Logo\logo.png
 		Logo\logo.svg = Logo\logo.svg
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisLite.TestHelpers", "RedisLite.TestHelpers\RedisLite.TestHelpers.csproj", "{EEC6257E-BEBF-4646-89CD-E5057EB5B65E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,6 +44,10 @@ Global
 		{FDD36451-533A-4436-B6F0-72E3ECB40627}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FDD36451-533A-4436-B6F0-72E3ECB40627}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FDD36451-533A-4436-B6F0-72E3ECB40627}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EEC6257E-BEBF-4646-89CD-E5057EB5B65E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EEC6257E-BEBF-4646-89CD-E5057EB5B65E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EEC6257E-BEBF-4646-89CD-E5057EB5B65E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EEC6257E-BEBF-4646-89CD-E5057EB5B65E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

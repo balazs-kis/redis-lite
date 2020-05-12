@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace RedisLite.Tests.TestHelpers
+namespace RedisLite.TestHelpers
 {
-    internal class Acted<T>
+    public sealed class Acted<T>
     {
         private readonly T _result;
 

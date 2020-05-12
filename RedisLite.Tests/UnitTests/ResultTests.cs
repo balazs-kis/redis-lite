@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RedisLite.Client;
-using RedisLite.Tests.TestHelpers;
+using RedisLite.TestHelpers;
 using System;
 
 namespace RedisLite.Tests.UnitTests
@@ -15,20 +15,20 @@ namespace RedisLite.Tests.UnitTests
         [TestMethod]
         public void FailureResultConstructionWithoutMessage_ThrowsException() => Test
             .ArrangeNotNeeded()
-            .Act(() => Test.ForException(() => Result.Fail(null)))
+            .Act(() => Result.Fail(null))
             .Assert(result =>
             {
-                result.ThrewException.Should().BeTrue();
+                result.IsFailure.Should().BeTrue();
                 result.Exception.Should().BeAssignableTo<InvalidOperationException>();
             });
 
         [TestMethod]
         public void FailureResultConstructionWithEmptyMessage_ThrowsException() => Test
             .ArrangeNotNeeded()
-            .Act(() => Test.ForException(() => Result.Fail(string.Empty)))
+            .Act(() => Result.Fail(string.Empty))
             .Assert(result =>
             {
-                result.ThrewException.Should().BeTrue();
+                result.IsFailure.Should().BeTrue();
                 result.Exception.Should().BeAssignableTo<InvalidOperationException>();
             });
 
@@ -36,7 +36,7 @@ namespace RedisLite.Tests.UnitTests
         public void OkResultToString_CorrectStringReturned() => Test
             .ArrangeNotNeeded()
             .Act(() => Result.Ok().ToString())
-            .Assert(result => result.Should().Contain("OK"));
+            .Assert(result => result.Value.Should().Contain("OK"));
 
         [TestMethod]
         public void TestFailureResultToString_CorrectStringReturned() => Test
@@ -44,10 +44,10 @@ namespace RedisLite.Tests.UnitTests
             .Act(() => Result.Fail(ErrorMessage, new AccessViolationException(ExceptionMessage)).ToString())
             .Assert(result =>
             {
-                result.Should().Contain("FAIL");
-                result.Should().Contain(ErrorMessage);
-                result.Should().Contain(ExceptionMessage);
-                result.Should().Contain(typeof(AccessViolationException).Name);
+                result.Value.Should().Contain("FAIL");
+                result.Value.Should().Contain(ErrorMessage);
+                result.Value.Should().Contain(ExceptionMessage);
+                result.Value.Should().Contain(typeof(AccessViolationException).Name);
             });
     }
 }

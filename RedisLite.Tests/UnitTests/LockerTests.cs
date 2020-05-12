@@ -4,7 +4,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using RedisLite.Tests.TestHelpers;
+using RedisLite.TestHelpers;
 
 namespace RedisLite.Tests.UnitTests
 {
@@ -23,138 +23,145 @@ namespace RedisLite.Tests.UnitTests
 
                 return result;
             })
-            .Assert(result => result.Should().Be(Number));
+            .Assert(result => result.Value.Should().Be(Number));
 
         [TestMethod]
         public void TryToRunSecondActionInParallel_LockerThrowsException() => Test
-            .Arrange(() => (locker: new Locker(), are: new AutoResetEvent(false)))
-            .Act(underTest =>
+            .Arrange(() =>
+            {
+                var locker = new Locker();
+                var are = new AutoResetEvent(false);
+                return (locker, are);
+            })
+            .Act((locker, are) =>
             {
                 var resultNumber = 0;
-                var exResult = Test.ForException(() =>
-                {
-                    Task.Run(() => underTest.locker.Execute(() => { underTest.are.WaitOne(); }));
-                    Thread.Sleep(100);
-                    underTest.locker.Execute(() => { resultNumber = Number; });
-                });
 
-                return (exResult, resultNumber);
+                Task.Run(() => locker.Execute(() => { are.WaitOne(); }));
+                Thread.Sleep(100);
+                locker.Execute(() => { resultNumber = Number; });
+
+                return resultNumber;
             })
             .Assert(result =>
             {
-                result.exResult.ThrewException.Should().BeTrue();
-                result.exResult.Exception.Should().BeAssignableTo<InvalidOperationException>();
-                result.resultNumber.Should().NotBe(Number);
+                result.IsFailure.Should().BeTrue();
+                result.Exception.Should().BeAssignableTo<InvalidOperationException>();
+                result.Value.Should().NotBe(Number);
             });
 
         [TestMethod]
         public void TryToRunOneFunc_Succeeds() => Test
             .Arrange(() => new Locker())
             .Act(underTest => underTest.Execute(() => Number))
-            .Assert(result => result.Should().Be(Number));
+            .Assert(result => result.Value.Should().Be(Number));
 
         [TestMethod]
         public void TryToRunSecondFuncInParallel_LockerThrowsException() => Test
-            .Arrange(() => (locker: new Locker(), are: new AutoResetEvent(false)))
-            .Act(underTest =>
+            .Arrange(() =>
             {
-                var resultNumber = 0;
-                var task = Task.Run(() =>
+                var locker = new Locker();
+                var are = new AutoResetEvent(false);
+                return (locker, are);
+            })
+            .Act((locker, are) =>
+            {
+                Task.Run(() =>
                 {
-                    return underTest.locker.Execute(() =>
+                    return locker.Execute(() =>
                     {
-                        underTest.are.WaitOne();
+                        are.WaitOne();
                         return Number;
                     });
                 });
                 Thread.Sleep(100);
-                var exResult = Test.ForException(() => resultNumber = underTest.locker.Execute(() => Number));
-                underTest.are.Set();
-
-                return (task, exResult, resultNumber);
+                var resultNumber = locker.Execute(() => Number);
+                
+                return resultNumber;
             })
             .Assert(result =>
             {
-                result.exResult.ThrewException.Should().BeTrue();
-                result.exResult.Exception.Should().BeAssignableTo<InvalidOperationException>();
-                result.resultNumber.Should().NotBe(Number);
-                result.task.Result.Should().Be(Number);
+                result.IsFailure.Should().BeTrue();
+                result.Exception.Should().BeAssignableTo<InvalidOperationException>();
+                result.Value.Should().NotBe(Number);
             });
 
         [TestMethod]
         public void TryToObtainWhileNotLocked_Succeeds() => Test
             .Arrange(() => new Locker())
-            .Act(underTest => Test.ForException(underTest.Obtain))
-            .Assert(result => result.ThrewException.Should().BeFalse());
+            .Act(underTest => underTest.Obtain())
+            .Assert(result => result.IsSuccess.Should().BeTrue());
 
         [TestMethod]
         public void TryToObtainWhileLocked_LockerThrowsException() => Test
-            .Arrange(() => (locker: new Locker(), are: new AutoResetEvent(false)))
-            .Act(underTest =>
+            .Arrange(() =>
             {
-                var (locker, are) = underTest;
+                var locker = new Locker();
+                var are = new AutoResetEvent(false);
+                return (locker, are);
+            })
+            .Act((locker, are) =>
+            {
                 Task.Run(() => locker.Execute(() => { are.WaitOne(); }));
                 Thread.Sleep(100);
-                var exResult = Test.ForException(() => locker.Obtain());
-                are.Set();
-
-                return exResult;
+                locker.Obtain();
             })
             .Assert(result =>
             {
-                result.ThrewException.Should().BeTrue();
+                result.IsFailure.Should().BeTrue();
                 result.Exception.Should().BeAssignableTo<InvalidOperationException>();
             });
 
         [TestMethod]
         public void TryToObtainTwice_LockerThrowsException() => Test
-            .Arrange(() => (locker: new Locker(), are: new AutoResetEvent(false)))
-            .Act(underTest =>
+            .Arrange(() =>
+            {
+                var locker = new Locker();
+                var are = new AutoResetEvent(false);
+                return (locker, are);
+            })
+            .Act((locker, are) =>
             {
                 Task.Run(() =>
                 {
-                    underTest.locker.Obtain();
-                    underTest.are.WaitOne();
-                    underTest.locker.Release();
+                    locker.Obtain();
+                    are.WaitOne();
+                    locker.Release();
                 });
                 Thread.Sleep(100);
-                var result = Test.ForException(() => underTest.locker.Obtain());
-                underTest.are.Set();
-
-                return result;
+                locker.Obtain();
             })
             .Assert(result =>
             {
-                result.ThrewException.Should().BeTrue();
+                result.IsFailure.Should().BeTrue();
                 result.Exception.Should().BeAssignableTo<InvalidOperationException>();
             });
 
         [TestMethod]
         public void TryToObtainAfterReleased_Succeeds() => Test
-            .Arrange(() => (locker: new Locker(), number1: 0, number2: 0))
-            .Act(underTest =>
+            .Arrange(() => new Locker())
+            .Act(locker =>
             {
-                var (locker, number1, number2) = underTest;
+                int number1;
+                var number2 = 0;
+
                 locker.Obtain();
                 number1 = Number;
                 locker.Release();
-                var exResult = Task.Run(() =>
+                Task.Run(() =>
                 {
-                    return Test.ForException(() =>
-                    {
-                        locker.Obtain();
+                    locker.Obtain();
                         number2 = Number;
                         locker.Release();
-                    });
                 }).GetAwaiter().GetResult();
 
-                return (exResult, number1, number2);
+                return (number1, number2);
             })
             .Assert(result =>
             {
-                result.exResult.ThrewException.Should().BeFalse();
-                result.number1.Should().Be(Number);
-                result.number2.Should().Be(Number);
+                result.IsSuccess.Should().BeTrue();
+                result.Value.number1.Should().Be(Number);
+                result.Value.number2.Should().Be(Number);
             });
     }
 }

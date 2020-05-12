@@ -3,7 +3,7 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RedisLite.Client;
 using RedisLite.Tests.TestConfigurations;
-using RedisLite.Tests.TestHelpers;
+using RedisLite.TestHelpers;
 
 namespace RedisLite.Tests.TestsWithRedisServer
 {
@@ -32,12 +32,12 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 };
                 return (client, result);
             })
-            .Act(underTest =>
+            .Act((client, result) =>
             {
-                underTest.client.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                return underTest.result;
+                client.Connect(LocalHostDefaultPort.AsConnectionSettings());
+                return result;
             })
-            .Assert(result => result.StringValue.Should().Be(Value));
+            .Assert(result => result.Value.StringValue.Should().Be(Value));
         
         
         [TestCleanup]

@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RedisLite.Client;
 using RedisLite.Client.Exceptions;
 using RedisLite.Tests.TestConfigurations;
-using RedisLite.Tests.TestHelpers;
+using RedisLite.TestHelpers;
 using System;
 using System.Net.Sockets;
 using System.Threading;
@@ -22,40 +22,40 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public void Connect_ConnectsSuccessfully() => Test
             .Arrange(() => new RedisClient())
-            .Act(underTest => Test.ForException(() => underTest.Connect(LocalHostDefaultPort.AsConnectionSettings())))
-            .Assert(result => result.ThrewException.Should().BeFalse());
+            .Act(underTest => underTest.Connect(LocalHostDefaultPort.AsConnectionSettings()))
+            .Assert(result => result.IsSuccess.Should().BeTrue());
 
         [TestMethod]
         public void ConnectToUnknownHost_ThrowsException() => Test
             .Arrange(() => new RedisClient())
-            .Act(underTest => Test.ForException(() => underTest.Connect(UnknownHost.AsConnectionSettings())))
+            .Act(underTest => underTest.Connect(UnknownHost.AsConnectionSettings()))
             .Assert(result =>
             {
-                result.ThrewException.Should().BeTrue();
+                result.IsFailure.Should().BeTrue();
                 result.Exception.Should().BeAssignableTo<SocketException>();
             });
 
         [TestMethod]
         public void ConnectToKnownHostWrongPort_ThrowsException() => Test
             .Arrange(() => new RedisClient())
-            .Act(underTest => Test.ForException(() => underTest.Connect(LocalHostPort7000.AsConnectionSettings())))
+            .Act(underTest => underTest.Connect(LocalHostPort7000.AsConnectionSettings()))
             .Assert(result =>
             {
-                result.ThrewException.Should().BeTrue();
+                result.IsFailure.Should().BeTrue();
                 result.Exception.Should().BeAssignableTo<SocketException>();
             });
 
         [TestMethod]
         public void ConnectCalledTwice_ThrowsException() => Test
             .Arrange(() => new RedisClient())
-            .Act(underTest => Test.ForException(() =>
+            .Act(underTest => 
             {
                 underTest.Connect(LocalHostDefaultPort.AsConnectionSettings());
                 underTest.Connect(LocalHostDefaultPort.AsConnectionSettings());
-            }))
+            })
             .Assert(result =>
             {
-                result.ThrewException.Should().BeTrue();
+                result.IsFailure.Should().BeTrue();
                 result.Exception.Should().BeAssignableTo<InvalidOperationException>();
             });
 
@@ -69,10 +69,10 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
                 return client;
             })
-            .Act(underTest => Test.ForException(() => underTest.Set(Key, Value)))
+            .Act(underTest => underTest.Set(Key, Value))
             .Assert(result =>
             {
-                result.ThrewException.Should().BeTrue();
+                result.IsFailure.Should().BeTrue();
                 result.Exception.Should().BeAssignableTo<InvalidOperationException>();
             });
 
@@ -97,8 +97,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
             })
             .Assert(result =>
             {
-                result.result1.Should().Be(Value);
-                result.result2.Should().BeNull();
+                result.Value.result1.Should().Be(Value);
+                result.Value.result2.Should().BeNull();
             });
 
         [TestMethod]
@@ -110,10 +110,10 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
                 return client;
             })
-            .Act(underTest => Test.ForException(() => underTest.Select(int.MaxValue)))
+            .Act(underTest => underTest.Select(int.MaxValue))
             .Assert(result =>
             {
-                result.ThrewException.Should().BeTrue();
+                result.IsFailure.Should().BeTrue();
                 result.Exception.Should().BeAssignableTo<RedisException>();
             });
 
@@ -136,8 +136,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
             })
             .Assert(result =>
             {
-                result.result1.Should().BeTrue();
-                result.result2.Should().BeFalse();
+                result.Value.result1.Should().BeTrue();
+                result.Value.result2.Should().BeFalse();
             });
 
         [TestMethod]
@@ -160,8 +160,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
             })
             .Assert(result =>
             {
-                result.result1.Should().Be(Value);
-                result.result2.Should().BeNull();
+                result.Value.result1.Should().Be(Value);
+                result.Value.result2.Should().BeNull();
             });
 
         [TestMethod]
@@ -185,8 +185,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
             })
             .Assert(result =>
             {
-                result.result1.Should().BeNull();
-                result.result2.Should().BeNull();
+                result.Value.result1.Should().BeNull();
+                result.Value.result2.Should().BeNull();
             });
 
         [TestMethod]
@@ -211,8 +211,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
             })
             .Assert(result =>
             {
-                result.result1.Should().BeNull();
-                result.result2.Should().BeNull();
+                result.Value.result1.Should().BeNull();
+                result.Value.result2.Should().BeNull();
             });
 
         [TestMethod]
@@ -231,7 +231,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
                 return underTest.DbSize();
             })
-            .Assert(result => result.Should().Be(2));
+            .Assert(result => result.Value.Should().Be(2));
 
         [TestMethod]
         public void SwapDb_ClientConnectedToCorrectDb() => Test
@@ -255,8 +255,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
             })
             .Assert(result =>
             {
-                result.existsOnDb0.Should().BeFalse();
-                result.readValueFromDb7.Should().Be(Value);
+                result.Value.existsOnDb0.Should().BeFalse();
+                result.Value.readValueFromDb7.Should().Be(Value);
             });
 
         [TestMethod]
@@ -268,10 +268,10 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
                 return client;
             })
-            .Act(underTest => Test.ForException(() => underTest.SwapDb(int.MaxValue, int.MaxValue - 1)))
+            .Act(underTest => underTest.SwapDb(int.MaxValue, int.MaxValue - 1))
             .Assert(result =>
             {
-                result.ThrewException.Should().BeTrue();
+                result.IsFailure.Should().BeTrue();
                 result.Exception.Should().BeAssignableTo<RedisException>();
             });
 

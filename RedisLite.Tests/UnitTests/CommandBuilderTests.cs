@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RedisLite.Client.CommandBuilders;
-using RedisLite.Tests.TestHelpers;
+using RedisLite.TestHelpers;
 using System;
 using System.Linq;
 
@@ -18,35 +18,35 @@ namespace RedisLite.Tests.UnitTests
         public void WithKey_ResultContainsKey() => Test
             .Arrange(() => new BasicCommandBuilder(RedisCommands.GET))
             .Act(underTest => underTest.WithKey(Key).ToString())
-            .Assert(result => result.Should().Contain(Key));
+            .Assert(result => result.Value.Should().Contain(Key));
 
         [TestMethod]
         public void WithKeyCalledWithEmptyKey_ThrowsException() => Test
             .Arrange(() => new BasicCommandBuilder(RedisCommands.GET))
-            .Act(underTest => Test.ForException(() => underTest.WithKey(string.Empty)))
+            .Act(underTest => underTest.WithKey(string.Empty))
             .Assert(result =>
             {
-                result.ThrewException.Should().BeTrue();
+                result.IsFailure.Should().BeTrue();
                 result.Exception.Should().BeAssignableTo<ArgumentException>();
             });
 
         [TestMethod]
         public void WithKeyCalledWithNullKey_ThrowsException() => Test
             .Arrange(() => new BasicCommandBuilder(RedisCommands.GET))
-            .Act(underTest => Test.ForException(() => underTest.WithKey(null)))
+            .Act(underTest => underTest.WithKey(null))
             .Assert(result =>
             {
-                result.ThrewException.Should().BeTrue();
+                result.IsFailure.Should().BeTrue();
                 result.Exception.Should().BeAssignableTo<ArgumentException>();
             });
 
         [TestMethod]
         public void WithKeyCalledWithInvalidKey_ThrowsException() => Test
             .Arrange(() => new BasicCommandBuilder(RedisCommands.GET))
-            .Act(underTest => Test.ForException(() => underTest.WithKey("\t ")))
+            .Act(underTest => underTest.WithKey("\t "))
             .Assert(result =>
             {
-                result.ThrewException.Should().BeTrue();
+                result.IsFailure.Should().BeTrue();
                 result.Exception.Should().BeAssignableTo<ArgumentException>();
             });
 
@@ -54,24 +54,24 @@ namespace RedisLite.Tests.UnitTests
         public void WithStringParameter_ResultContainsParameter() => Test
             .Arrange(() => new BasicCommandBuilder(RedisCommands.GET))
             .Act(underTest => underTest.WithParameter(Parameter).ToString())
-            .Assert(result => result.Should().Contain(Parameter));
+            .Assert(result => result.Value.Should().Contain(Parameter));
         
         [TestMethod]
         public void WithObjectParameter_ResultContainsParameter() => Test
             .Arrange(() => new BasicCommandBuilder(RedisCommands.GET))
             .Act(underTest => underTest.WithParameter(Parameter as object).ToString())
-            .Assert(result => result.Should().Contain(Parameter));
+            .Assert(result => result.Value.Should().Contain(Parameter));
 
         [TestMethod]
         public void WithStringParameters_ResultContainsParameters() => Test
             .Arrange(() => new BasicCommandBuilder(RedisCommands.GET))
             .Act(underTest => underTest.WithParameters(Parameters).ToString())
-            .Assert(result => result.Should().ContainAll(Parameters));
+            .Assert(result => result.Value.Should().ContainAll(Parameters));
 
         [TestMethod]
         public void WithObjectParameters_ResultContainsParameters() => Test
             .Arrange(() => new BasicCommandBuilder(RedisCommands.GET))
             .Act(underTest => underTest.WithParameters(Parameters.Cast<object>()).ToString())
-            .Assert(result => result.Should().ContainAll(Parameters));
+            .Assert(result => result.Value.Should().ContainAll(Parameters));
     }
 }

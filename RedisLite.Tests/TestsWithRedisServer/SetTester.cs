@@ -4,7 +4,7 @@ using RedisLite.Client.Exceptions;
 using RedisLite.Tests.TestConfigurations;
 using System.Linq;
 using FluentAssertions;
-using RedisLite.Tests.TestHelpers;
+using RedisLite.TestHelpers;
 
 namespace RedisLite.Tests.TestsWithRedisServer
 {
@@ -30,8 +30,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
             })
             .Assert(result =>
             {
-                result.Count.Should().Be(1);
-                result.First().Should().Be(SetValue1);
+                result.Value.Count.Should().Be(1);
+                result.Value.First().Should().Be(SetValue1);
             });
 
         [TestMethod]
@@ -42,14 +42,14 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 client.Connect(LocalHostDefaultPort.AsConnectionSettings());
                 return client;
             })
-            .Act(underTest => Test.ForException(() =>
+            .Act(underTest =>
             {
                 underTest.Set(SetKey, SetValue1);
                 underTest.SAdd(SetKey, SetValue2);
-            }))
+            })
             .Assert(result =>
             {
-                result.ThrewException.Should().BeTrue();
+                result.IsFailure.Should().BeTrue();
                 result.Exception.Should().BeAssignableTo<RedisException>();
             });
 
@@ -67,7 +67,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 underTest.SRem(SetKey, SetValue1);
                 return underTest.SMembers(SetKey).ToList();
             })
-            .Assert(result => result.Count.Should().Be(0));
+            .Assert(result => result.Value.Count.Should().Be(0));
 
         [TestMethod]
         public void TestWrongOperation_SRemThrowsException() => Test
@@ -77,14 +77,14 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 client.Connect(LocalHostDefaultPort.AsConnectionSettings());
                 return client;
             })
-            .Act(underTest => Test.ForException(() =>
+            .Act(underTest =>
             {
                 underTest.Set(SetKey, SetValue1);
                 underTest.SRem(SetKey, SetValue1);
-            }))
+            })
             .Assert(result =>
             {
-                result.ThrewException.Should().BeTrue();
+                result.IsFailure.Should().BeTrue();
                 result.Exception.Should().BeAssignableTo<RedisException>();
             });
 
@@ -103,9 +103,9 @@ namespace RedisLite.Tests.TestsWithRedisServer
             })
             .Assert(result =>
             {
-                result.Count.Should().Be(2);
-                result.Should().Contain(SetValue1);
-                result.Should().Contain(SetValue2);
+                result.Value.Count.Should().Be(2);
+                result.Value.Should().Contain(SetValue1);
+                result.Value.Should().Contain(SetValue2);
             });
 
         [TestMethod]
@@ -116,14 +116,14 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 client.Connect(LocalHostDefaultPort.AsConnectionSettings());
                 return client;
             })
-            .Act(underTest => Test.ForException(() =>
+            .Act(underTest =>
             {
                 underTest.Set(SetKey, SetValue1);
                 underTest.SMembers(SetKey);
-            }))
+            })
             .Assert(result =>
             {
-                result.ThrewException.Should().BeTrue();
+                result.IsFailure.Should().BeTrue();
                 result.Exception.Should().BeAssignableTo<RedisException>();
             });
         
@@ -144,8 +144,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
             })
             .Assert(results =>
             {
-                results.result1.Should().BeTrue();
-                results.result2.Should().BeFalse();
+                results.Value.result1.Should().BeTrue();
+                results.Value.result2.Should().BeFalse();
             });
 
         [TestMethod]
@@ -156,14 +156,14 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 client.Connect(LocalHostDefaultPort.AsConnectionSettings());
                 return client;
             })
-            .Act(underTest => Test.ForException(() =>
+            .Act(underTest =>
             {
                 underTest.Set(SetKey, SetValue1);
                 underTest.SIsMember(SetKey, SetValue1);
-            }))
+            })
             .Assert(result =>
             {
-                result.ThrewException.Should().BeTrue();
+                result.IsFailure.Should().BeTrue();
                 result.Exception.Should().BeAssignableTo<RedisException>();
             });
         
@@ -181,7 +181,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 underTest.SAdd(SetKey, SetValue2);
                 return underTest.SCard(SetKey);
             })
-            .Assert(result => result.Should().Be(2));
+            .Assert(result => result.Value.Should().Be(2));
 
         [TestMethod]
         public void TestWrongOperation_SCardThrowsException() => Test
@@ -191,14 +191,14 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 client.Connect(LocalHostDefaultPort.AsConnectionSettings());
                 return client;
             })
-            .Act(underTest => Test.ForException(() =>
+            .Act(underTest =>
             {
                 underTest.Set(SetKey, SetValue1);
                 underTest.SCard(SetKey);
-            }))
+            })
             .Assert(result =>
             {
-                result.ThrewException.Should().BeTrue();
+                result.IsFailure.Should().BeTrue();
                 result.Exception.Should().BeAssignableTo<RedisException>();
             });
 
