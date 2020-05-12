@@ -13,6 +13,8 @@ namespace RedisLite.Tests.UnitTests
     {
         private const int Number = 2020;
 
+        private static readonly TimeSpan Delay = TimeSpan.FromMilliseconds(750);
+
         [TestMethod]
         public void TryToRunOneAction_Succeeds() => Test
             .Arrange(() => new Locker())
@@ -38,7 +40,7 @@ namespace RedisLite.Tests.UnitTests
                 var resultNumber = 0;
 
                 Task.Run(() => locker.Execute(() => { are.WaitOne(); }));
-                Thread.Sleep(100);
+                Thread.Sleep(Delay);
                 locker.Execute(() => { resultNumber = Number; });
 
                 return resultNumber;
@@ -74,7 +76,7 @@ namespace RedisLite.Tests.UnitTests
                         return Number;
                     });
                 });
-                Thread.Sleep(100);
+                Thread.Sleep(Delay);
                 var resultNumber = locker.Execute(() => Number);
                 
                 return resultNumber;
@@ -93,56 +95,48 @@ namespace RedisLite.Tests.UnitTests
             .Assert(result => result.IsSuccess.Should().BeTrue());
 
         [TestMethod]
-        //[Ignore] // TODO: Failing on Travis, working locally. Needs to be sorted out.
         public void TryToObtainWhileLocked_LockerThrowsException() => Test
-            .ArrangeNotNeeded()
-            .Act(() =>
+            .Arrange(() =>
             {
                 var locker = new Locker();
                 var are = new AutoResetEvent(false);
-
+                return (locker, are);
+            })
+            .Act((locker, are) =>
+            {
                 Task.Run(() => locker.Execute(() => { are.WaitOne(); }));
-                Thread.Sleep(1000);
-                var exResult = Test.ForException(locker.Obtain);
-                are.Set();
-
-                return exResult;
+                Thread.Sleep(Delay);
+                locker.Obtain();
             })
             .Assert(result =>
             {
-                //result.IsFailure.Should().BeTrue();
-                //result.Exception.Should().BeAssignableTo<InvalidOperationException>();
-                result.Value.IsFailure.Should().BeTrue();
-                result.Value.Exception.Should().BeAssignableTo<InvalidOperationException>();
+                result.IsFailure.Should().BeTrue();
+                result.Exception.Should().BeAssignableTo<InvalidOperationException>();
             });
 
         [TestMethod]
-        //[Ignore] // TODO: Failing on Travis, working locally. Needs to be sorted out.
         public void TryToObtainTwice_LockerThrowsException() => Test
-            .ArrangeNotNeeded()
-            .Act(() =>
+            .Arrange(() =>
             {
                 var locker = new Locker();
                 var are = new AutoResetEvent(false);
-
+                return (locker, are);
+            })
+            .Act((locker, are) =>
+            {
                 Task.Run(() =>
                 {
                     locker.Obtain();
                     are.WaitOne();
                     locker.Release();
                 });
-                Thread.Sleep(1000);
-                var result = Test.ForException(locker.Obtain);
-                are.Set();
-
-                return result;
+                Thread.Sleep(Delay);
+                locker.Obtain();
             })
             .Assert(result =>
             {
-                //result.IsFailure.Should().BeTrue();
-                //result.Exception.Should().BeAssignableTo<InvalidOperationException>();
-                result.Value.IsFailure.Should().BeTrue();
-                result.Value.Exception.Should().BeAssignableTo<InvalidOperationException>();
+                result.IsFailure.Should().BeTrue();
+                result.Exception.Should().BeAssignableTo<InvalidOperationException>();
             });
 
         [TestMethod]
@@ -159,8 +153,8 @@ namespace RedisLite.Tests.UnitTests
                 Task.Run(() =>
                 {
                     locker.Obtain();
-                        number2 = Number;
-                        locker.Release();
+                    number2 = Number;
+                    locker.Release();
                 }).GetAwaiter().GetResult();
 
                 return (number1, number2);
