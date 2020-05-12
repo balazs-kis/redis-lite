@@ -102,7 +102,7 @@ namespace RedisLite.Tests.UnitTests
                 var are = new AutoResetEvent(false);
 
                 Task.Run(() => locker.Execute(() => { are.WaitOne(); }));
-                Thread.Sleep(100);
+                Thread.Sleep(1000);
                 var exResult = Test.ForException(locker.Obtain);
                 are.Set();
 
@@ -131,7 +131,7 @@ namespace RedisLite.Tests.UnitTests
                     are.WaitOne();
                     locker.Release();
                 });
-                Thread.Sleep(100);
+                Thread.Sleep(1000);
                 var result = Test.ForException(locker.Obtain);
                 are.Set();
 
