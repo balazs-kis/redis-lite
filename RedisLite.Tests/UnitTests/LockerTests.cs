@@ -93,7 +93,7 @@ namespace RedisLite.Tests.UnitTests
             .Assert(result => result.IsSuccess.Should().BeTrue());
 
         [TestMethod]
-        [Ignore] // TODO: Failing on Travis, working locally. Needs to be sorted out.
+        //[Ignore] // TODO: Failing on Travis, working locally. Needs to be sorted out.
         public void TryToObtainWhileLocked_LockerThrowsException() => Test
             .Arrange(() =>
             {
@@ -105,16 +105,30 @@ namespace RedisLite.Tests.UnitTests
             {
                 Task.Run(() => locker.Execute(() => { are.WaitOne(); }));
                 Thread.Sleep(100);
-                locker.Obtain();
+
+                Exception thrownException = default;
+                try
+                {
+                    locker.Obtain();
+                }
+                catch (Exception ex)
+                {
+                    thrownException = ex;
+                }
+                are.Set();
+
+                return thrownException;
             })
             .Assert(result =>
             {
-                result.IsFailure.Should().BeTrue();
-                result.Exception.Should().BeAssignableTo<InvalidOperationException>();
+                //result.IsFailure.Should().BeTrue();
+                //result.Exception.Should().BeAssignableTo<InvalidOperationException>();
+                result.Value.Should().NotBeNull();
+                result.Value.Should().BeAssignableTo<InvalidOperationException>();
             });
 
         [TestMethod]
-        [Ignore] // TODO: Failing on Travis, working locally. Needs to be sorted out.
+        //[Ignore] // TODO: Failing on Travis, working locally. Needs to be sorted out.
         public void TryToObtainTwice_LockerThrowsException() => Test
             .Arrange(() =>
             {
@@ -131,12 +145,26 @@ namespace RedisLite.Tests.UnitTests
                     locker.Release();
                 });
                 Thread.Sleep(100);
-                locker.Obtain();
+
+                Exception thrownException = default;
+                try
+                {
+                    locker.Obtain();
+                }
+                catch (Exception ex)
+                {
+                    thrownException = ex;
+                }
+                are.Set();
+
+                return thrownException;
             })
             .Assert(result =>
             {
-                result.IsFailure.Should().BeTrue();
-                result.Exception.Should().BeAssignableTo<InvalidOperationException>();
+                //result.IsFailure.Should().BeTrue();
+                //result.Exception.Should().BeAssignableTo<InvalidOperationException>();
+                result.Value.Should().NotBeNull();
+                result.Value.Should().BeAssignableTo<InvalidOperationException>();
             });
 
         [TestMethod]
