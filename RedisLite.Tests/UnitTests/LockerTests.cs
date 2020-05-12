@@ -13,7 +13,7 @@ namespace RedisLite.Tests.UnitTests
     {
         private const int Number = 2020;
 
-        private static readonly TimeSpan Delay = TimeSpan.FromMilliseconds(750);
+        private static readonly TimeSpan Delay = TimeSpan.FromMilliseconds(1250);
 
         [TestMethod]
         public void TryToRunOneAction_Succeeds() => Test
