@@ -95,14 +95,12 @@ namespace RedisLite.Tests.UnitTests
         [TestMethod]
         //[Ignore] // TODO: Failing on Travis, working locally. Needs to be sorted out.
         public void TryToObtainWhileLocked_LockerThrowsException() => Test
-            .Arrange(() =>
+            .ArrangeNotNeeded()
+            .Act(() =>
             {
                 var locker = new Locker();
                 var are = new AutoResetEvent(false);
-                return (locker, are);
-            })
-            .Act((locker, are) =>
-            {
+
                 Task.Run(() => locker.Execute(() => { are.WaitOne(); }));
                 Thread.Sleep(100);
                 var exResult = Test.ForException(locker.Obtain);
@@ -121,14 +119,12 @@ namespace RedisLite.Tests.UnitTests
         [TestMethod]
         //[Ignore] // TODO: Failing on Travis, working locally. Needs to be sorted out.
         public void TryToObtainTwice_LockerThrowsException() => Test
-            .Arrange(() =>
+            .ArrangeNotNeeded()
+            .Act(() =>
             {
                 var locker = new Locker();
                 var are = new AutoResetEvent(false);
-                return (locker, are);
-            })
-            .Act((locker, are) =>
-            {
+
                 Task.Run(() =>
                 {
                     locker.Obtain();
