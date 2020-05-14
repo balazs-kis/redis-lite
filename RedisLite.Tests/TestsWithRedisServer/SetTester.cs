@@ -1,10 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RedisLite.Client;
 using RedisLite.Client.Exceptions;
+using RedisLite.TestHelpers;
 using RedisLite.Tests.TestConfigurations;
 using System.Linq;
-using FluentAssertions;
-using RedisLite.TestHelpers;
 
 namespace RedisLite.Tests.TestsWithRedisServer
 {
@@ -17,124 +17,73 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
         [TestMethod]
         public void Test_SAdd() => Test
-            .Arrange(() =>
-            {
-                var client = new RedisClient();
-                client.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                return client;
-            })
+            .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
             .Act(underTest =>
             {
                 underTest.SAdd(SetKey, SetValue1);
                 return underTest.SMembers(SetKey).ToList();
             })
-            .Assert(result =>
-            {
-                result.Value.Count.Should().Be(1);
-                result.Value.First().Should().Be(SetValue1);
-            });
+            .Assert()
+                .Validate(result => result.Count.Should().Be(1))
+                .Validate(result => result.First().Should().Be(SetValue1));
 
         [TestMethod]
         public void TestWrongOperation_SAddThrowsException() => Test
-            .Arrange(() =>
-            {
-                var client = new RedisClient();
-                client.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                return client;
-            })
+            .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
             .Act(underTest =>
             {
                 underTest.Set(SetKey, SetValue1);
                 underTest.SAdd(SetKey, SetValue2);
             })
-            .Assert(result =>
-            {
-                result.IsFailure.Should().BeTrue();
-                result.Exception.Should().BeAssignableTo<RedisException>();
-            });
+            .Assert().ThrewException<RedisException>();
 
         [TestMethod]
         public void Test_SRem() => Test
-            .Arrange(() =>
-            {
-                var client = new RedisClient();
-                client.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                return client;
-            })
+            .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
             .Act(underTest =>
             {
                 underTest.SAdd(SetKey, SetValue1);
                 underTest.SRem(SetKey, SetValue1);
                 return underTest.SMembers(SetKey).ToList();
             })
-            .Assert(result => result.Value.Count.Should().Be(0));
+            .Assert().Validate(result => result.Count.Should().Be(0));
 
         [TestMethod]
         public void TestWrongOperation_SRemThrowsException() => Test
-            .Arrange(() =>
-            {
-                var client = new RedisClient();
-                client.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                return client;
-            })
+            .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
             .Act(underTest =>
             {
                 underTest.Set(SetKey, SetValue1);
                 underTest.SRem(SetKey, SetValue1);
             })
-            .Assert(result =>
-            {
-                result.IsFailure.Should().BeTrue();
-                result.Exception.Should().BeAssignableTo<RedisException>();
-            });
+            .Assert().ThrewException<RedisException>();
 
         [TestMethod]
         public void Test_SMembers() => Test
-            .Arrange(() =>
-            {
-                var client = new RedisClient();
-                client.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                return client;
-            })
+            .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
             .Act(underTest =>
             {
                 underTest.SAdd(SetKey, SetValue1, SetValue2);
                 return underTest.SMembers(SetKey).ToList();
             })
-            .Assert(result =>
-            {
-                result.Value.Count.Should().Be(2);
-                result.Value.Should().Contain(SetValue1);
-                result.Value.Should().Contain(SetValue2);
-            });
+            .Assert()
+                .Validate(result => result.Count.Should().Be(2))
+                .Validate(result => result.Should().Contain(SetValue1))
+                .Validate(result => result.Should().Contain(SetValue2));
 
         [TestMethod]
         public void TestWrongOperation_SMembersThrowsException() => Test
-            .Arrange(() =>
-            {
-                var client = new RedisClient();
-                client.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                return client;
-            })
+            .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
             .Act(underTest =>
             {
                 underTest.Set(SetKey, SetValue1);
                 underTest.SMembers(SetKey);
             })
-            .Assert(result =>
-            {
-                result.IsFailure.Should().BeTrue();
-                result.Exception.Should().BeAssignableTo<RedisException>();
-            });
-        
+            .Assert().ThrewException<RedisException>();
+
         [TestMethod]
         public void Test_SIsMember() => Test
-            .Arrange(() =>
-            {
-                var client = new RedisClient();
-                client.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                return client;
-            })
+            .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
             .Act(underTest =>
             {
                 underTest.SAdd(SetKey, SetValue1);
@@ -142,65 +91,40 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 var result2 = underTest.SIsMember(SetKey, SetValue2);
                 return (result1, result2);
             })
-            .Assert(results =>
-            {
-                results.Value.result1.Should().BeTrue();
-                results.Value.result2.Should().BeFalse();
-            });
+            .Assert()
+                .Validate(result => result.result1.Should().BeTrue())
+                .Validate(result => result.result2.Should().BeFalse());
 
         [TestMethod]
         public void TestWrongOperation_SIsMemberThrowsException() => Test
-            .Arrange(() =>
-            {
-                var client = new RedisClient();
-                client.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                return client;
-            })
+            .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
             .Act(underTest =>
             {
                 underTest.Set(SetKey, SetValue1);
                 underTest.SIsMember(SetKey, SetValue1);
             })
-            .Assert(result =>
-            {
-                result.IsFailure.Should().BeTrue();
-                result.Exception.Should().BeAssignableTo<RedisException>();
-            });
-        
+            .Assert().ThrewException<RedisException>();
+
         [TestMethod]
         public void Test_SCard() => Test
-            .Arrange(() =>
-            {
-                var client = new RedisClient();
-                client.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                return client;
-            })
+            .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
             .Act(underTest =>
             {
                 underTest.SAdd(SetKey, SetValue1);
                 underTest.SAdd(SetKey, SetValue2);
                 return underTest.SCard(SetKey);
             })
-            .Assert(result => result.Value.Should().Be(2));
+            .Assert().Validate(result => result.Should().Be(2));
 
         [TestMethod]
         public void TestWrongOperation_SCardThrowsException() => Test
-            .Arrange(() =>
-            {
-                var client = new RedisClient();
-                client.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                return client;
-            })
+            .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
             .Act(underTest =>
             {
                 underTest.Set(SetKey, SetValue1);
                 underTest.SCard(SetKey);
             })
-            .Assert(result =>
-            {
-                result.IsFailure.Should().BeTrue();
-                result.Exception.Should().BeAssignableTo<RedisException>();
-            });
+            .Assert().ThrewException<RedisException>();
 
 
         [TestCleanup]

@@ -1,19 +1,26 @@
-﻿using System;
-
-namespace RedisLite.TestHelpers
+﻿namespace RedisLite.TestHelpers
 {
-    public sealed class Acted<T>
+    public sealed class Acted
     {
-        private readonly T _result;
+        private readonly ActResult _result;
 
-        public Acted(T result)
+        public Acted(ActResult result)
         {
             _result = result;
         }
 
-        public void Assert(Action<T> assertAction)
+        public IAssertionRoot Assert() => new AssertionRoot(_result);
+    }
+    
+    public sealed class Acted<T>
+    {
+        private readonly ActResult<T> _result;
+
+        public Acted(ActResult<T> result)
         {
-            assertAction.Invoke(_result);
+            _result = result;
         }
+
+        public IAssertionRoot<T> Assert() => new AssertionRoot<T>(_result);
     }
 }

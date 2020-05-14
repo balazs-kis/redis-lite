@@ -16,38 +16,30 @@ namespace RedisLite.Tests.UnitTests
         public void FailureResultConstructionWithoutMessage_ThrowsException() => Test
             .ArrangeNotNeeded()
             .Act(() => Result.Fail(null))
-            .Assert(result =>
-            {
-                result.IsFailure.Should().BeTrue();
-                result.Exception.Should().BeAssignableTo<InvalidOperationException>();
-            });
+            .Assert().ThrewException<InvalidOperationException>();
 
         [TestMethod]
         public void FailureResultConstructionWithEmptyMessage_ThrowsException() => Test
             .ArrangeNotNeeded()
             .Act(() => Result.Fail(string.Empty))
-            .Assert(result =>
-            {
-                result.IsFailure.Should().BeTrue();
-                result.Exception.Should().BeAssignableTo<InvalidOperationException>();
-            });
+            .Assert().ThrewException<InvalidOperationException>();
 
         [TestMethod]
         public void OkResultToString_CorrectStringReturned() => Test
             .ArrangeNotNeeded()
             .Act(() => Result.Ok().ToString())
-            .Assert(result => result.Value.Should().Contain("OK"));
+            .Assert().Validate(result => result.Should().Contain("OK"));
 
         [TestMethod]
         public void TestFailureResultToString_CorrectStringReturned() => Test
             .ArrangeNotNeeded()
             .Act(() => Result.Fail(ErrorMessage, new AccessViolationException(ExceptionMessage)).ToString())
-            .Assert(result =>
-            {
-                result.Value.Should().Contain("FAIL");
-                result.Value.Should().Contain(ErrorMessage);
-                result.Value.Should().Contain(ExceptionMessage);
-                result.Value.Should().Contain(typeof(AccessViolationException).Name);
-            });
+            .Assert()
+                .Validate(result =>
+                    result.Should()
+                        .Contain("FAIL").And
+                        .Contain(ErrorMessage).And
+                        .Contain(ExceptionMessage).And
+                        .Contain(nameof(AccessViolationException)));
     }
 }

@@ -25,7 +25,7 @@ namespace RedisLite.Tests.UnitTests
 
                 return result;
             })
-            .Assert(result => result.Value.Should().Be(Number));
+            .Assert().Validate(result => result.Should().Be(Number));
 
         [TestMethod]
         public void TryToRunSecondActionInParallel_LockerThrowsException() => Test
@@ -45,18 +45,13 @@ namespace RedisLite.Tests.UnitTests
 
                 return resultNumber;
             })
-            .Assert(result =>
-            {
-                result.IsFailure.Should().BeTrue();
-                result.Exception.Should().BeAssignableTo<InvalidOperationException>();
-                result.Value.Should().NotBe(Number);
-            });
+            .Assert().ThrewException<InvalidOperationException>();
 
         [TestMethod]
         public void TryToRunOneFunc_Succeeds() => Test
             .Arrange(() => new Locker())
             .Act(underTest => underTest.Execute(() => Number))
-            .Assert(result => result.Value.Should().Be(Number));
+            .Assert().Validate(result => result.Should().Be(Number));
 
         [TestMethod]
         public void TryToRunSecondFuncInParallel_LockerThrowsException() => Test
@@ -81,18 +76,13 @@ namespace RedisLite.Tests.UnitTests
                 
                 return resultNumber;
             })
-            .Assert(result =>
-            {
-                result.IsFailure.Should().BeTrue();
-                result.Exception.Should().BeAssignableTo<InvalidOperationException>();
-                result.Value.Should().NotBe(Number);
-            });
+            .Assert().ThrewException<InvalidOperationException>();
 
         [TestMethod]
         public void TryToObtainWhileNotLocked_Succeeds() => Test
             .Arrange(() => new Locker())
             .Act(underTest => underTest.Obtain())
-            .Assert(result => result.IsSuccess.Should().BeTrue());
+            .Assert().IsSuccess();
 
         [TestMethod]
         public void TryToObtainWhileLocked_LockerThrowsException() => Test
@@ -108,11 +98,7 @@ namespace RedisLite.Tests.UnitTests
                 Thread.Sleep(Delay);
                 locker.Obtain();
             })
-            .Assert(result =>
-            {
-                result.IsFailure.Should().BeTrue();
-                result.Exception.Should().BeAssignableTo<InvalidOperationException>();
-            });
+            .Assert().ThrewException<InvalidOperationException>();
 
         [TestMethod]
         public void TryToObtainTwice_LockerThrowsException() => Test
@@ -133,11 +119,7 @@ namespace RedisLite.Tests.UnitTests
                 Thread.Sleep(Delay);
                 locker.Obtain();
             })
-            .Assert(result =>
-            {
-                result.IsFailure.Should().BeTrue();
-                result.Exception.Should().BeAssignableTo<InvalidOperationException>();
-            });
+            .Assert().ThrewException<InvalidOperationException>();
 
         [TestMethod]
         public void TryToObtainAfterReleased_Succeeds() => Test
@@ -159,11 +141,8 @@ namespace RedisLite.Tests.UnitTests
 
                 return (number1, number2);
             })
-            .Assert(result =>
-            {
-                result.IsSuccess.Should().BeTrue();
-                result.Value.number1.Should().Be(Number);
-                result.Value.number2.Should().Be(Number);
-            });
+            .Assert()
+                .Validate(result => result.number1.Should().Be(Number))
+                .Validate(result => result.number2.Should().Be(Number));
     }
 }

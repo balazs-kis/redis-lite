@@ -4,11 +4,11 @@ namespace RedisLite.TestHelpers
 {
     public sealed class Arranged
     {
-        public Acted<ActResult> Act(Action actAction) =>
-            new Acted<ActResult>(CatchException(actAction));
+        public Acted Act(Action actAction) =>
+            new Acted(CatchException(actAction));
 
-        public Acted<ActResult<TResult>> Act<TResult>(Func<TResult> actFunc) =>
-            new Acted<ActResult<TResult>>(CatchException(actFunc));
+        public Acted<TResult> Act<TResult>(Func<TResult> actFunc) =>
+            new Acted<TResult>(CatchException(actFunc));
 
         private ActResult CatchException(Action action)
         {
@@ -49,11 +49,11 @@ namespace RedisLite.TestHelpers
             _underTest = underTest;
         }
 
-        public Acted<ActResult> Act(Action<T> actAction) =>
-            new Acted<ActResult>(CatchException(actAction));
+        public Acted Act(Action<T> actAction) =>
+            new Acted(CatchException(actAction));
 
-        public Acted<ActResult<TResult>> Act<TResult>(Func<T, TResult> actFunc) =>
-            new Acted<ActResult<TResult>>(CatchException(actFunc));
+        public Acted<TResult> Act<TResult>(Func<T, TResult> actFunc) =>
+            new Acted<TResult>(CatchException(actFunc));
 
         private ActResult CatchException(Action<T> func)
         {
@@ -96,11 +96,11 @@ namespace RedisLite.TestHelpers
             _parameter = parameter;
         }
 
-        public Acted<ActResult> Act(Action<T, TParam> actAction) =>
-            new Acted<ActResult>(CatchException(actAction));
+        public Acted Act(Action<T, TParam> actAction) =>
+            new Acted(CatchException(actAction));
 
-        public Acted<ActResult<TResult>> Act<TResult>(Func<T, TParam, TResult> actFunc) =>
-            new Acted<ActResult<TResult>>(CatchException(actFunc));
+        public Acted<TResult> Act<TResult>(Func<T, TParam, TResult> actFunc) =>
+            new Acted<TResult>(CatchException(actFunc));
 
         private ActResult CatchException(Action<T, TParam> action)
         {
@@ -145,11 +145,11 @@ namespace RedisLite.TestHelpers
             _parameter2 = parameter2;
         }
 
-        public Acted<ActResult> Act(Action<T, TParam1, TParam2> actAction) =>
-            new Acted<ActResult>(CatchException(actAction));
+        public Acted Act(Action<T, TParam1, TParam2> actAction) =>
+            new Acted(CatchException(actAction));
 
-        public Acted<ActResult<TResult>> Act<TResult>(Func<T, TParam1, TParam2, TResult> actFunc) =>
-            new Acted<ActResult<TResult>>(CatchException(actFunc));
+        public Acted<TResult> Act<TResult>(Func<T, TParam1, TParam2, TResult> actFunc) =>
+            new Acted<TResult>(CatchException(actFunc));
 
         private ActResult CatchException(Action<T, TParam1, TParam2> action)
         {

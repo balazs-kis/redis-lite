@@ -38,7 +38,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 underTest.HSet(_keys[0], Field1, Value1);
                 return underTest.HGet(_keys[0], Field1);
             })
-            .Assert(result => result.Value.Should().Be(Value1));
+            .Assert().Validate(result => result.Should().Be(Value1));
 
         [TestMethod]
         public void Test_SetMultipleHash() => Test
@@ -62,13 +62,11 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 var res3 = underTest.HGet(_keys[1], Field3);
                 return (res1, res2, res3);
             })
-            .Assert(result =>
-            {
-                result.Value.res1.Should().Be(Value1);
-                result.Value.res2.Should().Be(Value2);
-                result.Value.res3.Should().Be(Value3);
-            });
-
+            .Assert()
+                .Validate(result => result.res1.Should().Be(Value1))
+                .Validate(result => result.res2.Should().Be(Value2))
+                .Validate(result => result.res3.Should().Be(Value3));
+        
         [TestMethod]
         public void Test_GetMultipleHash() => Test
             .Arrange(() =>
@@ -84,12 +82,10 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 underTest.HSet(_keys[2], Field3, Value3);
                 return underTest.HMGet(_keys[2], new[] { Field1, Field2, Field3 }).ToList();
             })
-            .Assert(result =>
-            {
-                result.Value[0].Should().Be(Value1);
-                result.Value[1].Should().Be(Value2);
-                result.Value[2].Should().Be(Value3);
-            });
+            .Assert()
+                .Validate(result => result[0].Should().Be(Value1))
+                .Validate(result => result[1].Should().Be(Value2))
+                .Validate(result => result[2].Should().Be(Value3));
 
         [TestMethod]
         public void Test_GetAllHash() => Test
@@ -106,13 +102,11 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 underTest.HSet(_keys[3], Field3, Value3);
                 return underTest.HGetAll(_keys[3]);
             })
-            .Assert(result =>
-            {
-                result.Value.Count.Should().Be(3);
-                result.Value[Field1].Should().Be(Value1);
-                result.Value[Field2].Should().Be(Value2);
-                result.Value[Field3].Should().Be(Value3);
-            });
+            .Assert()
+                .Validate(result => result.Count.Should().Be(3))
+                .Validate(result => result[Field1].Should().Be(Value1))
+                .Validate(result => result[Field2].Should().Be(Value2))
+                .Validate(result => result[Field3].Should().Be(Value3));
 
         [TestMethod]
         public void Test_GetAllHash_Null() => Test
@@ -123,7 +117,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 return client;
             })
             .Act(underTest => underTest.HGetAll(_keys[3]))
-            .Assert(result => result.Value.Count.Should().Be(0));
+            .Assert().Validate(result => result.Count.Should().Be(0));
 
         [TestMethod]
         public void Test_GetHash_Null() => Test
@@ -134,12 +128,10 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 return client;
             })
             .Act(underTest => underTest.HMGet(_keys[3], new[] { Field1, Field2 }).ToList())
-            .Assert(result =>
-            {
-                result.Value.Count.Should().Be(2);
-                result.Value[0].Should().BeNull();
-                result.Value[1].Should().BeNull();
-            });
+            .Assert()
+                .Validate(result => result.Count.Should().Be(2))
+                .Validate(result => result[0].Should().BeNull())
+                .Validate(result => result[1].Should().BeNull());
 
 
         [TestCleanup]

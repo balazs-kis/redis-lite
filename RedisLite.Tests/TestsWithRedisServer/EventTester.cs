@@ -37,7 +37,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 client.Connect(LocalHostDefaultPort.AsConnectionSettings());
                 return result;
             })
-            .Assert(result => result.Value.StringValue.Should().Be(Value));
+            .Assert().Validate(result => result.StringValue.Should().Be(Value));
         
         
         [TestCleanup]
