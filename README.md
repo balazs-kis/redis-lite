@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/balazs-kis/redis-lite/master/Logo/logo-title.png" width="50%">
+![RedisLite](https://raw.githubusercontent.com/balazs-kis/redis-lite/master/Logo/logo-title.png)
 
 Redis Lite is a small, simple redis client for .NET (Standard). It implements the often used redis commands, and then some.
 
