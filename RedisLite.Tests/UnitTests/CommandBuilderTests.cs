@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RedisLite.Client.CommandBuilders;
-using RedisLite.TestHelpers;
+using TestLite;
 using System;
 using System.Linq;
 

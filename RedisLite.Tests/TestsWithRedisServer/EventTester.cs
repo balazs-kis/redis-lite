@@ -3,7 +3,7 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RedisLite.Client;
 using RedisLite.Tests.TestConfigurations;
-using RedisLite.TestHelpers;
+using TestLite;
 
 namespace RedisLite.Tests.TestsWithRedisServer
 {

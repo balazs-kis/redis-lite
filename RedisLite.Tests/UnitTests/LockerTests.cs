@@ -4,7 +4,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using RedisLite.TestHelpers;
+using TestLite;
 
 namespace RedisLite.Tests.UnitTests
 {

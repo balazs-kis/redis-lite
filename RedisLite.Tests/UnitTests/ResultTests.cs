@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RedisLite.Client;
-using RedisLite.TestHelpers;
+using TestLite;
 using System;
 
 namespace RedisLite.Tests.UnitTests
@@ -14,25 +14,25 @@ namespace RedisLite.Tests.UnitTests
 
         [TestMethod]
         public void FailureResultConstructionWithoutMessage_ThrowsException() => Test
-            .ArrangeNotNeeded()
+            .Arrange()
             .Act(() => Result.Fail(null))
             .Assert().ThrewException<InvalidOperationException>();
 
         [TestMethod]
         public void FailureResultConstructionWithEmptyMessage_ThrowsException() => Test
-            .ArrangeNotNeeded()
+            .Arrange()
             .Act(() => Result.Fail(string.Empty))
             .Assert().ThrewException<InvalidOperationException>();
 
         [TestMethod]
         public void OkResultToString_CorrectStringReturned() => Test
-            .ArrangeNotNeeded()
+            .Arrange()
             .Act(() => Result.Ok().ToString())
             .Assert().Validate(result => result.Should().Contain("OK"));
 
         [TestMethod]
         public void TestFailureResultToString_CorrectStringReturned() => Test
-            .ArrangeNotNeeded()
+            .Arrange()
             .Act(() => Result.Fail(ErrorMessage, new AccessViolationException(ExceptionMessage)).ToString())
             .Assert()
                 .Validate(result =>

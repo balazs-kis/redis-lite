@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RedisLite.Client;
 using RedisLite.Client.Exceptions;
-using RedisLite.TestHelpers;
+using TestLite;
 using RedisLite.Tests.TestConfigurations;
 using System.Linq;
 
