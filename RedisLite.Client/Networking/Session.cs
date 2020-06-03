@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using RedisLite.Client.Encoding;
 
 namespace RedisLite.Client.Networking
@@ -51,7 +52,7 @@ namespace RedisLite.Client.Networking
         }
 
 
-        public bool Open(string address, int port, TimeSpan receiveTimeout)
+        public async Task<bool> OpenAsync(string address, int port, TimeSpan receiveTimeout)
         {
             if (IsConnected())
             {
@@ -59,7 +60,7 @@ namespace RedisLite.Client.Networking
             }
 
             _client = new TcpClient { NoDelay = true };
-            _client.Connect(address, port);
+            await _client.ConnectAsync(address, port);
 
             _client.Client.ReceiveTimeout = _client.Client.SendTimeout = (int)receiveTimeout.TotalMilliseconds;
             var stream = _client.GetStream();

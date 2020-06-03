@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 [assembly: InternalsVisibleTo("RedisLite.Tests")]
 
@@ -29,7 +30,7 @@ namespace RedisLite.Client
         public event Action<IRedisClient> OnConnected;
 
 
-        public void Connect(ConnectionSettings settings)
+        public async Task Connect(ConnectionSettings settings)
         {
             if (_session != null)
             {
@@ -44,7 +45,7 @@ namespace RedisLite.Client
             _transactionClient = new TransactionClient();
             _setClient = new SetClient();
             _subscriptionClient = new SubscriptionClient();
-            _session = _commonClient.Connect(settings);
+            _session = await _commonClient.Connect(settings);
 
             if (!_session.IsOpen)
             {
@@ -55,10 +56,10 @@ namespace RedisLite.Client
         }
 
 
-        public void Select(int dbIndex) =>
-            ExecuteWithSession(session =>
+        public Task Select(int dbIndex) =>
+            ExecuteWithSession(async session =>
             {
-                var result = _commonClient.Select(session, dbIndex);
+                var result = await _commonClient.Select(session, dbIndex);
 
                 if (result.IsFailure)
                 {
@@ -68,10 +69,10 @@ namespace RedisLite.Client
                 }
             });
 
-        public void Ping() =>
-            ExecuteWithSession(session =>
+        public Task Ping() =>
+            ExecuteWithSession(async session =>
             {
-                var result = _stringClient.Ping(session);
+                var result = await _stringClient.Ping(session);
 
                 if (result.IsFailure)
                 {
@@ -81,10 +82,10 @@ namespace RedisLite.Client
                 }
             });
 
-        public void Set(string key, string value) =>
-            ExecuteWithSession(session =>
+        public Task Set(string key, string value) =>
+            ExecuteWithSession(async session =>
             {
-                var result = _stringClient.Set(session, key, value);
+                var result = await _stringClient.Set(session, key, value);
 
                 if (result.IsFailure)
                 {
@@ -94,10 +95,10 @@ namespace RedisLite.Client
                 }
             });
 
-        public string Get(string key) =>
-            ExecuteWithSession(session =>
+        public Task<string> Get(string key) =>
+            ExecuteWithSession(async session =>
             {
-                var result = _stringClient.Get(session, key);
+                var result = await _stringClient.Get(session, key);
 
                 if (result.IsFailure)
                 {
@@ -109,10 +110,10 @@ namespace RedisLite.Client
                 return result.Value;
             });
 
-        public bool Exists(string key) =>
-            ExecuteWithSession(session =>
+        public Task<bool> Exists(string key) =>
+            ExecuteWithSession(async session =>
             {
-                var result = _commonClient.Exists(session, key);
+                var result = await _commonClient.Exists(session, key);
 
                 if (result.IsFailure)
                 {
@@ -124,10 +125,10 @@ namespace RedisLite.Client
                 return result.Value;
             });
 
-        public long DbSize() =>
-            ExecuteWithSession(session =>
+        public Task<long> DbSize() =>
+            ExecuteWithSession(async session =>
             {
-                var result = _commonClient.DbSize(session);
+                var result = await _commonClient.DbSize(session);
 
                 if (result.IsFailure)
                 {
@@ -139,10 +140,10 @@ namespace RedisLite.Client
                 return result.Value;
             });
 
-        public void Del(string key) =>
-            ExecuteWithSession(session =>
+        public Task Del(string key) =>
+            ExecuteWithSession(async session =>
             {
-                var result = _commonClient.Del(session, key);
+                var result = await _commonClient.Del(session, key);
 
                 if (result.IsFailure)
                 {
@@ -152,10 +153,10 @@ namespace RedisLite.Client
                 }
             });
 
-        public void FlushDb(bool async = false) =>
-            ExecuteWithSession(session =>
+        public Task FlushDb(bool async = false) =>
+            ExecuteWithSession(async session =>
             {
-                var result = _commonClient.FlushDb(session, async);
+                var result = await _commonClient.FlushDb(session, async);
 
                 if (result.IsFailure)
                 {
@@ -165,10 +166,10 @@ namespace RedisLite.Client
                 }
             });
 
-        public void SwapDb(int index1, int index2) =>
-            ExecuteWithSession(session =>
+        public Task SwapDb(int index1, int index2) =>
+            ExecuteWithSession(async session =>
             {
-                var result = _commonClient.SwapDb(session, index1, index2);
+                var result = await _commonClient.SwapDb(session, index1, index2);
 
                 if (result.IsFailure)
                 {
@@ -179,10 +180,10 @@ namespace RedisLite.Client
             });
 
 
-        public void HSet(string key, string field, string value) =>
-            ExecuteWithSession(session =>
+        public Task HSet(string key, string field, string value) =>
+            ExecuteWithSession(async session =>
             {
-                var result = _hashClient.HSet(session, key, field, value);
+                var result = await _hashClient.HSet(session, key, field, value);
 
                 if (result.IsFailure)
                 {
@@ -192,10 +193,10 @@ namespace RedisLite.Client
                 }
             });
 
-        public void HMSet(string key, IDictionary<string, string> fieldValues) =>
-            ExecuteWithSession(session =>
+        public Task HMSet(string key, IDictionary<string, string> fieldValues) =>
+            ExecuteWithSession(async session =>
             {
-                var result = _hashClient.HMSet(session, key, fieldValues);
+                var result = await _hashClient.HMSet(session, key, fieldValues);
 
                 if (result.IsFailure)
                 {
@@ -205,10 +206,10 @@ namespace RedisLite.Client
                 }
             });
 
-        public string HGet(string key, string field) =>
-            ExecuteWithSession(session =>
+        public Task<string> HGet(string key, string field) =>
+            ExecuteWithSession(async session =>
             {
-                var result = _hashClient.HGet(session, key, field);
+                var result = await _hashClient.HGet(session, key, field);
 
                 if (result.IsFailure)
                 {
@@ -220,10 +221,10 @@ namespace RedisLite.Client
                 return result.Value;
             });
 
-        public IEnumerable<string> HMGet(string key, IEnumerable<string> fields) =>
-            ExecuteWithSession(session =>
+        public Task<IEnumerable<string>> HMGet(string key, IEnumerable<string> fields) =>
+            ExecuteWithSession(async session =>
             {
-                var result = _hashClient.HMGet(session, key, fields);
+                var result = await _hashClient.HMGet(session, key, fields);
 
                 if (result.IsFailure)
                 {
@@ -235,10 +236,10 @@ namespace RedisLite.Client
                 return result.Value;
             });
 
-        public IDictionary<string, string> HGetAll(string key) =>
-            ExecuteWithSession(session =>
+        public Task<IDictionary<string, string>> HGetAll(string key) =>
+            ExecuteWithSession(async session =>
             {
-                var result = _hashClient.HGetAll(session, key);
+                var result = await _hashClient.HGetAll(session, key);
 
                 if (result.IsFailure)
                 {
@@ -251,10 +252,10 @@ namespace RedisLite.Client
             });
 
 
-        public void RPush(string key, params string[] values) =>
-            ExecuteWithSession(session =>
+        public Task RPush(string key, params string[] values) =>
+            ExecuteWithSession(async session =>
             {
-                var result = _listClient.RPush(session, key, values);
+                var result = await _listClient.RPush(session, key, values);
 
                 if (result.IsFailure)
                 {
@@ -264,10 +265,10 @@ namespace RedisLite.Client
                 }
             });
 
-        public IEnumerable<string> LRange(string key, int start, int stop) =>
-            ExecuteWithSession(session =>
+        public Task<IEnumerable<string>> LRange(string key, int start, int stop) =>
+            ExecuteWithSession(async session =>
             {
-                var result = _listClient.LRange(session, key, start, stop);
+                var result = await _listClient.LRange(session, key, start, stop);
 
                 if (result.IsFailure)
                 {
@@ -276,13 +277,13 @@ namespace RedisLite.Client
                         result.Exception);
                 }
 
-                return result.Value;
+                return result.Value.AsEnumerable();
             });
 
-        public long SAdd(string key, params string[] members) =>
-            ExecuteWithSession(session =>
+        public Task<long> SAdd(string key, params string[] members) =>
+            ExecuteWithSession(async session =>
             {
-                var result = _setClient.SAdd(session, key, members);
+                var result = await _setClient.SAdd(session, key, members);
 
                 if (result.IsFailure)
                 {
@@ -294,10 +295,10 @@ namespace RedisLite.Client
                 return result.Value;
             });
 
-        public long SRem(string key, params string[] members) =>
-            ExecuteWithSession(session =>
+        public Task<long> SRem(string key, params string[] members) =>
+            ExecuteWithSession(async session =>
             {
-                var result = _setClient.SRem(session, key, members);
+                var result = await _setClient.SRem(session, key, members);
 
                 if (result.IsFailure)
                 {
@@ -309,10 +310,10 @@ namespace RedisLite.Client
                 return result.Value;
             });
 
-        public IEnumerable<string> SMembers(string key) =>
-            ExecuteWithSession(session =>
+        public Task<IEnumerable<string>> SMembers(string key) =>
+            ExecuteWithSession(async session =>
             {
-                var result = _setClient.SMembers(session, key);
+                var result = await _setClient.SMembers(session, key);
 
                 if (result.IsFailure)
                 {
@@ -321,13 +322,13 @@ namespace RedisLite.Client
                         result.Exception);
                 }
 
-                return result.Value;
+                return result.Value.AsEnumerable();
             });
 
-        public bool SIsMember(string key, string member) =>
-            ExecuteWithSession(session =>
+        public Task<bool> SIsMember(string key, string member) =>
+            ExecuteWithSession(async session =>
             {
-                var result = _setClient.SIsMember(session, key, member);
+                var result = await _setClient.SIsMember(session, key, member);
 
                 if (result.IsFailure)
                 {
@@ -339,10 +340,10 @@ namespace RedisLite.Client
                 return result.Value;
             });
 
-        public long SCard(string key) =>
-            ExecuteWithSession(session =>
+        public Task<long> SCard(string key) =>
+            ExecuteWithSession(async session =>
             {
-                var result = _setClient.SCard(session, key);
+                var result = await _setClient.SCard(session, key);
 
                 if (result.IsFailure)
                 {
@@ -355,12 +356,12 @@ namespace RedisLite.Client
             });
 
 
-        public string LoadScript(string script) =>
-            ExecuteWithSession(session =>
+        public Task<string> LoadScript(string script) =>
+            ExecuteWithSession(async session =>
             {
                 var transformedScript = script.Replace("\r\n", " ").Replace("\n", " ").Replace("\"", "'");
 
-                var result = _scriptClient.LoadScript(session, transformedScript);
+                var result = await _scriptClient.LoadScript(session, transformedScript);
 
                 if (result.IsFailure)
                 {
@@ -372,10 +373,10 @@ namespace RedisLite.Client
                 return result.Value;
             });
 
-        public IEnumerable<object> EvalSha(string sha, string[] parameters) =>
-            ExecuteWithSession(session =>
+        public Task<IEnumerable<object>> EvalSha(string sha, string[] parameters) =>
+            ExecuteWithSession(async session =>
             {
-                var result = _scriptClient.ExecuteScript(session, sha, parameters);
+                var result = await _scriptClient.ExecuteScript(session, sha, parameters);
 
                 if (result.IsFailure)
                 {
@@ -384,12 +385,12 @@ namespace RedisLite.Client
                         result.Exception);
                 }
 
-                return result.Value;
+                return result.Value.AsEnumerable();
             });
 
 
-        public void Watch(params string[] keys) =>
-            ExecuteWithSession(session =>
+        public Task Watch(params string[] keys) =>
+            ExecuteWithSession(async session =>
             {
                 if (keys == null || !keys.Any() || keys.All(string.IsNullOrWhiteSpace))
                 {
@@ -397,7 +398,7 @@ namespace RedisLite.Client
                         "Key list was null, empty or contained only invalid strings");
                 }
 
-                var result = _transactionClient.Watch(session, keys);
+                var result = await _transactionClient.Watch(session, keys);
 
                 if (result.IsFailure)
                 {
@@ -407,10 +408,10 @@ namespace RedisLite.Client
                 }
             });
 
-        public void Multi() =>
-            ExecuteWithSession(session =>
+        public Task Multi() =>
+            ExecuteWithSession(async session =>
             {
-                var result = _transactionClient.Multi(session);
+                var result = await _transactionClient.Multi(session);
 
                 if (result.IsFailure)
                 {
@@ -420,10 +421,10 @@ namespace RedisLite.Client
                 }
             });
 
-        public void Exec() =>
-            ExecuteWithSession(session =>
+        public Task Exec() =>
+            ExecuteWithSession(async session =>
             {
-                var result = _transactionClient.Exec(session);
+                var result = await _transactionClient.Exec(session);
 
                 if (result.IsFailure)
                 {
@@ -440,10 +441,10 @@ namespace RedisLite.Client
                 }
             });
 
-        public void Discard() =>
-            ExecuteWithSession(session =>
+        public Task Discard() =>
+            ExecuteWithSession(async session =>
             {
-                var result = _transactionClient.Discard(session);
+                var result = await _transactionClient.Discard(session);
 
                 if (result.IsFailure)
                 {
@@ -454,10 +455,10 @@ namespace RedisLite.Client
             });
 
 
-        public void Publish(string channel, string message) =>
-            ExecuteWithSession(session =>
+        public Task Publish(string channel, string message) =>
+            ExecuteWithSession(async session =>
             {
-                var result = _subscriptionClient.Publish(session, channel, message);
+                var result = await _subscriptionClient.Publish(session, channel, message);
 
                 if (result.IsFailure)
                 {
@@ -470,23 +471,35 @@ namespace RedisLite.Client
 
         public void Dispose()
         {
-            if (_session != null && _session.IsOpen)
+            Dispose(true);
+            GC.SuppressFinalize(this);            
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
             {
-                _session.Dispose();
+                if (_session != null && _session.IsOpen)
+                {
+                    _session.Dispose();
+                }
             }
         }
 
 
-        private void ExecuteWithSession(Action<ISession> action)
+        private Task ExecuteWithSession(Func<ISession, Task> asyncAction)
         {
-            ExecuteWithSession(session =>
-            {
-                action.Invoke(session);
-                return true;
-            });
+            ValidateSession();
+            return asyncAction.Invoke(_session);
         }
 
-        private T ExecuteWithSession<T>(Func<ISession, T> func)
+        private Task<T> ExecuteWithSession<T>(Func<ISession, Task<T>> asyncFunc)
+        {
+            ValidateSession();
+            return asyncFunc.Invoke(_session);
+        }
+
+        private void ValidateSession()
         {
             if (_session == null)
             {
@@ -497,8 +510,6 @@ namespace RedisLite.Client
             {
                 throw new InvalidOperationException("The client is disconnected");
             }
-
-            return func.Invoke(_session);
         }
     }
 }

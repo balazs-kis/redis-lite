@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 // ReSharper disable InconsistentNaming
 namespace RedisLite.Client.Contracts
@@ -8,43 +9,43 @@ namespace RedisLite.Client.Contracts
     {
         event Action<IRedisClient> OnConnected;
 
-        void Connect(ConnectionSettings settings);
+        Task Connect(ConnectionSettings settings);
 
-        void Select(int dbIndex);
+        Task Select(int dbIndex);
 
-        void Ping();
+        Task Ping();
 
-        void Set(string key, string value);
-        string Get(string key);
-        bool Exists(string key);
-        long DbSize();
-        void Del(string key);
-        void FlushDb(bool async = false);
-        void SwapDb(int index1, int index2);
+        Task Set(string key, string value);
+        Task<string> Get(string key);
+        Task<bool> Exists(string key);
+        Task<long> DbSize();
+        Task Del(string key);
+        Task FlushDb(bool async = false);
+        Task SwapDb(int index1, int index2);
 
-        void HSet(string key, string field, string value);
-        void HMSet(string key, IDictionary<string, string> fieldValues);
-        string HGet(string key, string field);
-        IEnumerable<string> HMGet(string key, IEnumerable<string> fields);
-        IDictionary<string, string> HGetAll(string key);
-        
-        void RPush(string key, params string[] values);
-        IEnumerable<string> LRange(string key, int start, int stop);
+        Task HSet(string key, string field, string value);
+        Task HMSet(string key, IDictionary<string, string> fieldValues);
+        Task<string> HGet(string key, string field);
+        Task<IEnumerable<string>> HMGet(string key, IEnumerable<string> fields);
+        Task<IDictionary<string, string>> HGetAll(string key);
 
-        long SAdd(string key, params string[] members);
-        long SRem(string key, params string[] members);
-        IEnumerable<string> SMembers(string key);
-        bool SIsMember(string key, string member);
-        long SCard(string key);
+        Task RPush(string key, params string[] values);
+        Task<IEnumerable<string>> LRange(string key, int start, int stop);
 
-        string LoadScript(string script);
-        IEnumerable<object> EvalSha(string sha, string[] parameters);
+        Task<long> SAdd(string key, params string[] members);
+        Task<long> SRem(string key, params string[] members);
+        Task<IEnumerable<string>> SMembers(string key);
+        Task<bool> SIsMember(string key, string member);
+        Task<long> SCard(string key);
 
-        void Watch(params string[] keys);
-        void Multi();
-        void Exec();
-        void Discard();
+        Task<string> LoadScript(string script);
+        Task<IEnumerable<object>> EvalSha(string sha, string[] parameters);
 
-        void Publish(string channel, string message);
+        Task Watch(params string[] keys);
+        Task Multi();
+        Task Exec();
+        Task Discard();
+
+        Task Publish(string channel, string message);
     }
 }

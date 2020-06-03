@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Security.Authentication;
+using System.Threading.Tasks;
 using RedisLite.Client.CommandBuilders;
 using RedisLite.Client.Contracts;
 using RedisLite.Client.Networking;
@@ -8,17 +9,17 @@ namespace RedisLite.Client.Clients
 {
     internal sealed class CommonClient : BaseClient
     {
-        public ISession Connect(ConnectionSettings settings)
+        public async Task<ISession> Connect(ConnectionSettings settings)
         {
             var session = new Session();
-            session.Open(settings.Address, settings.Port, settings.ReceiveTimeout);
+            await session.OpenAsync(settings.Address, settings.Port, settings.ReceiveTimeout);
 
             if (!settings.Authenticate)
             {
                 return session;
             }
 
-            var res = Auth(session, settings.Secret);
+            var res = await Auth(session, settings.Secret);
             if (res.IsFailure)
             {
                 throw new AuthenticationException(
@@ -28,7 +29,7 @@ namespace RedisLite.Client.Clients
             return session;
         }
 
-        public Result Del(ISession session, string key)
+        public async Task<Result> Del(ISession session, string key)
         {
             try
             {
@@ -37,7 +38,7 @@ namespace RedisLite.Client.Clients
                         .WithKey(key)
                         .ToString();
                 
-                var response = SendCommandAndReadResponse(session, command);
+                var response = await SendCommandAndReadResponseAsync(session, command);
                 var responseString = response[0]?.ToString();
 
                 return int.TryParse(responseString, out _) ||
@@ -51,7 +52,7 @@ namespace RedisLite.Client.Clients
             }
         }
 
-        public Result FlushDb(ISession session, bool async)
+        public async Task<Result> FlushDb(ISession session, bool async)
         {
             try
             {
@@ -59,7 +60,7 @@ namespace RedisLite.Client.Clients
                 if (async) commandBuilder.WithParameter(RedisConstants.Async);
                 var command = commandBuilder.ToString();
                 
-                var response = SendCommandAndReadResponse(session, command);
+                var response = await SendCommandAndReadResponseAsync(session, command);
 
                 return IsResponseOk(response[0]) ? Result.Ok() : Result.Fail(response[0]?.ToString());
             }
@@ -69,7 +70,7 @@ namespace RedisLite.Client.Clients
             }
         }
 
-        public Result Select(ISession session, int dbIndex)
+        public async Task<Result> Select(ISession session, int dbIndex)
         {
             if (dbIndex < 0 || dbIndex > 15)
             {
@@ -83,7 +84,7 @@ namespace RedisLite.Client.Clients
                         .WithParameter(dbIndex)
                         .ToString();
 
-                var response = SendCommandAndReadResponse(session, command);
+                var response = await SendCommandAndReadResponseAsync(session, command);
                 
                 return IsResponseOk(response[0]) ? Result.Ok() : Result.Fail(response[0]?.ToString());
             }
@@ -93,7 +94,7 @@ namespace RedisLite.Client.Clients
             }
         }
 
-        public Result SwapDb(ISession session, int index1, int index2)
+        public async Task<Result> SwapDb(ISession session, int index1, int index2)
         {
             try
             {
@@ -103,7 +104,7 @@ namespace RedisLite.Client.Clients
                         .WithParameter(index2)
                         .ToString();
 
-                var response = SendCommandAndReadResponse(session, command);
+                var response = await SendCommandAndReadResponseAsync(session, command);
 
                 return IsResponseOk(response[0]) ? Result.Ok() : Result.Fail(response[0]?.ToString());
             }
@@ -113,13 +114,13 @@ namespace RedisLite.Client.Clients
             }
         }
 
-        public Result<long> DbSize(ISession session)
+        public async Task<Result<long>> DbSize(ISession session)
         {
             try
             {
                 var command = new BasicCommandBuilder(RedisCommands.DBSIZE).ToString();
 
-                var response = SendCommandAndReadResponse(session, command);
+                var response = await SendCommandAndReadResponseAsync(session, command);
                 var responseString = response[0]?.ToString();
 
                 var isOk = long.TryParse(responseString, out var result);
@@ -133,7 +134,7 @@ namespace RedisLite.Client.Clients
             }
         }
 
-        public Result<bool> Exists(ISession session, string key)
+        public async Task<Result<bool>> Exists(ISession session, string key)
         {
             try
             {
@@ -142,7 +143,7 @@ namespace RedisLite.Client.Clients
                         .WithKey(key)
                         .ToString();
 
-                var result = SendCommandAndReadResponse(session, command);
+                var result = await SendCommandAndReadResponseAsync(session, command);
                 var parsed = int.TryParse(result[0]?.ToString(), out var resultInt);
 
                 if (parsed)
@@ -166,7 +167,7 @@ namespace RedisLite.Client.Clients
             }
         }
 
-        private Result Auth(ISession session, string secret)
+        private async Task<Result> Auth(ISession session, string secret)
         {
             try
             {
@@ -175,7 +176,7 @@ namespace RedisLite.Client.Clients
                         .WithKey(secret)
                         .ToString();
 
-                var resultCode = SendCommandAndReadResponse(session, command);
+                var resultCode = await SendCommandAndReadResponseAsync(session, command);
                 
                 return string.Equals(resultCode[0].ToString(), RedisConstants.OkResult) ? Result.Ok() : Result.Fail(resultCode[0].ToString());
             }

@@ -22,19 +22,19 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public void Connect_ConnectsSuccessfully() => Test
             .Arrange(() => new RedisClient())
-            .Act(underTest => underTest.Connect(LocalHostDefaultPort.AsConnectionSettings()))
+            .Act(underTest => underTest.Connect(LocalHostDefaultPort.AsConnectionSettings()).GetAwaiter().GetResult())
             .Assert().IsSuccess();
 
         [TestMethod]
         public void ConnectToUnknownHost_ThrowsException() => Test
             .Arrange(() => new RedisClient())
-            .Act(underTest => underTest.Connect(UnknownHost.AsConnectionSettings()))
+            .Act(underTest => underTest.Connect(UnknownHost.AsConnectionSettings()).GetAwaiter().GetResult())
             .Assert().ThrewException<SocketException>();
 
         [TestMethod]
         public void ConnectToKnownHostWrongPort_ThrowsException() => Test
             .Arrange(() => new RedisClient())
-            .Act(underTest => underTest.Connect(LocalHostPort7000.AsConnectionSettings()))
+            .Act(underTest => underTest.Connect(LocalHostPort7000.AsConnectionSettings()).GetAwaiter().GetResult())
             .Assert().ThrewException<SocketException>();
 
         [TestMethod]
@@ -42,8 +42,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
             .Arrange(() => new RedisClient())
             .Act(underTest =>
             {
-                underTest.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                underTest.Connect(LocalHostDefaultPort.AsConnectionSettings());
+                underTest.Connect(LocalHostDefaultPort.AsConnectionSettings()).GetAwaiter().GetResult();
+                underTest.Connect(LocalHostDefaultPort.AsConnectionSettings()).GetAwaiter().GetResult();
             })
             .Assert().ThrewException<InvalidOperationException>();
 
@@ -63,11 +63,11 @@ namespace RedisLite.Tests.TestsWithRedisServer
             .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
             .Act(underTest =>
             {
-                underTest.Select(7);
-                underTest.Set(Key, Value);
-                var result1 = underTest.Get(Key);
-                underTest.Select(8);
-                var result2 = underTest.Get(Key);
+                underTest.Select(7).GetAwaiter().GetResult();
+                underTest.Set(Key, Value).GetAwaiter().GetResult();
+                var result1 = underTest.Get(Key).GetAwaiter().GetResult();
+                underTest.Select(8).GetAwaiter().GetResult();
+                var result2 = underTest.Get(Key).GetAwaiter().GetResult();
 
                 return (result1, result2);
             })
@@ -78,7 +78,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public void SelectWrongDbNumber_ThrowsException() => Test
             .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
-            .Act(underTest => underTest.Select(int.MaxValue))
+            .Act(underTest => underTest.Select(int.MaxValue).GetAwaiter().GetResult())
             .Assert().ThrewException<RedisException>();
 
         [TestMethod]
@@ -86,9 +86,9 @@ namespace RedisLite.Tests.TestsWithRedisServer
             .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
             .Act(underTest =>
             {
-                underTest.Set(Key, Value);
-                var result1 = underTest.Exists(Key);
-                var result2 = underTest.Exists("NotPresentKey");
+                underTest.Set(Key, Value).GetAwaiter().GetResult();
+                var result1 = underTest.Exists(Key).GetAwaiter().GetResult();
+                var result2 = underTest.Exists("NotPresentKey").GetAwaiter().GetResult();
 
                 return (result1, result2);
             })
@@ -101,10 +101,10 @@ namespace RedisLite.Tests.TestsWithRedisServer
             .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
             .Act(underTest =>
             {
-                underTest.Set(Key, Value);
-                var result1 = underTest.Get(Key);
-                underTest.Del(Key);
-                var result2 = underTest.Get(Key);
+                underTest.Set(Key, Value).GetAwaiter().GetResult();
+                var result1 = underTest.Get(Key).GetAwaiter().GetResult();
+                underTest.Del(Key).GetAwaiter().GetResult();
+                var result2 = underTest.Get(Key).GetAwaiter().GetResult();
 
                 return (result1, result2);
             })
@@ -117,11 +117,11 @@ namespace RedisLite.Tests.TestsWithRedisServer
             .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
             .Act(underTest =>
             {
-                underTest.Set(Key, Value);
-                underTest.Set(Key2, Value2);
-                underTest.FlushDb();
-                var result1 = underTest.Get(Key);
-                var result2 = underTest.Get(Key2);
+                underTest.Set(Key, Value).GetAwaiter().GetResult();
+                underTest.Set(Key2, Value2).GetAwaiter().GetResult();
+                underTest.FlushDb().GetAwaiter().GetResult();
+                var result1 = underTest.Get(Key).GetAwaiter().GetResult();
+                var result2 = underTest.Get(Key2).GetAwaiter().GetResult();
 
                 return (result1, result2);
             })
@@ -134,12 +134,12 @@ namespace RedisLite.Tests.TestsWithRedisServer
             .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
             .Act(underTest =>
             {
-                underTest.Set(Key, Value);
-                underTest.Set(Key2, Value2);
-                underTest.FlushDb(true);
+                underTest.Set(Key, Value).GetAwaiter().GetResult();
+                underTest.Set(Key2, Value2).GetAwaiter().GetResult();
+                underTest.FlushDb(true).GetAwaiter().GetResult();
                 Thread.Sleep(50);
-                var result1 = underTest.Get(Key);
-                var result2 = underTest.Get(Key2);
+                var result1 = underTest.Get(Key).GetAwaiter().GetResult();
+                var result2 = underTest.Get(Key2).GetAwaiter().GetResult();
 
                 return (result1, result2);
             })
@@ -152,8 +152,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
             .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
             .Act(underTest =>
             {
-                underTest.Set(Key, Value);
-                underTest.Set(Key2, Value2);
+                underTest.Set(Key, Value).GetAwaiter().GetResult();
+                underTest.Set(Key2, Value2).GetAwaiter().GetResult();
 
                 return underTest.DbSize();
             })
@@ -164,12 +164,12 @@ namespace RedisLite.Tests.TestsWithRedisServer
             .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
             .Act(underTest =>
             {
-                underTest.Select(0);
-                underTest.Set(Key, Value);
-                underTest.SwapDb(0, 7);
-                var existsOnDb0 = underTest.Exists(Key);
-                underTest.Select(7);
-                var readValueFromDb7 = underTest.Get(Key);
+                underTest.Select(0).GetAwaiter().GetResult();
+                underTest.Set(Key, Value).GetAwaiter().GetResult();
+                underTest.SwapDb(0, 7).GetAwaiter().GetResult();
+                var existsOnDb0 = underTest.Exists(Key).GetAwaiter().GetResult();
+                underTest.Select(7).GetAwaiter().GetResult();
+                var readValueFromDb7 = underTest.Get(Key).GetAwaiter().GetResult();
 
                 return (existsOnDb0, readValueFromDb7);
             })
@@ -180,7 +180,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public void SwapWithWrongDbNumbers_ThrowsException() => Test
             .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
-            .Act(underTest => underTest.SwapDb(int.MaxValue, int.MaxValue - 1))
+            .Act(underTest => underTest.SwapDb(int.MaxValue, int.MaxValue - 1).GetAwaiter().GetResult())
             .Assert().ThrewException<RedisException>();
 
         [TestCleanup]
@@ -189,15 +189,15 @@ namespace RedisLite.Tests.TestsWithRedisServer
             try
             {
                 var dut = new RedisClient();
-                dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+                dut.Connect(LocalHostDefaultPort.AsConnectionSettings()).GetAwaiter().GetResult();
 
-                dut.Select(0);
-                dut.Del(Key);
-                dut.Del(Key2);
+                dut.Select(0).GetAwaiter().GetResult();
+                dut.Del(Key).GetAwaiter().GetResult();
+                dut.Del(Key2).GetAwaiter().GetResult();
 
-                dut.Select(7);
-                dut.Del(Key);
-                dut.Del(Key2);
+                dut.Select(7).GetAwaiter().GetResult();
+                dut.Del(Key).GetAwaiter().GetResult();
+                dut.Del(Key2).GetAwaiter().GetResult();
             }
             catch (Exception ex)
             {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using RedisLite.Client.CommandBuilders;
 using RedisLite.Client.Networking;
 
@@ -7,7 +8,7 @@ namespace RedisLite.Client.Clients
 {
     internal sealed class TransactionClient : BaseClient
     {
-        public Result Watch(ISession session, IEnumerable<string> keys)
+        public async Task<Result> Watch(ISession session, IEnumerable<string> keys)
         {
             try
             {
@@ -16,7 +17,7 @@ namespace RedisLite.Client.Clients
                         .WithParameters(keys)
                         .ToString();
 
-                var response = SendCommandAndReadResponse(session, command);
+                var response = await SendCommandAndReadResponseAsync(session, command);
                 var responseString = response[0]?.ToString();
 
                 return string.Equals(responseString, RedisConstants.OkResult)
@@ -29,13 +30,13 @@ namespace RedisLite.Client.Clients
             }
         }
 
-        public Result Multi(ISession session)
+        public async Task<Result> Multi(ISession session)
         {
             try
             {
                 var command = new BasicCommandBuilder(RedisCommands.MULTI).ToString();
 
-                var response = SendCommandAndReadResponse(session, command);
+                var response = await SendCommandAndReadResponseAsync(session, command);
                 var responseString = response[0]?.ToString();
 
                 return string.Equals(responseString, RedisConstants.OkResult)
@@ -48,13 +49,13 @@ namespace RedisLite.Client.Clients
             }
         }
 
-        public Result Exec(ISession session)
+        public async Task<Result> Exec(ISession session)
         {
             try
             {
                 var command = new BasicCommandBuilder(RedisCommands.EXEC).ToString();
 
-                var resultCode = SendCommandAndReadResponse(session, command);
+                var resultCode = await SendCommandAndReadResponseAsync(session, command);
 
                 if (resultCode == null)
                 {
@@ -69,13 +70,13 @@ namespace RedisLite.Client.Clients
             }
         }
 
-        public Result Discard(ISession session)
+        public async Task<Result> Discard(ISession session)
         {
             try
             {
                 var command = new BasicCommandBuilder(RedisCommands.DISCARD).ToString();
 
-                var response = SendCommandAndReadResponse(session, command);
+                var response = await SendCommandAndReadResponseAsync(session, command);
                 var responseString = response[0]?.ToString();
 
                 return string.Equals(responseString, RedisConstants.OkResult)

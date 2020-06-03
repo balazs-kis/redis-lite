@@ -14,41 +14,6 @@ namespace RedisLite.Client.Networking
             _lock = new object();
         }
 
-        public void Execute(Action action)
-        {
-            if (Monitor.TryEnter(_lock))
-            {
-                try
-                {
-                    action();
-                }
-                finally
-                {
-                    Monitor.Exit(_lock);
-                }
-            }
-            else
-            {
-                throw new InvalidOperationException(ParallelErrorMessage);
-            }
-        }
-
-        public T Execute<T>(Func<T> function)
-        {
-            if (Monitor.TryEnter(_lock))
-            {
-                try
-                {
-                    return function();
-                }
-                finally
-                {
-                    Monitor.Exit(_lock);
-                }
-            }
-
-            throw new InvalidOperationException(ParallelErrorMessage);
-        }
 
         public void Obtain()
         {

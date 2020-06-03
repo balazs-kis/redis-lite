@@ -8,7 +8,7 @@ namespace RedisLite.Tests.TestConfigurations
         public static RedisClient CreateAndConnect(ConnectionSettings settings)
         {
             var client = new RedisClient();
-            client.Connect(settings);
+            client.Connect(settings).GetAwaiter().GetResult();
 
             return client;
         }

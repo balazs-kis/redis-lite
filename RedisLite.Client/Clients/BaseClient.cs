@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using RedisLite.Client.Exceptions;
 using RedisLite.Client.Networking;
 
@@ -12,39 +13,47 @@ namespace RedisLite.Client.Clients
         private static readonly string IntegerPrefixString = RedisConstants.IntegerPrefix.ToString();
         private static readonly string BulkPrefixString = RedisConstants.BulkPrefix.ToString();
         private static readonly string ArrayPrefixString = RedisConstants.ArrayPrefix.ToString();
-        
+
         protected bool IsResponseOk(object response)
         {
             return string.Equals(response.ToString(), RedisConstants.OkResult) ||
                    string.Equals(response.ToString(), RedisConstants.QueuedResult);
         }
 
-        protected object[] ParseToEnd(ISession session)
+        protected async Task<object[]> ParseToEndAsync(ISession session)
         {
-            var firstLine = ParseLine(session);
+            var firstLine = await ParseLineAsync(session);
 
             return IsArray(firstLine)
-                ? ParseArray(session, firstLine)
-                : new object[] { ParseSimpleContent(session, firstLine) };
+                ? await ParseArrayAsync(session, firstLine)
+                : new object[] { await ParseSimpleContent(session, firstLine) };
         }
 
-        protected void SendCommand(ISession session, string command)
+        protected async Task SendCommandAsync(ISession session, string command)
         {
-            session.StreamWriter.Write(command);
-            session.StreamWriter.Flush();
+            await session.StreamWriter.WriteAsync(command);
+            await session.StreamWriter.FlushAsync();
         }
 
-        protected object[] SendCommandAndReadResponse(ISession session, string command)
+        protected async Task<object[]> SendCommandAndReadResponseAsync(ISession session, string command)
         {
-            return session.Locker.Execute(() =>
+            session.Locker.Obtain();
+
+            try
             {
-                SendCommand(session, command);
-                return ParseToEnd(session);
-            });
+                await SendCommandAsync(session, command);
+                var result = await ParseToEndAsync(session);
+
+                return result;
+            }
+            finally
+            {
+                session.Locker.Release();
+            }
         }
 
 
-        private object[] ParseArray(ISession session, string firstLine)
+        private async Task<object[]> ParseArrayAsync(ISession session, string firstLine)
         {
             if (!IsArray(firstLine))
             {
@@ -61,11 +70,11 @@ namespace RedisLite.Client.Clients
 
             for (var i = 0; i < arrayLength; i++)
             {
-                var line = ParseLine(session);
+                var line = await ParseLineAsync(session);
 
                 if (IsArray(line))
                 {
-                    var internalList = ParseArray(session, line);
+                    var internalList = await ParseArrayAsync(session, line);
 
                     result.Add(internalList);
                 }
@@ -78,7 +87,7 @@ namespace RedisLite.Client.Clients
             return result.ToArray();
         }
 
-        private string ParseSimpleContent(ISession session, string firstLine)
+        private async Task<string> ParseSimpleContent(ISession session, string firstLine)
         {
             if (IsError(firstLine))
             {
@@ -99,31 +108,31 @@ namespace RedisLite.Client.Clients
             {
                 return string.Equals(firstLine, RedisConstants.NullBulk) ?
                      null :
-                    ParseBulk(session, int.Parse(firstLine.TrimStart(RedisConstants.BulkPrefix)));
+                    await ParseBulkAsync(session, int.Parse(firstLine.TrimStart(RedisConstants.BulkPrefix)));
             }
 
             throw new InvalidOperationException($"Unknown type; the first line '{firstLine}' was not recognized");
         }
 
-        private string ParseLine(ISession session)
+        private async Task<string> ParseLineAsync(ISession session)
         {
-            var result = session.StreamReader.ReadLine()?.TrimEnd();
+            var result = (await session.StreamReader.ReadLineAsync())?.TrimEnd();
             if (result == null)
                 throw new RedisException("Stream has been closed", null);
             return result;
         }
 
-        private string ParseBulk(ISession session, int length)
+        private async Task<string> ParseBulkAsync(ISession session, int length)
         {
             var fullLength = length + 2; // Add final \r\n
             var readVals = new char[fullLength];
 
-            session.StreamReader.ReadBlock(readVals, 0, fullLength);
-            
+            await session.StreamReader.ReadBlockAsync(readVals, 0, fullLength);
+
             return new string(readVals).TrimEnd();
         }
 
-        
+
         private static bool IsError(string content)
         {
             return content.StartsWith(ErrorPrefixString);

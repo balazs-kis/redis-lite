@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace RedisLite.Client.Networking
 {
@@ -10,7 +11,7 @@ namespace RedisLite.Client.Networking
         StreamReader StreamReader { get; }
         StreamWriter StreamWriter { get; }
         
-        bool Open(string address, int port, TimeSpan receiveTimeout);
+        Task<bool> OpenAsync(string address, int port, TimeSpan receiveTimeout);
         void SetInfiniteReadTimeout();
     }
 }

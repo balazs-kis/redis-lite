@@ -15,7 +15,7 @@ namespace RedisLite.Client.Clients
 
         public event Action<string, string> OnMessageReceived;
 
-        public Result Publish(ISession session, string channel, string message)
+        public async Task<Result> Publish(ISession session, string channel, string message)
         {
             try
             {
@@ -25,7 +25,7 @@ namespace RedisLite.Client.Clients
                         .WithParameter(message)
                         .ToString();
                 
-                var response = SendCommandAndReadResponse(session, command);
+                var response = await SendCommandAndReadResponseAsync(session, command);
                 var responseString = response[0]?.ToString();
 
                 return int.TryParse(responseString, out _) ? Result.Ok() : Result.Fail(responseString);
@@ -36,7 +36,7 @@ namespace RedisLite.Client.Clients
             }
         }
 
-        public Result Subscribe(ISession session, IEnumerable<string> channels)
+        public async Task<Result> Subscribe(ISession session, IEnumerable<string> channels)
         {
             try
             {
@@ -48,14 +48,14 @@ namespace RedisLite.Client.Clients
                         .ToString();
 
                 session.Locker.Obtain();
-                SendCommand(session, command);
+                await SendCommandAsync(session, command);
 
                 var isSubscriptionOk = true;
                 string[] subscriptionResult = { "empty" };
 
                 foreach (var ch in chs)
                 {
-                    subscriptionResult = ParseToEnd(session).Select(i => i.ToString()).ToArray();
+                    subscriptionResult = (await ParseToEndAsync(session)).Select(i => i.ToString()).ToArray();
 
                     isSubscriptionOk &= string.Equals(subscriptionResult[0], "subscribe") &&
                                         string.Equals(subscriptionResult[1], ch) &&
@@ -70,7 +70,7 @@ namespace RedisLite.Client.Clients
 
                 session.SetInfiniteReadTimeout();
 
-                Task.Factory.StartNew(() =>
+                _ = Task.Run(async () =>
                 {
                     while (session.IsOpen)
                     {
@@ -80,7 +80,7 @@ namespace RedisLite.Client.Clients
                         
                         try
                         {
-                            received = ParseToEnd(session);
+                            received = await ParseToEndAsync(session);
                         }
                         catch (IOException)
                         {
@@ -107,7 +107,7 @@ namespace RedisLite.Client.Clients
                         OnMessageReceived?.Invoke(received[1].ToString(), received[2].ToString());
                     }
                     session.Locker.Release();
-                }, TaskCreationOptions.LongRunning).ConfigureAwait(false);
+                }).ConfigureAwait(false);
 
                 return Result.Ok();
             }
@@ -118,7 +118,7 @@ namespace RedisLite.Client.Clients
             }
         }
 
-        public Result Unsubscribe(ISession session, IEnumerable<string> channels)
+        public async Task<Result> Unsubscribe(ISession session, IEnumerable<string> channels)
         {
             try
             {
@@ -129,7 +129,7 @@ namespace RedisLite.Client.Clients
                         .WithParameters(chs)
                         .ToString();
 
-                SendCommand(session, command);
+                await SendCommandAsync(session, command);
 
                 var isUnsubOk = true;
                 foreach (var ch in chs)

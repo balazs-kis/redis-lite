@@ -1,6 +1,7 @@
 ﻿using RedisLite.Client;
 using RedisLite.Client.Contracts;
 using System;
+using System.Threading.Tasks;
 
 namespace RedisLite.ConsoleTester
 {
@@ -14,24 +15,24 @@ namespace RedisLite.ConsoleTester
             var client = new RedisClient();
             var connectionSettings = new ConnectionSettings("127.0.0.1", 6379);
 
-            FailIfException(() =>
+            FailIfException(async () =>
             {
                 Console.WriteLine($"Trying to connect to {connectionSettings.Address}:{connectionSettings.Port}...");
-                client.Connect(connectionSettings);
+                await client.Connect(connectionSettings);
                 Pass();
-            });
+            }).GetAwaiter().GetResult();
 
-            FailIfException(() =>
+            FailIfException(async () =>
             {
                 Console.WriteLine("Trying simple write...");
-                client.Set(Key, Value);
+                await client.Set(Key, Value);
                 Pass();
-            });
+            }).GetAwaiter().GetResult();
 
-            FailIfException(() =>
+            FailIfException(async () =>
             {
                 Console.WriteLine("Trying simple read...");
-                var result = client.Get(Key);
+                var result = await client.Get(Key);
                 if (result == Value)
                 {
                     Pass();
@@ -40,12 +41,12 @@ namespace RedisLite.ConsoleTester
                 {
                     Fail("Read incorrect value from the server");
                 }
-            });
+            }).GetAwaiter().GetResult();
 
-            FailIfException(() =>
+            FailIfException(async () =>
             {
                 Console.WriteLine("Trying DbSize...");
-                var result = client.DbSize();
+                var result = await client.DbSize();
 
                 if (result == 1)
                 {
@@ -55,25 +56,26 @@ namespace RedisLite.ConsoleTester
                 {
                     Fail("Read incorrect db size from the server");
                 }
-            });
+            }).GetAwaiter().GetResult();
 
-            FailIfException(() =>
+            FailIfException(async () =>
             {
                 Console.WriteLine("Trying delete...");
-                client.Del(Key);
+                await client.Del(Key);
                 Pass();
-            });
+            }).GetAwaiter().GetResult();
         }
 
-        private static void FailIfException(Action a)
+        private static Task FailIfException(Func<Task> a)
         {
             try
             {
-                a.Invoke();
+                return a.Invoke();
             }
             catch (Exception ex)
             {
                 Fail(ex);
+                return Task.FromResult(false);
             }
         }
 

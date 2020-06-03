@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using RedisLite.Client.CommandBuilders;
 using RedisLite.Client.Networking;
 
@@ -6,13 +7,13 @@ namespace RedisLite.Client.Clients
 {
     internal sealed class StringClient : BaseClient
     {
-        public Result Ping(ISession session)
+        public async Task<Result> Ping(ISession session)
         {
             try
             {
                 var command = new BasicCommandBuilder(RedisCommands.PING).ToString();
 
-                var response = SendCommandAndReadResponse(session, command);
+                var response = await SendCommandAndReadResponseAsync(session, command);
                 var responseString = response[0]?.ToString();
 
                 return IsResponsePong(responseString) ? Result.Ok() : Result.Fail(responseString);
@@ -23,7 +24,7 @@ namespace RedisLite.Client.Clients
             }
         }
 
-        public Result Set(ISession session, string key, string value)
+        public async Task<Result> Set(ISession session, string key, string value)
         {
             try
             {
@@ -33,7 +34,7 @@ namespace RedisLite.Client.Clients
                         .WithParameter(value)
                         .ToString();
 
-                var response = SendCommandAndReadResponse(session, command);
+                var response = await SendCommandAndReadResponseAsync(session, command);
                 var responseString = response[0]?.ToString();
 
                 return IsResponseOk(responseString) ? Result.Ok() : Result.Fail(responseString);
@@ -44,7 +45,7 @@ namespace RedisLite.Client.Clients
             }
         }
 
-        public Result<string> Get(ISession session, string key)
+        public async Task<Result<string>> Get(ISession session, string key)
         {
             try
             {
@@ -53,7 +54,7 @@ namespace RedisLite.Client.Clients
                         .WithKey(key)
                         .ToString();
 
-                var result = SendCommandAndReadResponse(session, command);
+                var result = await SendCommandAndReadResponseAsync(session, command);
 
                 return Result.Ok(result[0]?.ToString());
             }
@@ -64,7 +65,7 @@ namespace RedisLite.Client.Clients
         }
 
 
-        private bool IsResponsePong(string response)
+        private static bool IsResponsePong(string response)
         {
             return string.Equals(response, RedisConstants.Pong);
         }

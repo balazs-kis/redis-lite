@@ -16,89 +16,10 @@ namespace RedisLite.Tests.UnitTests
         private static readonly TimeSpan Delay = TimeSpan.FromMilliseconds(1250);
 
         [TestMethod]
-        public void TryToRunOneAction_Succeeds() => Test
-            .Arrange(() => new Locker())
-            .Act(underTest =>
-            {
-                var result = 0;
-                underTest.Execute(() => { result = Number; });
-
-                return result;
-            })
-            .Assert().Validate(result => result.Should().Be(Number));
-
-        [TestMethod]
-        public void TryToRunSecondActionInParallel_LockerThrowsException() => Test
-            .Arrange(() =>
-            {
-                var locker = new Locker();
-                var are = new AutoResetEvent(false);
-                return (locker, are);
-            })
-            .Act((locker, are) =>
-            {
-                var resultNumber = 0;
-
-                Task.Run(() => locker.Execute(() => { are.WaitOne(); }));
-                Thread.Sleep(Delay);
-                locker.Execute(() => { resultNumber = Number; });
-
-                return resultNumber;
-            })
-            .Assert().ThrewException<InvalidOperationException>();
-
-        [TestMethod]
-        public void TryToRunOneFunc_Succeeds() => Test
-            .Arrange(() => new Locker())
-            .Act(underTest => underTest.Execute(() => Number))
-            .Assert().Validate(result => result.Should().Be(Number));
-
-        [TestMethod]
-        public void TryToRunSecondFuncInParallel_LockerThrowsException() => Test
-            .Arrange(() =>
-            {
-                var locker = new Locker();
-                var are = new AutoResetEvent(false);
-                return (locker, are);
-            })
-            .Act((locker, are) =>
-            {
-                Task.Run(() =>
-                {
-                    return locker.Execute(() =>
-                    {
-                        are.WaitOne();
-                        return Number;
-                    });
-                });
-                Thread.Sleep(Delay);
-                var resultNumber = locker.Execute(() => Number);
-                
-                return resultNumber;
-            })
-            .Assert().ThrewException<InvalidOperationException>();
-
-        [TestMethod]
         public void TryToObtainWhileNotLocked_Succeeds() => Test
             .Arrange(() => new Locker())
             .Act(underTest => underTest.Obtain())
             .Assert().IsSuccess();
-
-        [TestMethod]
-        public void TryToObtainWhileLocked_LockerThrowsException() => Test
-            .Arrange(() =>
-            {
-                var locker = new Locker();
-                var are = new AutoResetEvent(false);
-                return (locker, are);
-            })
-            .Act((locker, are) =>
-            {
-                Task.Run(() => locker.Execute(() => { are.WaitOne(); }));
-                Thread.Sleep(Delay);
-                locker.Obtain();
-            })
-            .Assert().ThrewException<InvalidOperationException>();
 
         [TestMethod]
         public void TryToObtainTwice_LockerThrowsException() => Test

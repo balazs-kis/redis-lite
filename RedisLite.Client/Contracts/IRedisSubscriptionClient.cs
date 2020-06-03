@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace RedisLite.Client.Contracts
 {
@@ -7,11 +8,11 @@ namespace RedisLite.Client.Contracts
         event Action<IRedisSubscriptionClient> OnConnected;
         event Action<string, string> OnMessageReceived;
 
-        void Connect(ConnectionSettings settings);
+        Task Connect(ConnectionSettings settings);
 
-        void Select(int dbIndex);
-        
-        void Subscribe(params string[] channels);
-        void Unsubscribe(params string[] channels);
+        Task Select(int dbIndex);
+
+        Task Subscribe(params string[] channels);
+        Task Unsubscribe(params string[] channels);
     }
 }

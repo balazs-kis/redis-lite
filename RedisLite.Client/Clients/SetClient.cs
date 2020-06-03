@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using RedisLite.Client.CommandBuilders;
 using RedisLite.Client.Networking;
 
@@ -8,7 +9,7 @@ namespace RedisLite.Client.Clients
 {
     internal sealed class SetClient : BaseClient
     {
-        public Result<long> SAdd(ISession session, string key, params string[] members)
+        public async Task<Result<long>> SAdd(ISession session, string key, params string[] members)
         {
             try
             {
@@ -18,7 +19,7 @@ namespace RedisLite.Client.Clients
                         .WithParameters(members)
                         .ToString();
 
-                var response = SendCommandAndReadResponse(session, command);
+                var response = await SendCommandAndReadResponseAsync(session, command);
                 var responseString = response[0]?.ToString();
 
                 var isOk = long.TryParse(responseString, out var result);
@@ -33,7 +34,7 @@ namespace RedisLite.Client.Clients
             }
         }
 
-        public Result<long> SRem(ISession session, string key, params string[] members)
+        public async Task<Result<long>> SRem(ISession session, string key, params string[] members)
         {
             try
             {
@@ -43,7 +44,7 @@ namespace RedisLite.Client.Clients
                         .WithParameters(members)
                         .ToString();
 
-                var response = SendCommandAndReadResponse(session, command);
+                var response = await SendCommandAndReadResponseAsync(session, command);
                 var responseString = response[0]?.ToString();
 
                 var isOk = long.TryParse(responseString, out var result);
@@ -57,7 +58,7 @@ namespace RedisLite.Client.Clients
             }
         }
 
-        public Result<bool> SIsMember(ISession session, string key, string member)
+        public async Task<Result<bool>> SIsMember(ISession session, string key, string member)
         {
             try
             {
@@ -67,7 +68,7 @@ namespace RedisLite.Client.Clients
                         .WithParameter(member)
                         .ToString();
 
-                var response = SendCommandAndReadResponse(session, command);
+                var response = await SendCommandAndReadResponseAsync(session, command);
                 var responseString = response[0]?.ToString();
 
                 var isOk = int.TryParse(responseString, out var result);
@@ -81,7 +82,7 @@ namespace RedisLite.Client.Clients
             }
         }
 
-        public Result<List<string>> SMembers(ISession session, string key)
+        public async Task<Result<List<string>>> SMembers(ISession session, string key)
         {
             try
             {
@@ -90,7 +91,7 @@ namespace RedisLite.Client.Clients
                         .WithKey(key)
                         .ToString();
 
-                var result = SendCommandAndReadResponse(session, command);
+                var result = await SendCommandAndReadResponseAsync(session, command);
                 
                 return Result.Ok(result.Select(i => i.ToString()).ToList());
             }
@@ -100,7 +101,7 @@ namespace RedisLite.Client.Clients
             }
         }
 
-        public Result<long> SCard(ISession session, string key)
+        public async Task<Result<long>> SCard(ISession session, string key)
         {
             try
             {
@@ -109,7 +110,7 @@ namespace RedisLite.Client.Clients
                         .WithKey(key)
                         .ToString();
 
-                var response = SendCommandAndReadResponse(session, command);
+                var response = await SendCommandAndReadResponseAsync(session, command);
                 var responseString = response[0]?.ToString();
 
                 var isOk = long.TryParse(responseString, out var result);
