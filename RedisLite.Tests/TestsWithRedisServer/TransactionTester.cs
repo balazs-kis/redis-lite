@@ -1,9 +1,10 @@
-﻿using System;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RedisLite.Client;
 using RedisLite.Client.Exceptions;
 using RedisLite.Tests.TestConfigurations;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace RedisLite.Tests.TestsWithRedisServer
 {
@@ -16,16 +17,16 @@ namespace RedisLite.Tests.TestsWithRedisServer
         private const string Value3 = "TransactionValue3";
 
         [TestMethod]
-        public void TestInvalidKeyList_WatchThrowsException()
+        public async Task TestInvalidKeyList_WatchThrowsException()
         {
             Exception thrownException = null;
 
             var dut = new RedisClient();
-            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             try
             {
-                dut.Watch();
+                await dut.Watch();
             }
             catch (Exception ex)
             {
@@ -37,17 +38,17 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestMethod]
-        public void Test_TransactionExecuted_SimpleSetGet()
+        public async Task Test_TransactionExecuted_SimpleSetGet()
         {
             var dut = new RedisClient();
 
-            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
-            dut.Multi();
-            dut.Set(Key, Value1);
-            dut.Set(Key, Value2);
-            dut.Set(Key, Value3);
-            dut.Exec();
+            await dut.Multi();
+            await dut.Set(Key, Value1);
+            await dut.Set(Key, Value2);
+            await dut.Set(Key, Value3);
+            await dut.Exec();
 
             var result = dut.Get(Key);
 
@@ -55,56 +56,56 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestMethod]
-        public void Test_TransactionExecuted_ListSetGet()
+        public async Task Test_TransactionExecuted_ListSetGet()
         {
             var items = new[] { "1", "20", "300", "4000" };
 
             var dut = new RedisClient();
 
-            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
-            dut.Multi();
-            dut.RPush(Key, items);
-            dut.Del(Key);
-            dut.RPush(Key, items);
-            dut.Exec();
+            await dut.Multi();
+            await dut.RPush(Key, items);
+            await dut.Del(Key);
+            await dut.RPush(Key, items);
+            await dut.Exec();
 
-            var result = dut.LRange(Key, 0, 4);
+            var result = await dut.LRange(Key, 0, 4);
 
             Assert.IsTrue(items.SequenceEqual(result));
         }
 
         [TestMethod]
-        public void Test_TransactionFailed_SimpleSetGet()
+        public async Task Test_TransactionFailed_SimpleSetGet()
         {
             Exception exception = null;
 
             var dut1 = new RedisClient();
             var dut2 = new RedisClient();
 
-            dut1.Connect(LocalHostDefaultPort.AsConnectionSettings());
-            dut2.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            await dut1.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            await dut2.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
-            dut1.Watch(new[] { Key });
+            await dut1.Watch(new[] { Key });
 
-            dut1.Multi();
-            dut1.Set(Key, Value1);
+            await dut1.Multi();
+            await dut1.Set(Key, Value1);
 
-            dut2.Set(Key, Value2);
+            await dut2.Set(Key, Value2);
 
-            dut1.Set(Key, Value2);
-            dut1.Set(Key, Value3);
+            await dut1.Set(Key, Value2);
+            await dut1.Set(Key, Value3);
 
             try
             {
-                dut1.Exec();
+                await dut1.Exec();
             }
             catch (Exception ex)
             {
                 exception = ex;
             }
 
-            var result = dut1.Get(Key);
+            var result = await dut1.Get(Key);
 
             Assert.AreEqual(Value2, result);
             Assert.IsNotNull(exception);
@@ -112,7 +113,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestMethod]
-        public void Test_TransactionFailed_ListSetGet()
+        public async Task Test_TransactionFailed_ListSetGet()
         {
             var items = new[] { "1", "20", "300", "4000" };
             var five = "50000";
@@ -123,28 +124,28 @@ namespace RedisLite.Tests.TestsWithRedisServer
             var dut1 = new RedisClient();
             var dut2 = new RedisClient();
 
-            dut1.Connect(LocalHostDefaultPort.AsConnectionSettings());
-            dut2.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            await dut1.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            await dut2.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
-            dut1.RPush(Key, items);
+            await dut1.RPush(Key, items);
 
-            dut1.Watch(new[] { Key });
+            await dut1.Watch(new[] { Key });
 
-            dut1.Multi();
-            dut1.RPush(Key, six);
+            await dut1.Multi();
+            await dut1.RPush(Key, six);
 
-            dut2.RPush(Key, five);
+            await dut2.RPush(Key, five);
 
             try
             {
-                dut1.Exec();
+                await dut1.Exec();
             }
             catch (Exception ex)
             {
                 exception = ex;
             }
 
-            var result = dut1.LRange(Key, 4, 5);
+            var result = await dut1.LRange(Key, 4, 5);
 
             Assert.AreEqual(five, result.SingleOrDefault());
             Assert.IsNotNull(exception);
@@ -152,33 +153,33 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestMethod]
-        public void Test_MultiDiscard()
+        public async Task Test_MultiDiscard()
         {
             var dut = new RedisClient();
 
-            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
-            dut.Set(Key, Value1);
+            await dut.Set(Key, Value1);
 
-            dut.Multi();
-            dut.Set(Key, Value2);
-            dut.Set(Key, Value3);
-            dut.Discard();
+            await dut.Multi();
+            await dut.Set(Key, Value2);
+            await dut.Set(Key, Value3);
+            await dut.Discard();
 
-            var result = dut.Get(Key);
+            var result = await dut.Get(Key);
 
             Assert.AreEqual(Value1, result);
         }
 
 
         [TestCleanup]
-        public void Cleanup()
+        public async Task Cleanup()
         {
             var dut = new RedisClient();
 
-            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
-            dut.Del(Key);
+            await dut.Del(Key);
         }
     }
 }

@@ -10,8 +10,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
     [TestClass]
     public class SetGetTester
     {
-        private const string Key = "TestKey";
-        private const string Value = "TestValue";
+        private const string Key = "TestKey001";
+        private const string Value = "TestValue001";
 
         [TestMethod]
         public async Task Test_Set_Get()

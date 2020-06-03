@@ -1,8 +1,9 @@
-﻿using System;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RedisLite.Client;
 using RedisLite.Tests.TestConfigurations;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace RedisLite.Tests.TestsWithRedisServer
 {
@@ -29,34 +30,34 @@ namespace RedisLite.Tests.TestsWithRedisServer
                                                           "return t";
 
         [TestMethod]
-        public void TestScriptLoadAndRun_SingleString()
+        public async Task TestScriptLoadAndRun_SingleString()
         {
             var dut = new RedisClient();
 
-            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
-            var sha = dut.LoadScript(ScriptWithoutParameter);
+            var sha = await dut.LoadScript(ScriptWithoutParameter);
 
             Assert.AreEqual(ShaLength, sha.Length);
 
-            var res = dut.EvalSha(sha, new string[0]).ToList();
+            var res = (await dut.EvalSha(sha, new string[0])).ToList();
             var resString = res[0];
 
             Assert.AreEqual("it works", resString);
         }
 
         [TestMethod]
-        public void TestScriptLoadAndRun_List()
+        public async Task TestScriptLoadAndRun_List()
         {
             var dut = new RedisClient();
 
-            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
-            var sha = dut.LoadScript(ScriptWithListResult);
+            var sha = await dut.LoadScript(ScriptWithListResult);
 
             Console.WriteLine(sha);
 
-            var res = dut.EvalSha(sha, new string[0]);
+            var res = await dut.EvalSha(sha, new string[0]);
             var resList = res as object[];
 
             Assert.AreEqual(2, resList?.Length);
@@ -65,17 +66,17 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestMethod]
-        public void TestScriptLoadAndRun_ListInList()
+        public async Task TestScriptLoadAndRun_ListInList()
         {
             var dut = new RedisClient();
 
-            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
-            var sha = dut.LoadScript(ScriptWithListInListResult);
+            var sha = await dut.LoadScript(ScriptWithListInListResult);
 
             Console.WriteLine(sha);
 
-            var result = dut.EvalSha(sha, new string[0]).ToArray();
+            var result = (await dut.EvalSha(sha, new string[0])).ToArray();
 
             Assert.AreEqual(2, result?.Length);
 
@@ -95,18 +96,18 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
 
         [TestCleanup]
-        public void Cleanup()
+        public async Task Cleanup()
         {
             try
             {
                 var dut = new RedisClient();
 
-                dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+                await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
-                dut.Del("foo");
+                await dut.Del("foo");
 
-                dut.Select(9);
-                dut.Del("tmp01");
+                await dut.Select(9);
+                await dut.Del("tmp01");
             }
             catch (Exception ex)
             {

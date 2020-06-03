@@ -1,10 +1,10 @@
-﻿using FluentAssertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RedisLite.Client;
 using RedisLite.Client.Exceptions;
-using TestLite;
 using RedisLite.Tests.TestConfigurations;
+using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace RedisLite.Tests.TestsWithRedisServer
 {
@@ -16,125 +16,193 @@ namespace RedisLite.Tests.TestsWithRedisServer
         private const string SetValue2 = "SetValue2";
 
         [TestMethod]
-        public void Test_SAdd() => Test
-            .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
-            .Act(underTest =>
-            {
-                underTest.SAdd(SetKey, SetValue1);
-                return underTest.SMembers(SetKey).ToList();
-            })
-            .Assert()
-                .Validate(result => result.Count.Should().Be(1))
-                .Validate(result => result.First().Should().Be(SetValue1));
+        public async Task Test_SAdd()
+        {
+            var dut = new RedisClient();
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+
+            await dut.SAdd(SetKey, SetValue1);
+            var result = (await dut.SMembers(SetKey)).ToList();
+
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(SetValue1, result.First());
+        }
 
         [TestMethod]
-        public void TestWrongOperation_SAddThrowsException() => Test
-            .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
-            .Act(underTest =>
+        public async Task TestWrongOperation_SAddThrowsException()
+        {
+            Exception thrownException = null;
+
+            var dut = new RedisClient();
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+
+            try
             {
-                underTest.Set(SetKey, SetValue1);
-                underTest.SAdd(SetKey, SetValue2);
-            })
-            .Assert().ThrewException<RedisException>();
+                await dut.Set(SetKey, SetValue1);
+                await dut.SAdd(SetKey, SetValue2);
+            }
+            catch (Exception ex)
+            {
+                thrownException = ex;
+            }
+
+            Assert.IsNotNull(thrownException);
+            Assert.IsInstanceOfType(thrownException, typeof(RedisException));
+        }
 
         [TestMethod]
-        public void Test_SRem() => Test
-            .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
-            .Act(underTest =>
-            {
-                underTest.SAdd(SetKey, SetValue1);
-                underTest.SRem(SetKey, SetValue1);
-                return underTest.SMembers(SetKey).ToList();
-            })
-            .Assert().Validate(result => result.Count.Should().Be(0));
+        public async Task Test_SRem()
+        {
+            var dut = new RedisClient();
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+
+            await dut.SAdd(SetKey, SetValue1);
+            await dut.SRem(SetKey, SetValue1);
+            var result = (await dut.SMembers(SetKey)).ToList();
+
+            Assert.AreEqual(0, result.Count);
+        }
 
         [TestMethod]
-        public void TestWrongOperation_SRemThrowsException() => Test
-            .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
-            .Act(underTest =>
+        public async Task TestWrongOperation_SRemThrowsException()
+        {
+            Exception thrownException = null;
+
+            var dut = new RedisClient();
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+
+            try
             {
-                underTest.Set(SetKey, SetValue1);
-                underTest.SRem(SetKey, SetValue1);
-            })
-            .Assert().ThrewException<RedisException>();
+                await dut.Set(SetKey, SetValue1);
+                await dut.SRem(SetKey, SetValue1);
+            }
+            catch (Exception ex)
+            {
+                thrownException = ex;
+            }
+
+            Assert.IsNotNull(thrownException);
+            Assert.IsInstanceOfType(thrownException, typeof(RedisException));
+        }
 
         [TestMethod]
-        public void Test_SMembers() => Test
-            .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
-            .Act(underTest =>
-            {
-                underTest.SAdd(SetKey, SetValue1, SetValue2);
-                return underTest.SMembers(SetKey).ToList();
-            })
-            .Assert()
-                .Validate(result => result.Count.Should().Be(2))
-                .Validate(result => result.Should().Contain(SetValue1))
-                .Validate(result => result.Should().Contain(SetValue2));
+        public async Task Test_SMembers()
+        {
+            var dut = new RedisClient();
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+
+            await dut.SAdd(SetKey, SetValue1, SetValue2);
+            var result = (await dut.SMembers(SetKey)).ToList();
+
+            Assert.AreEqual(2, result.Count);
+            Assert.IsTrue(result.Contains(SetValue1));
+            Assert.IsTrue(result.Contains(SetValue2));
+        }
 
         [TestMethod]
-        public void TestWrongOperation_SMembersThrowsException() => Test
-            .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
-            .Act(underTest =>
+        public async Task TestWrongOperation_SMembersThrowsException()
+        {
+            Exception thrownException = null;
+
+            var dut = new RedisClient();
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+
+            try
             {
-                underTest.Set(SetKey, SetValue1);
-                underTest.SMembers(SetKey);
-            })
-            .Assert().ThrewException<RedisException>();
+                await dut.Set(SetKey, SetValue1);
+                await dut.SMembers(SetKey);
+            }
+            catch (Exception ex)
+            {
+                thrownException = ex;
+            }
+
+            Assert.IsNotNull(thrownException);
+            Assert.IsInstanceOfType(thrownException, typeof(RedisException));
+        }
 
         [TestMethod]
-        public void Test_SIsMember() => Test
-            .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
-            .Act(underTest =>
-            {
-                underTest.SAdd(SetKey, SetValue1);
-                var result1 = underTest.SIsMember(SetKey, SetValue1);
-                var result2 = underTest.SIsMember(SetKey, SetValue2);
-                return (result1, result2);
-            })
-            .Assert()
-                .Validate(result => result.result1.Should().BeTrue())
-                .Validate(result => result.result2.Should().BeFalse());
+        public async Task Test_SIsMember()
+        {
+            var dut = new RedisClient();
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+
+            await dut.SAdd(SetKey, SetValue1);
+            var result1 = await dut.SIsMember(SetKey, SetValue1);
+            var result2 = await dut.SIsMember(SetKey, SetValue2);
+
+            Assert.IsTrue(result1);
+            Assert.IsFalse(result2);
+        }
 
         [TestMethod]
-        public void TestWrongOperation_SIsMemberThrowsException() => Test
-            .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
-            .Act(underTest =>
+        public async Task TestWrongOperation_SIsMemberThrowsException()
+        {
+            Exception thrownException = null;
+
+            var dut = new RedisClient();
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+
+            try
             {
-                underTest.Set(SetKey, SetValue1);
-                underTest.SIsMember(SetKey, SetValue1);
-            })
-            .Assert().ThrewException<RedisException>();
+                await dut.Set(SetKey, SetValue1);
+                await dut.SIsMember(SetKey, SetValue1);
+            }
+            catch (Exception ex)
+            {
+                thrownException = ex;
+            }
+
+            Assert.IsNotNull(thrownException);
+            Assert.IsInstanceOfType(thrownException, typeof(RedisException));
+        }
 
         [TestMethod]
-        public void Test_SCard() => Test
-            .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
-            .Act(underTest =>
-            {
-                underTest.SAdd(SetKey, SetValue1);
-                underTest.SAdd(SetKey, SetValue2);
-                return underTest.SCard(SetKey);
-            })
-            .Assert().Validate(result => result.Should().Be(2));
+        public async Task Test_SCard()
+        {
+            var dut = new RedisClient();
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+
+            await dut.SAdd(SetKey, SetValue1);
+            await dut.SAdd(SetKey, SetValue2);
+            var result = await dut.SCard(SetKey);
+
+            Assert.AreEqual(2, result);
+        }
 
         [TestMethod]
-        public void TestWrongOperation_SCardThrowsException() => Test
-            .Arrange(LocalHostDefaultPort.CreateAndConnectClient)
-            .Act(underTest =>
+        public async Task TestWrongOperation_SCardThrowsException()
+        {
+            Exception thrownException = null;
+
+            var dut = new RedisClient();
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            long result = 0;
+
+            try
             {
-                underTest.Set(SetKey, SetValue1);
-                underTest.SCard(SetKey);
-            })
-            .Assert().ThrewException<RedisException>();
+                await dut.Set(SetKey, SetValue1);
+                result = await dut.SCard(SetKey);
+            }
+            catch (Exception ex)
+            {
+                thrownException = ex;
+            }
+
+            Assert.AreEqual(0, result);
+            Assert.IsNotNull(thrownException);
+            Assert.IsInstanceOfType(thrownException, typeof(RedisException));
+        }
 
 
         [TestCleanup]
-        public void Cleanup()
+        public async Task Cleanup()
         {
             var dut = new RedisClient();
 
-            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
-            dut.Del(SetKey);
+            await dut.Del(SetKey);
         }
     }
 }

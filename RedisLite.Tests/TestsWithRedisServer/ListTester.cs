@@ -11,7 +11,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
     [TestClass]
     public class ListTester
     {
-        private const string ListKey = "List01";
+        private const string ListKey = "List001";
         private static readonly string[] ListItems = { "1000", "2000", "3000", "4000" };
 
         [TestMethod]
