@@ -50,7 +50,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
             await dut.Set(Key, Value3);
             await dut.Exec();
 
-            var result = dut.Get(Key);
+            var result = await dut.Get(Key);
 
             Assert.AreEqual(Value3, result);
         }

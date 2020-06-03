@@ -42,9 +42,7 @@ namespace RedisLite.Client.Clients
             try
             {
                 await SendCommandAsync(session, command);
-                var result = await ParseToEndAsync(session);
-
-                return result;
+                return await ParseToEndAsync(session);
             }
             finally
             {
@@ -80,7 +78,7 @@ namespace RedisLite.Client.Clients
                 }
                 else
                 {
-                    result.Add(ParseSimpleContent(session, line));
+                    result.Add(await ParseSimpleContent(session, line));
                 }
             }
 

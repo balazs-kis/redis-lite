@@ -250,20 +250,20 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
 
         [TestCleanup]
-        public void Cleanup()
+        public async Task Cleanup()
         {
             try
             {
                 var dut = new RedisClient();
-                dut.Connect(LocalHostDefaultPort.AsConnectionSettings()).GetAwaiter().GetResult();
+                await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
-                dut.Select(0).GetAwaiter().GetResult();
-                dut.Del(Key).GetAwaiter().GetResult();
-                dut.Del(Key2).GetAwaiter().GetResult();
+                await dut.Select(0);
+                await dut.Del(Key);
+                await dut.Del(Key2);
 
-                dut.Select(7).GetAwaiter().GetResult();
-                dut.Del(Key).GetAwaiter().GetResult();
-                dut.Del(Key2).GetAwaiter().GetResult();
+                await dut.Select(7);
+                await dut.Del(Key);
+                await dut.Del(Key2);
             }
             catch (Exception ex)
             {

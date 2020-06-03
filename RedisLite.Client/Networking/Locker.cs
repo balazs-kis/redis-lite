@@ -17,20 +17,20 @@ namespace RedisLite.Client.Networking
 
         public void Obtain()
         {
-            var entered = Monitor.TryEnter(_lock);
+            //var entered = Monitor.TryEnter(_lock);
 
-            if (!entered)
-            {
-                throw new InvalidOperationException(ParallelErrorMessage);
-            }
+            //if (!entered)
+            //{
+            //    throw new InvalidOperationException(ParallelErrorMessage);
+            //}
         }
 
         public void Release()
         {
-            if (Monitor.IsEntered(_lock))
-            {
-                Monitor.Exit(_lock);
-            }
+            //if (Monitor.IsEntered(_lock))
+            //{
+            //    Monitor.Exit(_lock);
+            //}
         }
     }
 }

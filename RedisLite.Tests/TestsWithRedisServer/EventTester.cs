@@ -2,6 +2,7 @@
 using RedisLite.Client;
 using RedisLite.Tests.TestConfigurations;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RedisLite.Tests.TestsWithRedisServer
@@ -31,6 +32,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
             };
 
             await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            await Task.Delay(1250);
 
             Assert.AreEqual(Value, result);
         }
