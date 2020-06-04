@@ -31,7 +31,7 @@ namespace RedisLite.Client
             _commonClient = new CommonClient();
             _subscriptionClient = new SubscriptionClient();
 
-            _session = await _commonClient.Connect(settings);
+            _session = await _commonClient.Connect(settings).ConfigureAwait(false);
 
             if (!_session.IsOpen)
             {
@@ -50,7 +50,7 @@ namespace RedisLite.Client
                         "Subscribe has already been called on this client");
                 }
 
-                var result = await _commonClient.Select(_session, dbIndex);
+                var result = await _commonClient.Select(_session, dbIndex).ConfigureAwait(false);
 
                 if (result.IsFailure)
                 {
@@ -75,7 +75,7 @@ namespace RedisLite.Client
                         "Subscribe has already been called on this client");
                 }
 
-                var result = await _subscriptionClient.Subscribe(_session, channels);
+                var result = await _subscriptionClient.Subscribe(_session, channels).ConfigureAwait(false);
 
                 if (result.IsFailure)
                 {
@@ -103,7 +103,7 @@ namespace RedisLite.Client
                         "Subscribe has not yet been called on this client");
                 }
 
-                var result = await _subscriptionClient.Unsubscribe(_session, channels);
+                var result = await _subscriptionClient.Unsubscribe(_session, channels).ConfigureAwait(false);
 
                 if (result.IsFailure)
                 {
@@ -112,6 +112,7 @@ namespace RedisLite.Client
                         result.Exception);
                 }
             });
+
 
         public void Dispose()
         {
