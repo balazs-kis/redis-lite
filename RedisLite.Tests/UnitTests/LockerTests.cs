@@ -15,14 +15,12 @@ namespace RedisLite.Tests.UnitTests
 
         private static readonly TimeSpan Delay = TimeSpan.FromMilliseconds(1250);
         
-        [Ignore]
         [TestMethod]        
         public void TryToObtainWhileNotLocked_Succeeds() => Test
             .Arrange(() => new Locker())
             .Act(underTest => underTest.Obtain())
             .Assert().IsSuccess();
 
-        [Ignore]
         [TestMethod]
         public void TryToObtainTwice_LockerThrowsException() => Test
             .Arrange(() =>
@@ -44,7 +42,6 @@ namespace RedisLite.Tests.UnitTests
             })
             .Assert().ThrewException<InvalidOperationException>();
 
-        [Ignore]
         [TestMethod]
         public void TryToObtainAfterReleased_Succeeds() => Test
             .Arrange(() => new Locker())
