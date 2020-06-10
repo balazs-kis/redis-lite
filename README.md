@@ -45,7 +45,7 @@ subscriber.OnMessageReceived += (channel, message) =>
 subscriber.Subscribe("MyChannel");
 ```
 
-Sending messages to a channel is done through the regular `RedisClient`:
+Sending messages to a channel is done through the regular `AsyncRedisClient`:
 ```csharp
 // Create a client and connect to a server:
 var publisher = new AsyncRedisClient();
