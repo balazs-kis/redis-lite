@@ -36,13 +36,13 @@ var connectionSettings = new ConnectionSettings(address: "127.0.0.1", port: 6379
 await subscriber.Connect(connectionSettings);
 
 // Register callcback for subscription:
-dutSubscriber.OnMessageReceived += (channel, message) =>
+subscriber.OnMessageReceived += (channel, message) =>
 {
     // Do something when a message arrives.
 };
 
 // Subscribe to the channel you wish to recieve messages from:
-dutSubscriber.Subscribe("MyChannel");
+subscriber.Subscribe("MyChannel");
 ```
 
 Sending messages to a channel is done through the regular `RedisClient`:
