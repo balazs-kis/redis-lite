@@ -1,9 +1,9 @@
-﻿using System;
-using FluentAssertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RedisLite.Client;
 using RedisLite.Tests.TestConfigurations;
-using TestLite;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace RedisLite.Tests.TestsWithRedisServer
 {
@@ -19,37 +19,35 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestMethod]
-        public void Test_ConnectedEvent() => Test
-            .Arrange(() =>
-            {
-                var client = new RedisClient();
-                var result = new StringWrapper();
+        public async Task Test_ConnectedEvent()
+        {
+            var dut = new AsyncRedisClient();
 
-                client.OnConnected += c =>
-                {
-                    c.Set(Key, Value);
-                    result.StringValue = client.Get(Key);
-                };
-                return (client, result);
-            })
-            .Act((client, result) =>
+            string result = null;
+
+            dut.OnConnected += async c =>
             {
-                client.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                return result;
-            })
-            .Assert().Validate(result => result.StringValue.Should().Be(Value));
-        
-        
+                await c.Set(Key, Value);
+                result = await dut.Get(Key);
+            };
+
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            await Task.Delay(1250);
+
+            Assert.AreEqual(Value, result);
+        }
+
+
         [TestCleanup]
-        public void Cleanup()
+        public async Task Cleanup()
         {
             try
             {
-                var dut = new RedisClient();
+                var dut = new AsyncRedisClient();
 
-                dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+                await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
-                dut.Del(Key);
+                await dut.Del(Key);
             }
             catch (Exception ex)
             {

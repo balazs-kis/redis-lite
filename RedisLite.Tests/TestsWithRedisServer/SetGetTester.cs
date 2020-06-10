@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RedisLite.Client;
 using RedisLite.Client.Exceptions;
@@ -9,33 +10,33 @@ namespace RedisLite.Tests.TestsWithRedisServer
     [TestClass]
     public class SetGetTester
     {
-        private const string Key = "TestKey";
-        private const string Value = "TestValue";
+        private const string Key = "TestKey001";
+        private const string Value = "TestValue001";
 
         [TestMethod]
-        public void Test_Set_Get()
+        public async Task Test_Set_Get()
         {
-            var dut = new RedisClient();
-            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            var dut = new AsyncRedisClient();
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
-            dut.Set(Key, Value);
-            var res = dut.Get(Key);
+            await dut.Set(Key, Value);
+            var res = await dut.Get(Key);
 
             Assert.AreEqual(Value, res);
         }
 
         [TestMethod]
-        public void TestWrongOperation_GetThrowsException()
+        public async Task TestWrongOperation_GetThrowsException()
         {
             Exception thrownException = null;
 
-            var dut = new RedisClient();
-            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            var dut = new AsyncRedisClient();
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             try
             {
-                dut.SAdd(Key, Value);
-                dut.Get(Key);
+                await dut.SAdd(Key, Value);
+                await dut.Get(Key);
             }
             catch (Exception ex)
             {
@@ -47,15 +48,15 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestMethod]
-        public void TestUnconnectedClient_GetThrowsException()
+        public async Task TestUnconnectedClient_GetThrowsException()
         {
             Exception thrownException = null;
 
-            var dut = new RedisClient();
+            var dut = new AsyncRedisClient();
 
             try
             {
-                dut.Get(Key);
+                await dut.Get(Key);
             }
             catch (Exception ex)
             {
@@ -67,15 +68,15 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestMethod]
-        public void Test_Ping()
+        public async Task Test_Ping()
         {
-            var dut = new RedisClient();
-            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            var dut = new AsyncRedisClient();
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             Exception thrownException = null;
             try
             {
-                dut.Ping();
+                await dut.Ping();
             }
             catch (Exception ex)
             {
@@ -87,18 +88,18 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
 
         [TestCleanup]
-        public void Cleanup()
+        public async Task Cleanup()
         {
             try
             {
-                var dut = new RedisClient();
-                dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+                var dut = new AsyncRedisClient();
+                await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
-                dut.Select(0);
-                dut.Del(Key);
+                await dut.Select(0);
+                await dut.Del(Key);
 
-                dut.Select(7);
-                dut.Del(Key);
+                await dut.Select(7);
+                await dut.Del(Key);
             }
             catch (Exception ex)
             {

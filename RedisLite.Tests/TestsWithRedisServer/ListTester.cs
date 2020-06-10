@@ -4,39 +4,40 @@ using RedisLite.Client.Exceptions;
 using RedisLite.Tests.TestConfigurations;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace RedisLite.Tests.TestsWithRedisServer
 {
     [TestClass]
     public class ListTester
     {
-        private const string ListKey = "List01";
+        private const string ListKey = "List001";
         private static readonly string[] ListItems = { "1000", "2000", "3000", "4000" };
 
         [TestMethod]
-        public void Test_RPush()
+        public async Task Test_RPush()
         {
-            var dut = new RedisClient();
-            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            var dut = new AsyncRedisClient();
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
-            dut.RPush(ListKey, ListItems);
-            var result = dut.LRange(ListKey, 0, 100).ToList();
+            await dut.RPush(ListKey, ListItems);
+            var result = (await dut.LRange(ListKey, 0, 100)).ToList();
 
             Assert.IsTrue(ListItems.SequenceEqual(result));
         }
 
         [TestMethod]
-        public void TestWrongOperation_RPushThrowsException()
+        public async Task TestWrongOperation_RPushThrowsException()
         {
             Exception thrownException = null;
 
-            var dut = new RedisClient();
-            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            var dut = new AsyncRedisClient();
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             try
             {
-                dut.Set(ListKey, ListItems[0]);
-                dut.RPush(ListKey, ListItems);
+                await dut.Set(ListKey, ListItems[0]);
+                await dut.RPush(ListKey, ListItems);
             }
             catch (Exception ex)
             {
@@ -48,13 +49,13 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestMethod]
-        public void Test_LRange()
+        public async Task Test_LRange()
         {
-            var dut = new RedisClient();
-            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            var dut = new AsyncRedisClient();
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
-            dut.RPush(ListKey, ListItems);
-            var result = dut.LRange(ListKey, 1, 2).ToList();
+            await dut.RPush(ListKey, ListItems);
+            var result = (await dut.LRange(ListKey, 1, 2)).ToList();
 
             Assert.AreEqual(2, result.Count);
             Assert.AreEqual(ListItems[1], result[0]);
@@ -62,17 +63,17 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestMethod]
-        public void TestWrongOperation_LRangeThrowsException()
+        public async Task TestWrongOperation_LRangeThrowsException()
         {
             Exception thrownException = null;
 
-            var dut = new RedisClient();
-            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            var dut = new AsyncRedisClient();
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             try
             {
-                dut.Set(ListKey, ListItems[0]);
-                dut.LRange(ListKey, 0, 1);
+                await dut.Set(ListKey, ListItems[0]);
+                await dut.LRange(ListKey, 0, 1);
             }
             catch (Exception ex)
             {
@@ -85,13 +86,13 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
 
         [TestCleanup]
-        public void Cleanup()
+        public async Task Cleanup()
         {
-            var dut = new RedisClient();
+            var dut = new AsyncRedisClient();
 
-            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
-            dut.Del(ListKey);
+            await dut.Del(ListKey);
         }
     }
 }

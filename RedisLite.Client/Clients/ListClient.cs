@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using RedisLite.Client.CommandBuilders;
 using RedisLite.Client.Networking;
 
@@ -8,7 +9,7 @@ namespace RedisLite.Client.Clients
 {
     internal sealed class ListClient : BaseClient
     {
-        public Result RPush(ISession session, string key, params string[] values)
+        public async Task<Result> RPush(ISession session, string key, params string[] values)
         {
             try
             {
@@ -18,7 +19,7 @@ namespace RedisLite.Client.Clients
                         .WithParameters(values)
                         .ToString();
 
-                var response = SendCommandAndReadResponse(session, command);
+                var response = await SendCommandAndReadResponseAsync(session, command);
                 var responseString = response[0]?.ToString();
 
                 return int.TryParse(responseString, out _) ||
@@ -32,7 +33,7 @@ namespace RedisLite.Client.Clients
             }
         }
 
-        public Result<List<string>> LRange(ISession session, string key, int start, int stop)
+        public async Task<Result<List<string>>> LRange(ISession session, string key, int start, int stop)
         {
             try
             {
@@ -43,7 +44,7 @@ namespace RedisLite.Client.Clients
                         .WithParameter(stop)
                         .ToString();
 
-                var result = SendCommandAndReadResponse(session, command);
+                var result = await SendCommandAndReadResponseAsync(session, command);
                 
                 return Result.Ok(result.Select(i => i.ToString()).ToList());
             }

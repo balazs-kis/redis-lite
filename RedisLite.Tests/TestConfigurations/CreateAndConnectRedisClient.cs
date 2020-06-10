@@ -5,10 +5,10 @@ namespace RedisLite.Tests.TestConfigurations
 {
     internal static class CreateAndConnectRedisClient
     {
-        public static RedisClient CreateAndConnect(ConnectionSettings settings)
+        public static AsyncRedisClient CreateAndConnect(ConnectionSettings settings)
         {
-            var client = new RedisClient();
-            client.Connect(settings);
+            var client = new AsyncRedisClient();
+            client.Connect(settings).GetAwaiter().GetResult();
 
             return client;
         }

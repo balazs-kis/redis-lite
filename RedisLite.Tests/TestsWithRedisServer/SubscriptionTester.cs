@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace RedisLite.Tests.TestsWithRedisServer
 {
@@ -20,15 +21,15 @@ namespace RedisLite.Tests.TestsWithRedisServer
         private const string OtherMessage = "OtherTestMessage";
 
         [TestMethod]
-        public void Test_ConnectWithSubscriptionClient()
+        public async Task Test_ConnectWithSubscriptionClient()
         {
             Exception thrownException = null;
 
-            var dut = new RedisSubscriptionClient();
+            var dut = new AsyncRedisSubscriptionClient();
 
             try
             {
-                dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+                await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
             }
             catch (Exception ex)
             {
@@ -39,15 +40,15 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestMethod]
-        public void TestUnknownHost_ConnectWithSubscriptionClientThrowsException()
+        public async Task TestUnknownHost_ConnectWithSubscriptionClientThrowsException()
         {
             Exception thrownException = null;
 
-            var dut = new RedisSubscriptionClient();
+            var dut = new AsyncRedisSubscriptionClient();
 
             try
             {
-                dut.Connect(UnknownHost.AsConnectionSettings());
+                await dut.Connect(UnknownHost.AsConnectionSettings());
             }
             catch (Exception ex)
             {
@@ -59,15 +60,15 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestMethod]
-        public void TestKnownHostBadPort_ConnectWithSubscriptionClientThrowsException()
+        public async Task TestKnownHostBadPort_ConnectWithSubscriptionClientThrowsException()
         {
             Exception thrownException = null;
 
-            var dut = new RedisSubscriptionClient();
+            var dut = new AsyncRedisSubscriptionClient();
 
             try
             {
-                dut.Connect(LocalHostPort7000.AsConnectionSettings());
+                await dut.Connect(LocalHostPort7000.AsConnectionSettings());
             }
             catch (Exception ex)
             {
@@ -79,16 +80,16 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestMethod]
-        public void TestConnectTwice_ConnectWithSubscriptionClientThrowsException()
+        public async Task TestConnectTwice_ConnectWithSubscriptionClientThrowsException()
         {
             Exception thrownException = null;
 
-            var dut = new RedisSubscriptionClient();
+            var dut = new AsyncRedisSubscriptionClient();
 
             try
             {
-                dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+                await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+                await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
             }
             catch (Exception ex)
             {
@@ -100,17 +101,17 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestMethod]
-        public void TestCallingAfterDispose_SubscriptionClientThrowsException()
+        public async Task TestCallingAfterDispose_SubscriptionClientThrowsException()
         {
             Exception thrownException = null;
 
-            var dut = new RedisSubscriptionClient();
-            dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            var dut = new AsyncRedisSubscriptionClient();
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
             dut.Dispose();
 
             try
             {
-                dut.Select(1);
+                await dut.Select(1);
             }
             catch (Exception ex)
             {
@@ -122,15 +123,15 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestMethod]
-        public void Test_SelectWithSubscriptionClient()
+        public async Task Test_SelectWithSubscriptionClient()
         {
             Exception thrownException = null;
-            var dut = new RedisSubscriptionClient();
+            var dut = new AsyncRedisSubscriptionClient();
 
             try
             {
-                dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                dut.Select(1);
+                await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+                await dut.Select(1);
             }
             catch (Exception ex)
             {
@@ -141,15 +142,15 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestMethod]
-        public void TestWrongDbIndex_SelectWithSubscriptionClientThrowsException()
+        public async Task TestWrongDbIndex_SelectWithSubscriptionClientThrowsException()
         {
             Exception thrownException = null;
-            var dut = new RedisSubscriptionClient();
+            var dut = new AsyncRedisSubscriptionClient();
 
             try
             {
-                dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                dut.Select(int.MaxValue);
+                await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+                await dut.Select(int.MaxValue);
             }
             catch (Exception ex)
             {
@@ -161,15 +162,15 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestMethod]
-        public void TestEmptyChannelsList_SubscribeThrowsException()
+        public async Task TestEmptyChannelsList_SubscribeThrowsException()
         {
             Exception thrownException = null;
-            var dut = new RedisSubscriptionClient();
+            var dut = new AsyncRedisSubscriptionClient();
 
             try
             {
-                dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                dut.Subscribe(new string[] { });
+                await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+                await dut.Subscribe(new string[] { });
             }
             catch (Exception ex)
             {
@@ -181,16 +182,16 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestMethod]
-        public void TestAlreadySubscribed_SubscribeThrowsException()
+        public async Task TestAlreadySubscribed_SubscribeThrowsException()
         {
             Exception thrownException = null;
-            var dut = new RedisSubscriptionClient();
+            var dut = new AsyncRedisSubscriptionClient();
 
             try
             {
-                dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                dut.Subscribe("channel");
-                dut.Subscribe("other-channel");
+                await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+                await dut.Subscribe("channel");
+                await dut.Subscribe("other-channel");
             }
             catch (Exception ex)
             {
@@ -202,16 +203,16 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestMethod]
-        public void TestEmptyChannelsList_UnsubscribeThrowsException()
+        public async Task TestEmptyChannelsList_UnsubscribeThrowsException()
         {
             Exception thrownException = null;
-            var dut = new RedisSubscriptionClient();
+            var dut = new AsyncRedisSubscriptionClient();
 
             try
             {
-                dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                dut.Subscribe("channel");
-                dut.Unsubscribe(new string[] { });
+                await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+                await dut.Subscribe("channel");
+                await dut.Unsubscribe(new string[] { });
             }
             catch (Exception ex)
             {
@@ -223,15 +224,15 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestMethod]
-        public void TestNotSubscribed_UnsubscribeThrowsException()
+        public async Task TestNotSubscribed_UnsubscribeThrowsException()
         {
             Exception thrownException = null;
-            var dut = new RedisSubscriptionClient();
+            var dut = new AsyncRedisSubscriptionClient();
 
             try
             {
-                dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                dut.Unsubscribe("channel");
+                await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+                await dut.Unsubscribe("channel");
             }
             catch (Exception ex)
             {
@@ -243,13 +244,13 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestMethod]
-        public void Test_Subscribe()
+        public async Task Test_Subscribe()
         {
-            var dutPublisher = new RedisClient();
-            var dutSubscriber = new RedisSubscriptionClient();
+            var dutPublisher = new AsyncRedisClient();
+            var dutSubscriber = new AsyncRedisSubscriptionClient();
 
-            dutPublisher.Connect(LocalHostDefaultPort.AsConnectionSettings());
-            dutSubscriber.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            await dutPublisher.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            await dutSubscriber.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             string receivedChannel = null;
             string receivedMessage = null;
@@ -260,9 +261,9 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 receivedMessage = msg;
             };
 
-            dutSubscriber.Subscribe(Channel);
+            await dutSubscriber.Subscribe(Channel);
 
-            dutPublisher.Publish(Channel, Message);
+            await dutPublisher.Publish(Channel, Message);
             Thread.Sleep(100);
 
             Assert.AreEqual(Channel, receivedChannel);
@@ -270,13 +271,13 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestMethod]
-        public void Test_Unsubscribe()
+        public async Task Test_Unsubscribe()
         {
-            var dutPublisher = new RedisClient();
-            var dutSubscriber = new RedisSubscriptionClient();
+            var dutPublisher = new AsyncRedisClient();
+            var dutSubscriber = new AsyncRedisSubscriptionClient();
 
-            dutPublisher.Connect(LocalHostDefaultPort.AsConnectionSettings());
-            dutSubscriber.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            await dutPublisher.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            await dutSubscriber.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             string receivedChannel = null;
             string receivedMessage = null;
@@ -287,14 +288,14 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 receivedMessage = msg;
             };
 
-            dutSubscriber.Subscribe(Channel);
+            await dutSubscriber.Subscribe(Channel);
 
-            dutPublisher.Publish(Channel, Message);
+            await dutPublisher.Publish(Channel, Message);
             Thread.Sleep(100);
 
-            dutSubscriber.Unsubscribe(Channel);
+            await dutSubscriber.Unsubscribe(Channel);
 
-            dutPublisher.Publish(Channel, SecondMessage);
+            await dutPublisher.Publish(Channel, SecondMessage);
             Thread.Sleep(100);
 
             Assert.AreEqual(Channel, receivedChannel);
@@ -302,13 +303,13 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestMethod]
-        public void Test_MultipleSubscribe()
+        public async Task Test_MultipleSubscribe()
         {
-            var dutPublisher = new RedisClient();
-            var dutSubscriber = new RedisSubscriptionClient();
+            var dutPublisher = new AsyncRedisClient();
+            var dutSubscriber = new AsyncRedisSubscriptionClient();
 
-            dutPublisher.Connect(LocalHostDefaultPort.AsConnectionSettings());
-            dutSubscriber.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            await dutPublisher.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            await dutSubscriber.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             var received = new List<Tuple<string, string>>();
 
@@ -317,12 +318,12 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 received.Add(Tuple.Create(ch, msg));
             };
 
-            dutSubscriber.Subscribe(new[] { Channel, OtherChannel });
+            await dutSubscriber.Subscribe(new[] { Channel, OtherChannel });
 
-            dutPublisher.Publish(Channel, Message);
+            await dutPublisher.Publish(Channel, Message);
             Thread.Sleep(100);
 
-            dutPublisher.Publish(OtherChannel, OtherMessage);
+            await dutPublisher.Publish(OtherChannel, OtherMessage);
             Thread.Sleep(100);
 
             Assert.AreEqual(2, received.Count);
@@ -333,13 +334,13 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestMethod]
-        public void Test_MultipleUnsubscribe()
+        public async Task Test_MultipleUnsubscribe()
         {
-            var dutPublisher = new RedisClient();
-            var dutSubscriber = new RedisSubscriptionClient();
+            var dutPublisher = new AsyncRedisClient();
+            var dutSubscriber = new AsyncRedisSubscriptionClient();
 
-            dutPublisher.Connect(LocalHostDefaultPort.AsConnectionSettings());
-            dutSubscriber.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            await dutPublisher.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            await dutSubscriber.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             var received = new List<Tuple<string, string>>();
 
@@ -348,20 +349,20 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 received.Add(Tuple.Create(ch, msg));
             };
 
-            dutSubscriber.Subscribe(new[] { Channel, OtherChannel });
+            await dutSubscriber.Subscribe(new[] { Channel, OtherChannel });
 
-            dutPublisher.Publish(Channel, Message);
+            await dutPublisher.Publish(Channel, Message);
             Thread.Sleep(100);
 
-            dutPublisher.Publish(OtherChannel, OtherMessage);
+            await dutPublisher.Publish(OtherChannel, OtherMessage);
             Thread.Sleep(100);
 
-            dutSubscriber.Unsubscribe(new[] { Channel, OtherChannel });
+            await dutSubscriber.Unsubscribe(new[] { Channel, OtherChannel });
 
-            dutPublisher.Publish(Channel, SecondMessage);
+            await dutPublisher.Publish(Channel, SecondMessage);
             Thread.Sleep(100);
 
-            dutPublisher.Publish(OtherChannel, SecondMessage);
+            await dutPublisher.Publish(OtherChannel, SecondMessage);
             Thread.Sleep(100);
 
             Assert.AreEqual(2, received.Count);
@@ -372,13 +373,13 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestMethod]
-        public void Test_RedundantUnsubscribe()
+        public async Task Test_RedundantUnsubscribe()
         {
-            var dutPublisher = new RedisClient();
-            var dutSubscriber = new RedisSubscriptionClient();
+            var dutPublisher = new AsyncRedisClient();
+            var dutSubscriber = new AsyncRedisSubscriptionClient();
 
-            dutPublisher.Connect(LocalHostDefaultPort.AsConnectionSettings());
-            dutSubscriber.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            await dutPublisher.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            await dutSubscriber.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             string receivedChannel = null;
             string receivedMessage = null;
@@ -389,15 +390,15 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 receivedMessage = msg;
             };
 
-            dutSubscriber.Subscribe(Channel);
+            await dutSubscriber.Subscribe(Channel);
             Thread.Sleep(100);
 
-            dutSubscriber.Unsubscribe(Channel);
+            await dutSubscriber.Unsubscribe(Channel);
             Thread.Sleep(100);
-            dutSubscriber.Unsubscribe(Channel);
+            await dutSubscriber.Unsubscribe(Channel);
             Thread.Sleep(100);
 
-            dutPublisher.Publish(Channel, Message);
+            await dutPublisher.Publish(Channel, Message);
             Thread.Sleep(100);
 
             Assert.IsNull(receivedChannel);

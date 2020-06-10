@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using RedisLite.Client.CommandBuilders;
 using RedisLite.Client.Networking;
 
@@ -8,7 +9,7 @@ namespace RedisLite.Client.Clients
 {
     internal sealed class HashClient : BaseClient
     {
-        public Result HSet(ISession session, string key, string field, string value)
+        public async Task<Result> HSet(ISession session, string key, string field, string value)
         {
             try
             {
@@ -19,7 +20,7 @@ namespace RedisLite.Client.Clients
                         .WithParameter(value)
                         .ToString();
 
-                var response = SendCommandAndReadResponse(session, command);
+                var response = await SendCommandAndReadResponseAsync(session, command);
                 var responseString = response[0]?.ToString();
 
                 return IsHashSetResponseOk(responseString) ? Result.Ok() : Result.Fail(responseString);
@@ -30,7 +31,7 @@ namespace RedisLite.Client.Clients
             }
         }
 
-        public Result HMSet(ISession session, string key, IDictionary<string, string> fieldValues)
+        public async Task<Result> HMSet(ISession session, string key, IDictionary<string, string> fieldValues)
         {
             try
             {
@@ -42,7 +43,7 @@ namespace RedisLite.Client.Clients
                         .WithParameters(parameters)
                         .ToString();
 
-                var response = SendCommandAndReadResponse(session, command);
+                var response = await SendCommandAndReadResponseAsync(session, command);
                 var responseString = response[0]?.ToString();
 
                 return IsResponseOk(responseString) ? Result.Ok() : Result.Fail(responseString);
@@ -53,7 +54,7 @@ namespace RedisLite.Client.Clients
             }
         }
 
-        public Result<string> HGet(ISession session, string key, string field)
+        public async Task<Result<string>> HGet(ISession session, string key, string field)
         {
             try
             {
@@ -63,7 +64,7 @@ namespace RedisLite.Client.Clients
                         .WithParameter(field)
                         .ToString();
 
-                var response = SendCommandAndReadResponse(session, command);
+                var response = await SendCommandAndReadResponseAsync(session, command);
                 var responseString = response[0]?.ToString();
 
                 return Result.Ok(responseString);
@@ -74,7 +75,7 @@ namespace RedisLite.Client.Clients
             }
         }
 
-        public Result<IEnumerable<string>> HMGet(ISession session, string key, IEnumerable<string> fields)
+        public async Task<Result<IEnumerable<string>>> HMGet(ISession session, string key, IEnumerable<string> fields)
         {
             try
             {
@@ -86,7 +87,7 @@ namespace RedisLite.Client.Clients
                         .WithParameters(f)
                         .ToString();
 
-                var result = SendCommandAndReadResponse(session, command);
+                var result = await SendCommandAndReadResponseAsync(session, command);
                 
                 var stringResult = result.Select(i => i?.ToString()).ToArray();
 
@@ -103,7 +104,7 @@ namespace RedisLite.Client.Clients
             }
         }
 
-        public Result<IDictionary<string, string>> HGetAll(ISession session, string key)
+        public async Task<Result<IDictionary<string, string>>> HGetAll(ISession session, string key)
         {
             try
             {
@@ -112,7 +113,7 @@ namespace RedisLite.Client.Clients
                         .WithKey(key)
                         .ToString();
 
-                var result = SendCommandAndReadResponse(session, command);
+                var result = await SendCommandAndReadResponseAsync(session, command);
                 
                 if (result.Length % 2 == 1)
                 {
@@ -133,7 +134,8 @@ namespace RedisLite.Client.Clients
             }
         }
 
-        private bool IsHashSetResponseOk(string response)
+
+        private static bool IsHashSetResponseOk(string response)
         {
             return string.Equals(response, "1", StringComparison.CurrentCultureIgnoreCase) ||
                    string.Equals(response, "0", StringComparison.CurrentCultureIgnoreCase);

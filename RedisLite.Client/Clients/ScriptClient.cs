@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using RedisLite.Client.CommandBuilders;
 using RedisLite.Client.Networking;
 
@@ -8,7 +9,7 @@ namespace RedisLite.Client.Clients
     {
         private const int ShaLength = 40;
 
-        public Result<string> LoadScript(ISession session, string script)
+        public async Task<Result<string>> LoadScript(ISession session, string script)
         {
             try
             {
@@ -17,7 +18,7 @@ namespace RedisLite.Client.Clients
                         .WithParameter(script)
                         .ToString();
 
-                var response = SendCommandAndReadResponse(session, command);
+                var response = await SendCommandAndReadResponseAsync(session, command);
                 var responseString = response[0]?.ToString();
 
                 return responseString?.Length == ShaLength && !responseString.Contains(" ")
@@ -30,7 +31,7 @@ namespace RedisLite.Client.Clients
             }
         }
 
-        public Result<object[]> ExecuteScript(ISession session, string sha, string[] parameters)
+        public async Task<Result<object[]>> ExecuteScript(ISession session, string sha, string[] parameters)
         {
             try
             {
@@ -41,7 +42,7 @@ namespace RedisLite.Client.Clients
                         .WithParameters(parameters)
                         .ToString();
 
-                var res = SendCommandAndReadResponse(session, command);
+                var res = await SendCommandAndReadResponseAsync(session, command);
                 
                 return Result.Ok(res);
             }

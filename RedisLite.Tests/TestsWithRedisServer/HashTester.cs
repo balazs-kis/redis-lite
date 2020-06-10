@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using FluentAssertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RedisLite.Client;
 using RedisLite.Tests.TestConfigurations;
-using TestLite;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace RedisLite.Tests.TestsWithRedisServer
 {
@@ -26,124 +25,111 @@ namespace RedisLite.Tests.TestsWithRedisServer
         private const string Value3 = "X5DwYJaVUuVEb8m6";
 
         [TestMethod]
-        public void Test_SetAndGetHash() => Test
-            .Arrange(() =>
-            {
-                var client = new RedisClient();
-                client.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                return client;
-            })
-            .Act(underTest =>
-            {
-                underTest.HSet(_keys[0], Field1, Value1);
-                return underTest.HGet(_keys[0], Field1);
-            })
-            .Assert().Validate(result => result.Should().Be(Value1));
+        public async Task Test_SetAndGetHash()
+        {
+            var dut = new AsyncRedisClient();
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+
+            await dut.HSet(_keys[0], Field1, Value1);
+            var res = await dut.HGet(_keys[0], Field1);
+
+            Assert.AreEqual(Value1, res);
+        }
 
         [TestMethod]
-        public void Test_SetMultipleHash() => Test
-            .Arrange(() =>
+        public async Task Test_SetMultipleHash()
+        {
+            var dut = new AsyncRedisClient();
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+
+            var additionalFields = new Dictionary<string, string>
             {
-                var client = new RedisClient();
-                client.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                var additionalFields = new Dictionary<string, string>
-                {
-                    {Field1, Value1},
-                    {Field2, Value2},
-                    {Field3, Value3}
-                };
-                return (client, additionalFields);
-            })
-            .Act((underTest, additionalFields) =>
-            {
-                underTest.HMSet(_keys[1], additionalFields);
-                var res1 = underTest.HGet(_keys[1], Field1);
-                var res2 = underTest.HGet(_keys[1], Field2);
-                var res3 = underTest.HGet(_keys[1], Field3);
-                return (res1, res2, res3);
-            })
-            .Assert()
-                .Validate(result => result.res1.Should().Be(Value1))
-                .Validate(result => result.res2.Should().Be(Value2))
-                .Validate(result => result.res3.Should().Be(Value3));
-        
-        [TestMethod]
-        public void Test_GetMultipleHash() => Test
-            .Arrange(() =>
-            {
-                var client = new RedisClient();
-                client.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                return client;
-            })
-            .Act(underTest =>
-            {
-                underTest.HSet(_keys[2], Field1, Value1);
-                underTest.HSet(_keys[2], Field2, Value2);
-                underTest.HSet(_keys[2], Field3, Value3);
-                return underTest.HMGet(_keys[2], new[] { Field1, Field2, Field3 }).ToList();
-            })
-            .Assert()
-                .Validate(result => result[0].Should().Be(Value1))
-                .Validate(result => result[1].Should().Be(Value2))
-                .Validate(result => result[2].Should().Be(Value3));
+                {Field1, Value1},
+                {Field2, Value2},
+                {Field3, Value3}
+            };
+
+            await dut.HMSet(_keys[1], additionalFields);
+
+            var res1 = await dut.HGet(_keys[1], Field1);
+            var res2 = await dut.HGet(_keys[1], Field2);
+            var res3 = await dut.HGet(_keys[1], Field3);
+
+            Assert.AreEqual(Value1, res1);
+            Assert.AreEqual(Value2, res2);
+            Assert.AreEqual(Value3, res3);
+        }
 
         [TestMethod]
-        public void Test_GetAllHash() => Test
-            .Arrange(() =>
-            {
-                var client = new RedisClient();
-                client.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                return client;
-            })
-            .Act(underTest =>
-            {
-                underTest.HSet(_keys[3], Field1, Value1);
-                underTest.HSet(_keys[3], Field2, Value2);
-                underTest.HSet(_keys[3], Field3, Value3);
-                return underTest.HGetAll(_keys[3]);
-            })
-            .Assert()
-                .Validate(result => result.Count.Should().Be(3))
-                .Validate(result => result[Field1].Should().Be(Value1))
-                .Validate(result => result[Field2].Should().Be(Value2))
-                .Validate(result => result[Field3].Should().Be(Value3));
+        public async Task Test_GetMultipleHash()
+        {
+            var dut = new AsyncRedisClient();
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+
+            await dut.HSet(_keys[2], Field1, Value1);
+            await dut.HSet(_keys[2], Field2, Value2);
+            await dut.HSet(_keys[2], Field3, Value3);
+
+            var res = (await dut.HMGet(_keys[2], new[] { Field1, Field2, Field3 })).ToList();
+
+            Assert.AreEqual(Value1, res[0]);
+            Assert.AreEqual(Value2, res[1]);
+            Assert.AreEqual(Value3, res[2]);
+        }
 
         [TestMethod]
-        public void Test_GetAllHash_Null() => Test
-            .Arrange(() =>
-            {
-                var client = new RedisClient();
-                client.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                return client;
-            })
-            .Act(underTest => underTest.HGetAll(_keys[3]))
-            .Assert().Validate(result => result.Count.Should().Be(0));
+        public async Task Test_GetAllHash()
+        {
+            var dut = new AsyncRedisClient();
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+
+            await dut.HSet(_keys[3], Field1, Value1);
+            await dut.HSet(_keys[3], Field2, Value2);
+            await dut.HSet(_keys[3], Field3, Value3);
+
+            var res = await dut.HGetAll(_keys[3]);
+
+            Assert.AreEqual(3, res.Count);
+            Assert.AreEqual(Value1, res[Field1]);
+            Assert.AreEqual(Value2, res[Field2]);
+            Assert.AreEqual(Value3, res[Field3]);
+        }
 
         [TestMethod]
-        public void Test_GetHash_Null() => Test
-            .Arrange(() =>
-            {
-                var client = new RedisClient();
-                client.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                return client;
-            })
-            .Act(underTest => underTest.HMGet(_keys[3], new[] { Field1, Field2 }).ToList())
-            .Assert()
-                .Validate(result => result.Count.Should().Be(2))
-                .Validate(result => result[0].Should().BeNull())
-                .Validate(result => result[1].Should().BeNull());
+        public async Task Test_GetAllHash_Null()
+        {
+            var dut = new AsyncRedisClient();
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+
+            var res = await dut.HGetAll(_keys[3]);
+
+            Assert.AreEqual(0, res.Count);
+        }
+
+        [TestMethod]
+        public async Task Test_GeHash_Null()
+        {
+            var dut = new AsyncRedisClient();
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+
+            var res = (await dut.HMGet(_keys[3], new[] { Field1, Field2 })).ToList();
+
+            Assert.AreEqual(2, res.Count);
+            Assert.IsNull(res[0]);
+            Assert.IsNull(res[1]);
+        }
 
 
         [TestCleanup]
-        public void Cleanup()
+        public async Task Cleanup()
         {
             try
             {
-                var dut = new RedisClient();
-                dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+                var dut = new AsyncRedisClient();
+                await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
-                dut.Select(0);
-                _keys.ForEach(k => dut.Del(k));
+                await dut.Select(0);
+                _keys.ForEach(k => dut.Del(k).GetAwaiter().GetResult());
             }
             catch (Exception ex)
             {

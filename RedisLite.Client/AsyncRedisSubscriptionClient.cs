@@ -5,20 +5,22 @@ using RedisLite.Client.Networking;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace RedisLite.Client
 {
-    public sealed class RedisSubscriptionClient : IRedisSubscriptionClient
+    public sealed class AsyncRedisSubscriptionClient : IAsyncRedisSubscriptionClient
     {
         private bool _isSubscribed;
         private ISession _session;
         private CommonClient _commonClient;
         private SubscriptionClient _subscriptionClient;
 
-        public event Action<IRedisSubscriptionClient> OnConnected;
+        public event Action<IAsyncRedisSubscriptionClient> OnConnected;
         public event Action<string, string> OnMessageReceived;
 
-        public void Connect(ConnectionSettings settings)
+
+        public async Task Connect(ConnectionSettings settings)
         {
             if (_session != null)
             {
@@ -29,7 +31,7 @@ namespace RedisLite.Client
             _commonClient = new CommonClient();
             _subscriptionClient = new SubscriptionClient();
 
-            _session = _commonClient.Connect(settings);
+            _session = await _commonClient.Connect(settings).ConfigureAwait(false);
 
             if (!_session.IsOpen)
             {
@@ -39,8 +41,8 @@ namespace RedisLite.Client
             OnConnected?.Invoke(this);
         }
 
-        public void Select(int dbIndex) =>
-            ExecuteWithSession(session =>
+        public Task Select(int dbIndex) =>
+            ExecuteWithSession(async session =>
             {
                 if (_isSubscribed)
                 {
@@ -48,7 +50,7 @@ namespace RedisLite.Client
                         "Subscribe has already been called on this client");
                 }
 
-                var result = _commonClient.Select(_session, dbIndex);
+                var result = await _commonClient.Select(_session, dbIndex).ConfigureAwait(false);
 
                 if (result.IsFailure)
                 {
@@ -58,8 +60,8 @@ namespace RedisLite.Client
                 }
             });
 
-        public void Subscribe(params string[] channels) =>
-            ExecuteWithSession(session =>
+        public Task Subscribe(params string[] channels) =>
+            ExecuteWithSession(async session =>
             {
                 if (channels == null || !channels.Any() || channels.All(string.IsNullOrWhiteSpace))
                 {
@@ -73,7 +75,7 @@ namespace RedisLite.Client
                         "Subscribe has already been called on this client");
                 }
 
-                var result = _subscriptionClient.Subscribe(_session, channels);
+                var result = await _subscriptionClient.Subscribe(_session, channels).ConfigureAwait(false);
 
                 if (result.IsFailure)
                 {
@@ -86,8 +88,8 @@ namespace RedisLite.Client
                 _isSubscribed = true;
             });
 
-        public void Unsubscribe(params string[] channels) =>
-            ExecuteWithSession(session =>
+        public Task Unsubscribe(params string[] channels) =>
+            ExecuteWithSession(async session =>
             {
                 if (channels == null || !channels.Any() || channels.All(string.IsNullOrWhiteSpace))
                 {
@@ -101,7 +103,7 @@ namespace RedisLite.Client
                         "Subscribe has not yet been called on this client");
                 }
 
-                var result = _subscriptionClient.Unsubscribe(_session, channels);
+                var result = await _subscriptionClient.Unsubscribe(_session, channels).ConfigureAwait(false);
 
                 if (result.IsFailure)
                 {
@@ -111,16 +113,26 @@ namespace RedisLite.Client
                 }
             });
 
+
         public void Dispose()
         {
-            if (_isSubscribed)
-            {
-                _subscriptionClient.OnMessageReceived -= RelayMessage;
-            }
+            Dispose(true);
+            GC.SuppressFinalize(this);            
+        }
 
-            if (_session != null && _session.IsOpen)
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
             {
-                _session.Dispose();
+                if (_isSubscribed)
+                {
+                    _subscriptionClient.OnMessageReceived -= RelayMessage;
+                }
+
+                if (_session != null && _session.IsOpen)
+                {
+                    _session.Dispose();
+                }
             }
         }
 
@@ -130,7 +142,7 @@ namespace RedisLite.Client
             OnMessageReceived?.Invoke(channel, message);
         }
 
-        private void ExecuteWithSession(Action<ISession> action)
+        private Task ExecuteWithSession(Func<ISession, Task> asyncAction)
         {
             if (_session == null)
             {
@@ -142,7 +154,7 @@ namespace RedisLite.Client
                 throw new InvalidOperationException("The client is disconnected");
             }
 
-            action.Invoke(_session);
+            return asyncAction.Invoke(_session);
         }
     }
 }
