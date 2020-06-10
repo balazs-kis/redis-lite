@@ -10,30 +10,30 @@ Redis Lite is a small, simple redis client for .NET (Standard). It implements th
 
 ## Usage
 
-### RedisClient
-Create a `RedisClient` and connect it to the redis server of your choosing:
+### AsyncRedisClient
+Create an `AsyncRedisClient` and connect it to the redis server of your choosing:
 ```csharp
-using(var client = new RedisClient())
+using(var client = new AsyncRedisClient())
 {
     var connectionSettings = new ConnectionSettings(address: "127.0.0.1", port: 6379);
-    client.Connect(connectionSettings);
+    await client.Connect(connectionSettings);
 ```
 Then you can start *commanding*:
 ```csharp
-    client.Set("MyKey", "MyValue");
-    var result = client.Get("MyKey");
-    client.Del("MyKey");
+    await client.Set("MyKey", "MyValue");
+    var result = await client.Get("MyKey");
+    await client.Del("MyKey");
     ...
 }
 ```
 
-### RedisSubscriptionClient
-Subscribing to redis channels is done through a special client, the `RedisSubscriptionClient`:
+### AsyncRedisSubscriptionClient
+Subscribing to redis channels is done through a special client, the `AsyncRedisSubscriptionClient`:
 ```csharp
 // Create a client and connect to a server:
-var subscriber = new RedisSubscriptionClient();
+var subscriber = new AsyncRedisSubscriptionClient();
 var connectionSettings = new ConnectionSettings(address: "127.0.0.1", port: 6379);
-subscriber.Connect(connectionSettings);
+await subscriber.Connect(connectionSettings);
 
 // Register callcback for subscription:
 dutSubscriber.OnMessageReceived += (channel, message) =>
@@ -48,12 +48,12 @@ dutSubscriber.Subscribe("MyChannel");
 Sending messages to a channel is done through the regular `RedisClient`:
 ```csharp
 // Create a client and connect to a server:
-var publisher = new RedisClient();
+var publisher = new AsyncRedisClient();
 var connectionSettings = new ConnectionSettings(address: "127.0.0.1", port: 6379);
-publisher.Connect(connectionSettings);
+await publisher.Connect(connectionSettings);
 
 // Publish a message to a given channel:
-publisher.Publish("MyChannel", "My interesting message");
+await publisher.Publish("MyChannel", "My interesting message");
 ```
 
 ## Included redis commands
