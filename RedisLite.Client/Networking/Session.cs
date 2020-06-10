@@ -120,6 +120,8 @@ namespace RedisLite.Client.Networking
                 if (_client.Connected)
                 {
                     _client.GetStream().Close();
+                    _client.Close();
+                    _client.Dispose();
                 }
 
                 _client = null;
