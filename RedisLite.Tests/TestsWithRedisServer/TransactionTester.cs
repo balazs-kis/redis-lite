@@ -21,7 +21,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             Exception thrownException = null;
 
-            var dut = new RedisClient();
+            var dut = new AsyncRedisClient();
             await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             try
@@ -40,7 +40,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Test_TransactionExecuted_SimpleSetGet()
         {
-            var dut = new RedisClient();
+            var dut = new AsyncRedisClient();
 
             await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
@@ -60,7 +60,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             var items = new[] { "1", "20", "300", "4000" };
 
-            var dut = new RedisClient();
+            var dut = new AsyncRedisClient();
 
             await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
@@ -80,8 +80,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             Exception exception = null;
 
-            var dut1 = new RedisClient();
-            var dut2 = new RedisClient();
+            var dut1 = new AsyncRedisClient();
+            var dut2 = new AsyncRedisClient();
 
             await dut1.Connect(LocalHostDefaultPort.AsConnectionSettings());
             await dut2.Connect(LocalHostDefaultPort.AsConnectionSettings());
@@ -121,8 +121,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
             Exception exception = null;
 
-            var dut1 = new RedisClient();
-            var dut2 = new RedisClient();
+            var dut1 = new AsyncRedisClient();
+            var dut2 = new AsyncRedisClient();
 
             await dut1.Connect(LocalHostDefaultPort.AsConnectionSettings());
             await dut2.Connect(LocalHostDefaultPort.AsConnectionSettings());
@@ -155,7 +155,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Test_MultiDiscard()
         {
-            var dut = new RedisClient();
+            var dut = new AsyncRedisClient();
 
             await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
@@ -175,7 +175,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestCleanup]
         public async Task Cleanup()
         {
-            var dut = new RedisClient();
+            var dut = new AsyncRedisClient();
 
             await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 

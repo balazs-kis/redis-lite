@@ -32,7 +32,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task TestScriptLoadAndRun_SingleString()
         {
-            var dut = new RedisClient();
+            var dut = new AsyncRedisClient();
 
             await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
@@ -49,7 +49,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task TestScriptLoadAndRun_List()
         {
-            var dut = new RedisClient();
+            var dut = new AsyncRedisClient();
 
             await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
@@ -68,7 +68,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task TestScriptLoadAndRun_ListInList()
         {
-            var dut = new RedisClient();
+            var dut = new AsyncRedisClient();
 
             await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
@@ -100,7 +100,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             try
             {
-                var dut = new RedisClient();
+                var dut = new AsyncRedisClient();
 
                 await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 

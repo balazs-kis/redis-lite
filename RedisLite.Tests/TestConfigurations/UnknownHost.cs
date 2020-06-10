@@ -8,7 +8,7 @@ namespace RedisLite.Tests.TestConfigurations
         internal static ConnectionSettings AsConnectionSettings() =>
             new ConnectionSettings("host.not.correct", 9999);
 
-        internal static RedisClient CreateAndConnectClient() =>
+        internal static AsyncRedisClient CreateAndConnectClient() =>
             CreateAndConnectRedisClient.CreateAndConnect(AsConnectionSettings());
     }
 }

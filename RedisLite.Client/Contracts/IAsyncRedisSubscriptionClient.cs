@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 
 namespace RedisLite.Client.Contracts
 {
-    public interface IRedisSubscriptionClient : IDisposable
+    public interface IAsyncRedisSubscriptionClient : IDisposable
     {
-        event Action<IRedisSubscriptionClient> OnConnected;
+        event Action<IAsyncRedisSubscriptionClient> OnConnected;
         event Action<string, string> OnMessageReceived;
 
         Task Connect(ConnectionSettings settings);

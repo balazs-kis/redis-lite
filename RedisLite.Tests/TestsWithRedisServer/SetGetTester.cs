@@ -16,7 +16,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Test_Set_Get()
         {
-            var dut = new RedisClient();
+            var dut = new AsyncRedisClient();
             await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             await dut.Set(Key, Value);
@@ -30,7 +30,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             Exception thrownException = null;
 
-            var dut = new RedisClient();
+            var dut = new AsyncRedisClient();
             await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             try
@@ -52,7 +52,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             Exception thrownException = null;
 
-            var dut = new RedisClient();
+            var dut = new AsyncRedisClient();
 
             try
             {
@@ -70,7 +70,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Test_Ping()
         {
-            var dut = new RedisClient();
+            var dut = new AsyncRedisClient();
             await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             Exception thrownException = null;
@@ -92,7 +92,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             try
             {
-                var dut = new RedisClient();
+                var dut = new AsyncRedisClient();
                 await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
                 await dut.Select(0);

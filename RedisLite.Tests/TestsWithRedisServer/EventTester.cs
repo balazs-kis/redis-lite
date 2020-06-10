@@ -21,7 +21,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Test_ConnectedEvent()
         {
-            var dut = new RedisClient();
+            var dut = new AsyncRedisClient();
 
             string result = null;
 
@@ -43,7 +43,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             try
             {
-                var dut = new RedisClient();
+                var dut = new AsyncRedisClient();
 
                 await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 

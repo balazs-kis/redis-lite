@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 
 namespace RedisLite.Client
 {
-    public sealed class RedisSubscriptionClient : IRedisSubscriptionClient
+    public sealed class AsyncRedisSubscriptionClient : IAsyncRedisSubscriptionClient
     {
         private bool _isSubscribed;
         private ISession _session;
         private CommonClient _commonClient;
         private SubscriptionClient _subscriptionClient;
 
-        public event Action<IRedisSubscriptionClient> OnConnected;
+        public event Action<IAsyncRedisSubscriptionClient> OnConnected;
         public event Action<string, string> OnMessageReceived;
 
 

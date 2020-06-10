@@ -12,7 +12,7 @@ namespace RedisLite.ConsoleTester
 
         public static void Main()
         {
-            var client = new RedisClient();
+            var client = new AsyncRedisClient();
             var connectionSettings = new ConnectionSettings("127.0.0.1", 6379);
 
             FailIfException(async () =>

@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 // ReSharper disable InconsistentNaming
 namespace RedisLite.Client.Contracts
 {
-    public interface IRedisClient : IDisposable
+    public interface IAsyncRedisClient : IDisposable
     {
-        event Action<IRedisClient> OnConnected;
+        event Action<IAsyncRedisClient> OnConnected;
 
         Task Connect(ConnectionSettings settings);
 

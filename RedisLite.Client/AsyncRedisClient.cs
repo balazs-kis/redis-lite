@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace RedisLite.Client
 {
-    public sealed class RedisClient : IRedisClient
+    public sealed class AsyncRedisClient : IAsyncRedisClient
     {
         private ISession _session;
 
@@ -27,7 +27,7 @@ namespace RedisLite.Client
         private SubscriptionClient _subscriptionClient;
 
 
-        public event Action<IRedisClient> OnConnected;
+        public event Action<IAsyncRedisClient> OnConnected;
 
 
         public async Task Connect(ConnectionSettings settings)

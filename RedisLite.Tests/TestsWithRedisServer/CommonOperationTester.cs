@@ -23,7 +23,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         public async Task Connect_ConnectsSuccessfully()
         {
             Exception thrownException = null;
-            var underTest = new RedisClient();
+            var underTest = new AsyncRedisClient();
 
             try
             {
@@ -41,7 +41,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         public async Task ConnectToUnknownHost_ThrowsException()
         {
             Exception thrownException = null;
-            var underTest = new RedisClient();
+            var underTest = new AsyncRedisClient();
 
             try
             {
@@ -59,7 +59,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         public async Task ConnectToKnownHostWrongPort_ThrowsException()
         {
             Exception thrownException = null;
-            var underTest = new RedisClient();
+            var underTest = new AsyncRedisClient();
 
             try
             {
@@ -77,7 +77,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         public async Task ConnectCalledTwice_ThrowsException()
         {
             Exception thrownException = null;
-            var underTest = new RedisClient();
+            var underTest = new AsyncRedisClient();
 
             try
             {
@@ -254,7 +254,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             try
             {
-                var dut = new RedisClient();
+                var dut = new AsyncRedisClient();
                 await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
                 await dut.Select(0);

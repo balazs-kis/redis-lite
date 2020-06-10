@@ -25,7 +25,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             Exception thrownException = null;
 
-            var dut = new RedisSubscriptionClient();
+            var dut = new AsyncRedisSubscriptionClient();
 
             try
             {
@@ -44,7 +44,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             Exception thrownException = null;
 
-            var dut = new RedisSubscriptionClient();
+            var dut = new AsyncRedisSubscriptionClient();
 
             try
             {
@@ -64,7 +64,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             Exception thrownException = null;
 
-            var dut = new RedisSubscriptionClient();
+            var dut = new AsyncRedisSubscriptionClient();
 
             try
             {
@@ -84,7 +84,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             Exception thrownException = null;
 
-            var dut = new RedisSubscriptionClient();
+            var dut = new AsyncRedisSubscriptionClient();
 
             try
             {
@@ -105,7 +105,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             Exception thrownException = null;
 
-            var dut = new RedisSubscriptionClient();
+            var dut = new AsyncRedisSubscriptionClient();
             await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
             dut.Dispose();
 
@@ -126,7 +126,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         public async Task Test_SelectWithSubscriptionClient()
         {
             Exception thrownException = null;
-            var dut = new RedisSubscriptionClient();
+            var dut = new AsyncRedisSubscriptionClient();
 
             try
             {
@@ -145,7 +145,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         public async Task TestWrongDbIndex_SelectWithSubscriptionClientThrowsException()
         {
             Exception thrownException = null;
-            var dut = new RedisSubscriptionClient();
+            var dut = new AsyncRedisSubscriptionClient();
 
             try
             {
@@ -165,7 +165,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         public async Task TestEmptyChannelsList_SubscribeThrowsException()
         {
             Exception thrownException = null;
-            var dut = new RedisSubscriptionClient();
+            var dut = new AsyncRedisSubscriptionClient();
 
             try
             {
@@ -185,7 +185,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         public async Task TestAlreadySubscribed_SubscribeThrowsException()
         {
             Exception thrownException = null;
-            var dut = new RedisSubscriptionClient();
+            var dut = new AsyncRedisSubscriptionClient();
 
             try
             {
@@ -206,7 +206,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         public async Task TestEmptyChannelsList_UnsubscribeThrowsException()
         {
             Exception thrownException = null;
-            var dut = new RedisSubscriptionClient();
+            var dut = new AsyncRedisSubscriptionClient();
 
             try
             {
@@ -227,7 +227,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         public async Task TestNotSubscribed_UnsubscribeThrowsException()
         {
             Exception thrownException = null;
-            var dut = new RedisSubscriptionClient();
+            var dut = new AsyncRedisSubscriptionClient();
 
             try
             {
@@ -246,8 +246,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Test_Subscribe()
         {
-            var dutPublisher = new RedisClient();
-            var dutSubscriber = new RedisSubscriptionClient();
+            var dutPublisher = new AsyncRedisClient();
+            var dutSubscriber = new AsyncRedisSubscriptionClient();
 
             await dutPublisher.Connect(LocalHostDefaultPort.AsConnectionSettings());
             await dutSubscriber.Connect(LocalHostDefaultPort.AsConnectionSettings());
@@ -273,8 +273,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Test_Unsubscribe()
         {
-            var dutPublisher = new RedisClient();
-            var dutSubscriber = new RedisSubscriptionClient();
+            var dutPublisher = new AsyncRedisClient();
+            var dutSubscriber = new AsyncRedisSubscriptionClient();
 
             await dutPublisher.Connect(LocalHostDefaultPort.AsConnectionSettings());
             await dutSubscriber.Connect(LocalHostDefaultPort.AsConnectionSettings());
@@ -305,8 +305,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Test_MultipleSubscribe()
         {
-            var dutPublisher = new RedisClient();
-            var dutSubscriber = new RedisSubscriptionClient();
+            var dutPublisher = new AsyncRedisClient();
+            var dutSubscriber = new AsyncRedisSubscriptionClient();
 
             await dutPublisher.Connect(LocalHostDefaultPort.AsConnectionSettings());
             await dutSubscriber.Connect(LocalHostDefaultPort.AsConnectionSettings());
@@ -336,8 +336,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Test_MultipleUnsubscribe()
         {
-            var dutPublisher = new RedisClient();
-            var dutSubscriber = new RedisSubscriptionClient();
+            var dutPublisher = new AsyncRedisClient();
+            var dutSubscriber = new AsyncRedisSubscriptionClient();
 
             await dutPublisher.Connect(LocalHostDefaultPort.AsConnectionSettings());
             await dutSubscriber.Connect(LocalHostDefaultPort.AsConnectionSettings());
@@ -375,8 +375,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Test_RedundantUnsubscribe()
         {
-            var dutPublisher = new RedisClient();
-            var dutSubscriber = new RedisSubscriptionClient();
+            var dutPublisher = new AsyncRedisClient();
+            var dutSubscriber = new AsyncRedisSubscriptionClient();
 
             await dutPublisher.Connect(LocalHostDefaultPort.AsConnectionSettings());
             await dutSubscriber.Connect(LocalHostDefaultPort.AsConnectionSettings());

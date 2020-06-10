@@ -27,7 +27,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Test_SetAndGetHash()
         {
-            var dut = new RedisClient();
+            var dut = new AsyncRedisClient();
             await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             await dut.HSet(_keys[0], Field1, Value1);
@@ -39,7 +39,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Test_SetMultipleHash()
         {
-            var dut = new RedisClient();
+            var dut = new AsyncRedisClient();
             await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             var additionalFields = new Dictionary<string, string>
@@ -63,7 +63,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Test_GetMultipleHash()
         {
-            var dut = new RedisClient();
+            var dut = new AsyncRedisClient();
             await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             await dut.HSet(_keys[2], Field1, Value1);
@@ -80,7 +80,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Test_GetAllHash()
         {
-            var dut = new RedisClient();
+            var dut = new AsyncRedisClient();
             await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             await dut.HSet(_keys[3], Field1, Value1);
@@ -98,7 +98,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Test_GetAllHash_Null()
         {
-            var dut = new RedisClient();
+            var dut = new AsyncRedisClient();
             await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             var res = await dut.HGetAll(_keys[3]);
@@ -109,7 +109,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Test_GeHash_Null()
         {
-            var dut = new RedisClient();
+            var dut = new AsyncRedisClient();
             await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
             var res = (await dut.HMGet(_keys[3], new[] { Field1, Field2 })).ToList();
@@ -125,7 +125,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             try
             {
-                var dut = new RedisClient();
+                var dut = new AsyncRedisClient();
                 await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
                 await dut.Select(0);
