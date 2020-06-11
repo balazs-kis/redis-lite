@@ -46,9 +46,9 @@ namespace RedisLite.Client.Networking
         }
 
 
-        public Session()
+        public Session(bool disableParallelExecutionChecking)
         {
-            Locker = new Locker();
+            Locker = disableParallelExecutionChecking ? null : new Locker();
         }
 
 

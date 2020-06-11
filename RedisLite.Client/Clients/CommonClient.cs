@@ -11,7 +11,7 @@ namespace RedisLite.Client.Clients
     {
         public async Task<ISession> Connect(ConnectionSettings settings)
         {
-            var session = new Session();
+            var session = new Session(settings.DisableParallelExecutionChecking);
             await session.OpenAsync(settings.Address, settings.Port, settings.ReceiveTimeout);
 
             if (!settings.Authenticate)

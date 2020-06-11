@@ -47,7 +47,7 @@ namespace RedisLite.Client.Clients
                         .WithParameters(chs)
                         .ToString();
 
-                session.Locker.Obtain();
+                session.Locker?.Obtain();
                 await SendCommandAsync(session, command);
 
                 var isSubscriptionOk = true;
@@ -64,7 +64,7 @@ namespace RedisLite.Client.Clients
 
                 if (!isSubscriptionOk)
                 {
-                    session.Locker.Release();
+                    session.Locker?.Release();
                     return Result.Fail(subscriptionResult[0]);
                 }
 
@@ -106,14 +106,14 @@ namespace RedisLite.Client.Clients
 
                         OnMessageReceived?.Invoke(received[1].ToString(), received[2].ToString());
                     }
-                    session.Locker.Release();
+                    session.Locker?.Release();
                 }).ConfigureAwait(false);
 
                 return Result.Ok();
             }
             catch (Exception ex)
             {
-                session.Locker.Release();
+                session.Locker?.Release();
                 return Result.Fail(ex.Message, ex);
             }
         }

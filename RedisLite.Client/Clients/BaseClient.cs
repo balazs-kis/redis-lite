@@ -37,7 +37,7 @@ namespace RedisLite.Client.Clients
 
         protected async Task<object[]> SendCommandAndReadResponseAsync(ISession session, string command)
         {
-            session.Locker.Obtain();
+            session.Locker?.Obtain();
 
             try
             {
@@ -46,7 +46,7 @@ namespace RedisLite.Client.Clients
             }
             finally
             {
-                session.Locker.Release();
+                session.Locker?.Release();
             }
         }
 

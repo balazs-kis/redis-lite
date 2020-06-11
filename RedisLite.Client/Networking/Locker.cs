@@ -9,12 +9,12 @@ namespace RedisLite.Client.Networking
 
         private readonly object _lock;
 
-        private int _allowedExecution;
+        private bool _isFree;
 
         public Locker()
         {
             _lock = new object();
-            _allowedExecution = 1;
+            _isFree = true;
         }
 
 
@@ -22,12 +22,12 @@ namespace RedisLite.Client.Networking
         {
             lock (_lock)
             {
-                if (_allowedExecution == 0)
+                if (!_isFree)
                 {
                     throw new InvalidOperationException(ParallelErrorMessage);
                 }
 
-                _allowedExecution = 0;
+                _isFree = false;
             }
         }
 
@@ -35,12 +35,12 @@ namespace RedisLite.Client.Networking
         {
             lock (_lock)
             {
-                if (_allowedExecution == 1)
+                if (_isFree)
                 {
                     throw new InvalidOperationException(ReleaseErrorMessage);
                 }
 
-                _allowedExecution = 1;
+                _isFree = true;
             }
         }
     }
