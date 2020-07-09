@@ -49,24 +49,21 @@ namespace RedisLite.Client.Clients
             }
         }
 
-        public async Task<Result> Exec(ISession session)
+        public async Task<Result<object[]>> Exec(ISession session)
         {
             try
             {
                 var command = new BasicCommandBuilder(RedisCommands.EXEC).ToString();
 
-                var resultCode = await SendCommandAndReadResponseAsync(session, command);
+                var result = await SendCommandAndReadResponseAsync(session, command);
 
-                if (resultCode == null)
-                {
-                    return Result.Fail(RedisConstants.TransactionAborted);
-                }
-
-                return resultCode.Length >= 1 ? Result.Ok() : Result.Fail("Result was an empty array");
+                return result == null
+                    ? Result.Fail<object[]>(RedisConstants.TransactionAborted)
+                    : Result.Ok(result);
             }
             catch (Exception ex)
             {
-                return Result.Fail(ex.Message, ex);
+                return Result.Fail<object[]>(ex.Message, ex);
             }
         }
 

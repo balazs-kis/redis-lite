@@ -43,7 +43,7 @@ namespace RedisLite.Client.Contracts
 
         Task Watch(params string[] keys);
         Task Multi();
-        Task Exec();
+        Task<IEnumerable<object>> Exec();
         Task Discard();
 
         Task Publish(string channel, string message);

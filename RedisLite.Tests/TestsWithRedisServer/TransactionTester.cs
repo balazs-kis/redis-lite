@@ -48,11 +48,26 @@ namespace RedisLite.Tests.TestsWithRedisServer
             await dut.Set(Key, Value1);
             await dut.Set(Key, Value2);
             await dut.Set(Key, Value3);
-            await dut.Exec();
+            await dut.Get(Key);
+            var exec = await dut.Exec();
 
-            var result = await dut.Get(Key);
+            var getResult = await dut.Get(Key);
+            var execResult = exec.ToArray();
 
-            Assert.AreEqual(Value3, result);
+            Assert.AreEqual(Value3, getResult,
+                "The result should be the same value as the input");
+
+            Assert.AreEqual(RedisConstants.OkResult, execResult[0],
+                "The 1st operation is SET, it should return a simple OK result");
+
+            Assert.AreEqual(RedisConstants.OkResult, execResult[1],
+                "The 2nd operation is SET, it should return a simple OK result");
+
+            Assert.AreEqual(RedisConstants.OkResult, execResult[2],
+                "The 3st operation is SET, it should return a simple OK result");
+
+            Assert.AreEqual(Value3, execResult[3],
+                "The 4th operation is GET, it should return the value that was in the latest SET");
         }
 
         [TestMethod]
@@ -68,11 +83,32 @@ namespace RedisLite.Tests.TestsWithRedisServer
             await dut.RPush(Key, items);
             await dut.Del(Key);
             await dut.RPush(Key, items);
-            await dut.Exec();
+            var exec = await dut.Exec();
 
             var result = await dut.LRange(Key, 0, 4);
+            var execResult = exec
+                .Select(i =>
+                {
+                    if (i is string s)
+                    {
+                        return int.Parse(s);
+                    }
 
-            Assert.IsTrue(items.SequenceEqual(result));
+                    return -1;
+                })
+                .ToArray();
+
+            Assert.IsTrue(items.SequenceEqual(result),
+                "The returned result should be the same array as the input");
+
+            Assert.AreEqual(items.Length, execResult[0],
+                "The 1st operation is RPUSH, it should return the number of items pushed into the list");
+
+            Assert.AreEqual(1, execResult[1],
+                "The 2nd operation is DEL, it should return the number of keys deleted");
+
+            Assert.AreEqual(items.Length, execResult[2],
+                "The 3rd operation is RPUSH, it should return the number of items pushed into the list");
         }
 
         [TestMethod]

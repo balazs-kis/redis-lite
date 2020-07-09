@@ -421,7 +421,7 @@ namespace RedisLite.Client
                 }
             });
 
-        public Task Exec() =>
+        public Task<IEnumerable<object>> Exec() =>
             ExecuteWithSession(async session =>
             {
                 var result = await _transactionClient.Exec(session).ConfigureAwait(false);
@@ -439,6 +439,8 @@ namespace RedisLite.Client
                         $"Error while executing transaction [REDIS CODE: {result.Error}]",
                         result.Exception);
                 }
+
+                return result.Value.AsEnumerable();
             });
 
         public Task Discard() =>
