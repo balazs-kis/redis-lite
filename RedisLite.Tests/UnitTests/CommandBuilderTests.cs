@@ -43,7 +43,7 @@ namespace RedisLite.Tests.UnitTests
             .Arrange(() => new BasicCommandBuilder(RedisCommands.GET))
             .Act(underTest => underTest.WithParameter(Parameter).ToString())
             .Assert().Validate(result => result.Should().Contain(Parameter));
-        
+
         [TestMethod]
         public void WithObjectParameter_ResultContainsParameter() => Test
             .Arrange(() => new BasicCommandBuilder(RedisCommands.GET))

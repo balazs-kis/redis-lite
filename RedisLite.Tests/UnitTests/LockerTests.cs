@@ -14,8 +14,8 @@ namespace RedisLite.Tests.UnitTests
         private const int Number = 2020;
 
         private static readonly TimeSpan Delay = TimeSpan.FromMilliseconds(1250);
-        
-        [TestMethod]        
+
+        [TestMethod]
         public void TryToObtainWhileNotLocked_Succeeds() => Test
             .Arrange(() => new Locker())
             .Act(underTest => underTest.Obtain())

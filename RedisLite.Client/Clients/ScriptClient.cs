@@ -43,7 +43,7 @@ namespace RedisLite.Client.Clients
                         .ToString();
 
                 var res = await SendCommandAndReadResponseAsync(session, command);
-                
+
                 return Result.Ok(res);
             }
             catch (Exception ex)

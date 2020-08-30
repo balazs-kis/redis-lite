@@ -16,7 +16,7 @@ namespace RedisLite.Client.Networking
         private StreamWriter _streamWriter;
 
         public bool IsOpen { get; private set; }
-        
+
         public Locker Locker { get; }
 
         public StreamReader StreamReader
@@ -93,7 +93,7 @@ namespace RedisLite.Client.Networking
 
             return canWrite && !hasError;
         }
-        
+
         public void Dispose()
         {
             Dispose(true);

@@ -92,7 +92,7 @@ namespace RedisLite.Client.Clients
                         .ToString();
 
                 var result = await SendCommandAndReadResponseAsync(session, command);
-                
+
                 return Result.Ok(result.Select(i => i.ToString()).ToList());
             }
             catch (Exception ex)

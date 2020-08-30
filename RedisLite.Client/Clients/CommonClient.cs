@@ -37,7 +37,7 @@ namespace RedisLite.Client.Clients
                     new BasicCommandBuilder(RedisCommands.DEL)
                         .WithKey(key)
                         .ToString();
-                
+
                 var response = await SendCommandAndReadResponseAsync(session, command);
                 var responseString = response[0]?.ToString();
 
@@ -59,7 +59,7 @@ namespace RedisLite.Client.Clients
                 var commandBuilder = new BasicCommandBuilder(RedisCommands.FLUSHDB);
                 if (async) commandBuilder.WithParameter(RedisConstants.Async);
                 var command = commandBuilder.ToString();
-                
+
                 var response = await SendCommandAndReadResponseAsync(session, command);
 
                 return IsResponseOk(response[0]) ? Result.Ok() : Result.Fail(response[0]?.ToString());
@@ -85,7 +85,7 @@ namespace RedisLite.Client.Clients
                         .ToString();
 
                 var response = await SendCommandAndReadResponseAsync(session, command);
-                
+
                 return IsResponseOk(response[0]) ? Result.Ok() : Result.Fail(response[0]?.ToString());
             }
             catch (Exception ex)
@@ -177,7 +177,7 @@ namespace RedisLite.Client.Clients
                         .ToString();
 
                 var resultCode = await SendCommandAndReadResponseAsync(session, command);
-                
+
                 return string.Equals(resultCode[0].ToString(), RedisConstants.OkResult) ? Result.Ok() : Result.Fail(resultCode[0].ToString());
             }
             catch (Exception ex)

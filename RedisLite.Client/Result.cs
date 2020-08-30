@@ -6,7 +6,7 @@ namespace RedisLite.Client
     public class Result
     {
         public bool IsSuccess { get; }
-        
+
         public bool IsFailure => !IsSuccess;
 
         public string Error { get; }
@@ -30,10 +30,10 @@ namespace RedisLite.Client
 
         public static Result Fail(string message, Exception ex = null) =>
             new Result(false, message, ex);
-        
+
         public static Result<T> Fail<T>(string message, Exception ex = null) =>
             new Result<T>(default, false, message, ex);
-        
+
         public static Result Ok() =>
             new Result(true, null, null);
 

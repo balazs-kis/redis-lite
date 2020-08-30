@@ -10,7 +10,7 @@ namespace RedisLite.Client.Networking
         Locker Locker { get; }
         StreamReader StreamReader { get; }
         StreamWriter StreamWriter { get; }
-        
+
         Task<bool> OpenAsync(string address, int port, TimeSpan receiveTimeout);
         void SetInfiniteReadTimeout();
     }

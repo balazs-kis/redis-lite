@@ -24,7 +24,7 @@ namespace RedisLite.Client.Clients
                         .WithKey(channel)
                         .WithParameter(message)
                         .ToString();
-                
+
                 var response = await SendCommandAndReadResponseAsync(session, command);
                 var responseString = response[0]?.ToString();
 
@@ -77,7 +77,7 @@ namespace RedisLite.Client.Clients
                         var channelsHash = new HashSet<string>(chs);
 
                         object[] received;
-                        
+
                         try
                         {
                             received = await ParseToEndAsync(session);

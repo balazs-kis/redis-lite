@@ -117,7 +117,7 @@ namespace RedisLite.Client
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);            
+            GC.SuppressFinalize(this);
         }
 
         private void Dispose(bool disposing)

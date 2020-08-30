@@ -88,7 +88,7 @@ namespace RedisLite.Client.Clients
                         .ToString();
 
                 var result = await SendCommandAndReadResponseAsync(session, command);
-                
+
                 var stringResult = result.Select(i => i?.ToString()).ToArray();
 
                 if (result.Length != f.Length)
@@ -114,7 +114,7 @@ namespace RedisLite.Client.Clients
                         .ToString();
 
                 var result = await SendCommandAndReadResponseAsync(session, command);
-                
+
                 if (result.Length % 2 == 1)
                 {
                     Result.Fail<IDictionary<string, string>>($"Received an odd number of items: [{string.Join(", ", result.Select(i => i?.ToString()))}]");
