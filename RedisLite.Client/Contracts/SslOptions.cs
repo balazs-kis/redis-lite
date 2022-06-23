@@ -2,19 +2,24 @@
 {
     public class SslOptions
     {
-        private SslOptions(bool useSsl, string serverName)
+        private SslOptions(bool useSsl, bool useDefaultServerName, string serverName)
         {
             UseSsl = useSsl;
+            UseDefaultServerName = useDefaultServerName;
             ServerName = serverName;
         }
 
         public bool UseSsl { get; }
+        public bool UseDefaultServerName { get; }
         public string ServerName { get; }
 
         public static SslOptions NoSsl() =>
-            new SslOptions(false, null);
+            new SslOptions(false, false, null);
+
+        public static SslOptions UseSslWithDefaultServerName() =>
+            new SslOptions(true, true, null);
 
         public static SslOptions UseSslWithServerName(string serverName) =>
-            new SslOptions(true, serverName);
+            new SslOptions(true, false, serverName);
     }
 }
