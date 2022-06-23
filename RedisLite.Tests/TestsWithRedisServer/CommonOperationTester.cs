@@ -4,6 +4,7 @@ using RedisLite.Client;
 using RedisLite.Client.Exceptions;
 using RedisLite.Tests.TestConfigurations;
 using System;
+using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,8 +14,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
     [TestClass]
     public class CommonOperationTester
     {
-        private const string Key = "TestKey";
-        private const string Value = "TestValue";
+        private const string Key1 = "TestKey1";
+        private const string Value1 = "TestValue1";
 
         private const string Key2 = "TestKey2";
         private const string Value2 = "TestValue2";
@@ -101,7 +102,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
             try
             {
-                await underTest.Set(Key, Value);
+                await underTest.Set(Key1, Value1);
             }
             catch (Exception ex)
             {
@@ -117,12 +118,12 @@ namespace RedisLite.Tests.TestsWithRedisServer
             var underTest = LocalHostDefaultPort.CreateAndConnectClient();
 
             await underTest.Select(7);
-            await underTest.Set(Key, Value);
-            var result1 = await underTest.Get(Key);
+            await underTest.Set(Key1, Value1);
+            var result1 = await underTest.Get(Key1);
             await underTest.Select(8);
-            var result2 = await underTest.Get(Key);
+            var result2 = await underTest.Get(Key1);
 
-            result1.Should().Be(Value);
+            result1.Should().Be(Value1);
             result2.Should().BeNull();
         }
 
@@ -149,8 +150,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             var underTest = LocalHostDefaultPort.CreateAndConnectClient();
 
-            await underTest.Set(Key, Value);
-            var result1 = await underTest.Exists(Key);
+            await underTest.Set(Key1, Value1);
+            var result1 = await underTest.Exists(Key1);
             var result2 = await underTest.Exists("NotPresentKey");
 
             result1.Should().BeTrue();
@@ -162,12 +163,12 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             var underTest = LocalHostDefaultPort.CreateAndConnectClient();
 
-            await underTest.Set(Key, Value);
-            var result1 = await underTest.Get(Key);
-            await underTest.Del(Key);
-            var result2 = await underTest.Get(Key);
+            await underTest.Set(Key1, Value1);
+            var result1 = await underTest.Get(Key1);
+            await underTest.Del(Key1);
+            var result2 = await underTest.Get(Key1);
 
-            result1.Should().Be(Value);
+            result1.Should().Be(Value1);
             result2.Should().BeNull();
         }
 
@@ -176,10 +177,10 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             var underTest = LocalHostDefaultPort.CreateAndConnectClient();
 
-            await underTest.Set(Key, Value);
+            await underTest.Set(Key1, Value1);
             await underTest.Set(Key2, Value2);
             await underTest.FlushDb();
-            var result1 = await underTest.Get(Key);
+            var result1 = await underTest.Get(Key1);
             var result2 = await underTest.Get(Key2);
 
             result1.Should().BeNull();
@@ -191,11 +192,11 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             var underTest = LocalHostDefaultPort.CreateAndConnectClient();
 
-            await underTest.Set(Key, Value);
+            await underTest.Set(Key1, Value1);
             await underTest.Set(Key2, Value2);
             await underTest.FlushDb(true);
             Thread.Sleep(50);
-            var result1 = await underTest.Get(Key);
+            var result1 = await underTest.Get(Key1);
             var result2 = await underTest.Get(Key2);
 
             result1.Should().BeNull();
@@ -207,7 +208,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             var underTest = LocalHostDefaultPort.CreateAndConnectClient();
 
-            await underTest.Set(Key, Value);
+            await underTest.Set(Key1, Value1);
             await underTest.Set(Key2, Value2);
             var result = await underTest.DbSize();
 
@@ -220,14 +221,14 @@ namespace RedisLite.Tests.TestsWithRedisServer
             var underTest = LocalHostDefaultPort.CreateAndConnectClient();
 
             await underTest.Select(0);
-            await underTest.Set(Key, Value);
+            await underTest.Set(Key1, Value1);
             await underTest.SwapDb(0, 7);
-            var existsOnDb0 = await underTest.Exists(Key);
+            var existsOnDb0 = await underTest.Exists(Key1);
             await underTest.Select(7);
-            var readValueFromDb7 = await underTest.Get(Key);
+            var readValueFromDb7 = await underTest.Get(Key1);
 
             existsOnDb0.Should().BeFalse();
-            readValueFromDb7.Should().Be(Value);
+            readValueFromDb7.Should().Be(Value1);
         }
 
         [TestMethod]
@@ -248,6 +249,20 @@ namespace RedisLite.Tests.TestsWithRedisServer
             thrownException.Should().NotBeNull().And.BeOfType<RedisException>();
         }
 
+        [TestMethod]
+        public async Task Keys_ReturnsKeysCorrectly()
+        {
+            var dut = new AsyncRedisClient();
+            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+
+            await dut.Set(Key1, Value1);
+            await dut.Set(Key2, Value2);
+            var result = await dut.Keys("*");
+            var resultList = result.ToList();
+
+            resultList.Count.Should().Be(2);
+            resultList.Should().Contain(Key1).And.Contain(Key2);
+        }
 
         [TestCleanup]
         public async Task Cleanup()
@@ -258,11 +273,11 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
 
                 await dut.Select(0);
-                await dut.Del(Key);
+                await dut.Del(Key1);
                 await dut.Del(Key2);
 
                 await dut.Select(7);
-                await dut.Del(Key);
+                await dut.Del(Key1);
                 await dut.Del(Key2);
             }
             catch (Exception ex)

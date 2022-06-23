@@ -125,6 +125,21 @@ namespace RedisLite.Client
                 return result.Value;
             });
 
+        public Task<IEnumerable<string>> Keys(string pattern) =>
+            ExecuteWithSession(async session =>
+            {
+                var result = await _commonClient.Keys(session, pattern).ConfigureAwait(false);
+
+                if (result.IsFailure)
+                {
+                    throw new RedisException(
+                        $"Error while getting keys for pattern '{pattern}' [REDIS CODE: {result.Error}]",
+                        result.Exception);
+                }
+
+                return result.Value.AsEnumerable();
+            });
+
         public Task<long> DbSize() =>
             ExecuteWithSession(async session =>
             {
