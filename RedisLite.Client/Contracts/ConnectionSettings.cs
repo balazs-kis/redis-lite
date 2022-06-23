@@ -9,7 +9,8 @@ namespace RedisLite.Client.Contracts
             int port,
             string secret = null,
             int receiveTimeoutMs = 5000,
-            bool disableParallelExecutionChecking = false)
+            bool disableParallelExecutionChecking = false,
+            SslOptions sslOptions = null)
         {
             Address = address;
             Port = port;
@@ -18,6 +19,7 @@ namespace RedisLite.Client.Contracts
             Authenticate = !string.IsNullOrWhiteSpace(secret);
             ReceiveTimeout = TimeSpan.FromMilliseconds(receiveTimeoutMs);
             DisableParallelExecutionChecking = disableParallelExecutionChecking;
+            SslOptions = sslOptions ?? SslOptions.NoSsl();
         }
 
         public string Address { get; }
@@ -26,5 +28,6 @@ namespace RedisLite.Client.Contracts
         public string Secret { get; }
         public TimeSpan ReceiveTimeout { get; }
         public bool DisableParallelExecutionChecking { get; }
+        public SslOptions SslOptions { get; }
     }
 }

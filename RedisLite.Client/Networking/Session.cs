@@ -1,8 +1,10 @@
-﻿using System;
+﻿using RedisLite.Client.Encoding;
+using System;
 using System.IO;
+using System.Net.Security;
 using System.Net.Sockets;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
-using RedisLite.Client.Encoding;
 
 namespace RedisLite.Client.Networking
 {
@@ -12,6 +14,8 @@ namespace RedisLite.Client.Networking
 
         private bool _disposed;
         private TcpClient _client;
+        private NetworkStream _networkStream;
+        private SslStream _sslStream;
         private StreamReader _streamReader;
         private StreamWriter _streamWriter;
 
@@ -52,7 +56,12 @@ namespace RedisLite.Client.Networking
         }
 
 
-        public async Task<bool> OpenAsync(string address, int port, TimeSpan receiveTimeout)
+        public async Task<bool> OpenAsync(
+            string address,
+            int port,
+            TimeSpan receiveTimeout,
+            bool useSsl,
+            string sslServerName)
         {
             if (IsConnected())
             {
@@ -63,13 +72,38 @@ namespace RedisLite.Client.Networking
             await _client.ConnectAsync(address, port);
 
             _client.Client.ReceiveTimeout = _client.Client.SendTimeout = (int)receiveTimeout.TotalMilliseconds;
-            var stream = _client.GetStream();
 
-            stream.ReadTimeout = (int)receiveTimeout.TotalMilliseconds;
-            stream.WriteTimeout = (int)receiveTimeout.TotalMilliseconds;
+            _networkStream = _client.GetStream();
 
-            _streamReader = new StreamReader(stream, ContentEncoder.Encoding, false, BufferSize, true);
-            _streamWriter = new StreamWriter(stream, ContentEncoder.Encoding, BufferSize, true);
+            _networkStream.ReadTimeout = (int)receiveTimeout.TotalMilliseconds;
+            _networkStream.WriteTimeout = (int)receiveTimeout.TotalMilliseconds;
+
+            if (useSsl)
+            {
+                _sslStream = new SslStream(
+                    _networkStream,
+                    true,
+                    ValidateServerCertificate,
+                    null);
+
+                await _sslStream.AuthenticateAsClientAsync(sslServerName);
+
+                _sslStream.ReadTimeout = (int)receiveTimeout.TotalMilliseconds;
+                _sslStream.WriteTimeout = (int)receiveTimeout.TotalMilliseconds;
+            }
+
+            _streamReader = new StreamReader(
+                useSsl ? (Stream)_sslStream : _networkStream,
+                ContentEncoder.Encoding,
+                false,
+                BufferSize,
+                true);
+
+            _streamWriter = new StreamWriter(
+                useSsl ? (Stream)_sslStream : _networkStream,
+                ContentEncoder.Encoding,
+                BufferSize,
+                true);
 
             IsOpen = IsConnected();
 
@@ -78,7 +112,12 @@ namespace RedisLite.Client.Networking
 
         public void SetInfiniteReadTimeout()
         {
-            _client.GetStream().ReadTimeout = -1;
+            _networkStream.ReadTimeout = -1;
+
+            if (_sslStream != null)
+            {
+                _sslStream.ReadTimeout = -1;
+            }
         }
 
         private bool IsConnected()
@@ -129,5 +168,12 @@ namespace RedisLite.Client.Networking
 
             _disposed = true;
         }
+
+        public static bool ValidateServerCertificate(
+            object sender,
+            X509Certificate certificate,
+            X509Chain chain,
+            SslPolicyErrors sslPolicyErrors) =>
+            sslPolicyErrors == SslPolicyErrors.None;
     }
 }
