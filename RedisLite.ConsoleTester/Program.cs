@@ -13,7 +13,9 @@ namespace RedisLite.ConsoleTester
         public static void Main()
         {
             var client = new AsyncRedisClient();
-            var connectionSettings = new ConnectionSettings("127.0.0.1", 6379);
+
+            var connectionSettings = ConnectionSettings.FromConnectionString(
+                "127.0.0.1:6379,ssl=false,asyncTimeout=3500,disableConcurrencyCheck=false");
 
             FailIfException(async () =>
             {

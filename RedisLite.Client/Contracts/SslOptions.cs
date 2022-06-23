@@ -2,6 +2,8 @@
 {
     public class SslOptions
     {
+        public static readonly SslOptions Default = SslOptions.NoSsl();
+
         private SslOptions(bool useSsl, bool useDefaultServerName, string serverName)
         {
             UseSsl = useSsl;
