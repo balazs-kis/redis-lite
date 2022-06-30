@@ -1,4 +1,5 @@
 ﻿using System;
+using RedisLite.Client.Utils;
 
 namespace RedisLite.Client.Contracts
 {
@@ -11,12 +12,17 @@ namespace RedisLite.Client.Contracts
 
         public ConnectionSettings(
             string address,
-            int port,
+            int port = DefaultPort,
             string secret = null,
             int receiveTimeoutMs = DefaultReceiveTimeout,
             bool disableParallelExecutionChecking = DefaultParallelExecutionCheckingDisabled,
             SslOptions sslOptions = null)
         {
+            if (string.IsNullOrWhiteSpace(address))
+            {
+                throw new ArgumentException("Address cannot be null, empty or whitespace", nameof(address));
+            }
+            
             Address = address;
             Port = port;
             Secret = secret;
@@ -38,7 +44,7 @@ namespace RedisLite.Client.Contracts
         /// <summary>
         /// Creates a <see cref="ConnectionSettings"/> instance from a connection string.
         /// Available parameters in the connection string (they are case-insensitive): password={string}, ssl={bool}, sslHost={string}, asyncTimeout={int}, disableConcurrencyCheck={bool}.
-        /// Example: "redis.myserver.com:6379,password=SecurePassword,ssl=True".
+        /// Example: "redis.my-server.com:6379,password=SecurePassword,ssl=True".
         /// </summary>
         /// <param name="connectionString">The connection string to parse</param>
         /// <returns>The <see cref="ConnectionSettings"/> instance that can be used to create a client</returns>

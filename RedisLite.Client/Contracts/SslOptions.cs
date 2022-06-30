@@ -2,7 +2,7 @@
 {
     public class SslOptions
     {
-        public static readonly SslOptions Default = SslOptions.NoSsl();
+        public static readonly SslOptions Default = NoSsl();
 
         private SslOptions(bool useSsl, bool useDefaultServerName, string serverName)
         {

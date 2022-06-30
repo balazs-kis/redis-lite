@@ -1,12 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using RedisLite.Client.Contracts;
 
-namespace RedisLite.Client.Contracts
+namespace RedisLite.Client.Utils
 {
     internal static class ConnectionStringParser
     {
         public static ConnectionSettings ParseConnectionString(string connectionString)
         {
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                throw new ArgumentException(
+                    "Connection string cannot be null, empty or whitespace", nameof(connectionString));
+            }
+            
             var elements = connectionString.Split(',').ToList();
 
             var (address, port) = ParseAddressAndPort(elements[0]);

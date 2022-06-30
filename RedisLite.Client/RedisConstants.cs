@@ -1,6 +1,6 @@
 ﻿namespace RedisLite.Client
 {
-    internal class RedisConstants
+    internal static class RedisConstants
     {
         public const char ArrayPrefix = '*';
         public const char BulkPrefix = '$';
