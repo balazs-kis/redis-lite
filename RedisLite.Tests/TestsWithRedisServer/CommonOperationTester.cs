@@ -12,13 +12,19 @@ using System.Threading.Tasks;
 namespace RedisLite.Tests.TestsWithRedisServer
 {
     [TestClass]
-    public class CommonOperationTester
+    public class CommonOperationTester : TestBase
     {
         private const string Key1 = "TestKey1";
         private const string Value1 = "TestValue1";
 
         private const string Key2 = "TestKey2";
         private const string Value2 = "TestValue2";
+
+        [ClassInitialize]
+        public static async Task Setup(TestContext context) => await SetupTestContainerAsync();
+
+        [ClassCleanup]
+        public static async Task ClassCleanup() => await DisposeTestContainerAsync();
 
         [TestMethod]
         public async Task Connect_ConnectsSuccessfully()
@@ -28,7 +34,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
             try
             {
-                await underTest.Connect(LocalHostDefaultPort.AsConnectionSettings());
+                await underTest.Connect(RedisConnectionSettings);
             }
             catch (Exception ex)
             {
@@ -82,8 +88,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
             try
             {
-                await underTest.Connect(LocalHostDefaultPort.AsConnectionSettings());
-                await underTest.Connect(LocalHostDefaultPort.AsConnectionSettings());
+                await underTest.Connect(RedisConnectionSettings);
+                await underTest.Connect(RedisConnectionSettings);
             }
             catch (Exception ex)
             {
@@ -97,7 +103,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         public async Task CallingClientAfterDispose_ThrowsException()
         {
             Exception thrownException = null;
-            var underTest = LocalHostDefaultPort.CreateAndConnectClient();
+            var underTest = await CreateAndConnectRedisClientAsync();
             underTest.Dispose();
 
             try
@@ -115,7 +121,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Select_ClientSelectsNewDb()
         {
-            var underTest = LocalHostDefaultPort.CreateAndConnectClient();
+            var underTest = await CreateAndConnectRedisClientAsync();
 
             await underTest.Select(7);
             await underTest.Set(Key1, Value1);
@@ -131,7 +137,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         public async Task SelectWrongDbNumber_ThrowsException()
         {
             Exception thrownException = null;
-            var underTest = LocalHostDefaultPort.CreateAndConnectClient();
+            var underTest = await CreateAndConnectRedisClientAsync();
 
             try
             {
@@ -148,7 +154,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Exists_ReturnsValueCorrectly()
         {
-            var underTest = LocalHostDefaultPort.CreateAndConnectClient();
+            var underTest = await CreateAndConnectRedisClientAsync();
 
             await underTest.Set(Key1, Value1);
             var result1 = await underTest.Exists(Key1);
@@ -161,7 +167,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Del_DeletedSuccessfully()
         {
-            var underTest = LocalHostDefaultPort.CreateAndConnectClient();
+            var underTest = await CreateAndConnectRedisClientAsync();
 
             await underTest.Set(Key1, Value1);
             var result1 = await underTest.Get(Key1);
@@ -175,7 +181,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task FlushDb_DbFlushedSuccessfully()
         {
-            var underTest = LocalHostDefaultPort.CreateAndConnectClient();
+            var underTest = await CreateAndConnectRedisClientAsync();
 
             await underTest.Set(Key1, Value1);
             await underTest.Set(Key2, Value2);
@@ -190,7 +196,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task FlushDbAsync_DbFlushedSuccessfully()
         {
-            var underTest = LocalHostDefaultPort.CreateAndConnectClient();
+            var underTest = await CreateAndConnectRedisClientAsync();
 
             await underTest.Set(Key1, Value1);
             await underTest.Set(Key2, Value2);
@@ -206,7 +212,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task DbSize_ReturnsValueCorrectly()
         {
-            var underTest = LocalHostDefaultPort.CreateAndConnectClient();
+            var underTest = await CreateAndConnectRedisClientAsync();
 
             await underTest.Set(Key1, Value1);
             await underTest.Set(Key2, Value2);
@@ -218,7 +224,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task SwapDb_ClientConnectedToCorrectDb()
         {
-            var underTest = LocalHostDefaultPort.CreateAndConnectClient();
+            var underTest = await CreateAndConnectRedisClientAsync();
 
             await underTest.Select(0);
             await underTest.Set(Key1, Value1);
@@ -235,7 +241,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         public async Task SwapWithWrongDbNumbers_ThrowsException()
         {
             Exception thrownException = null;
-            var underTest = LocalHostDefaultPort.CreateAndConnectClient();
+            var underTest = await CreateAndConnectRedisClientAsync();
 
             try
             {
@@ -252,12 +258,11 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Keys_ReturnsKeysCorrectly()
         {
-            var dut = new AsyncRedisClient();
-            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            var underTest = await CreateAndConnectRedisClientAsync();
 
-            await dut.Set(Key1, Value1);
-            await dut.Set(Key2, Value2);
-            var result = await dut.Keys("*");
+            await underTest.Set(Key1, Value1);
+            await underTest.Set(Key2, Value2);
+            var result = await underTest.Keys("*");
             var resultList = result.ToList();
 
             resultList.Count.Should().Be(2);
@@ -265,20 +270,19 @@ namespace RedisLite.Tests.TestsWithRedisServer
         }
 
         [TestCleanup]
-        public async Task Cleanup()
+        public async Task TestCleanup()
         {
             try
             {
-                var dut = new AsyncRedisClient();
-                await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+                var client = await CreateAndConnectRedisClientAsync();
 
-                await dut.Select(0);
-                await dut.Del(Key1);
-                await dut.Del(Key2);
+                await client.Select(0);
+                await client.Del(Key1);
+                await client.Del(Key2);
 
-                await dut.Select(7);
-                await dut.Del(Key1);
-                await dut.Del(Key2);
+                await client.Select(7);
+                await client.Del(Key1);
+                await client.Del(Key2);
             }
             catch (Exception ex)
             {

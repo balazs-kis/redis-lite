@@ -1,6 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RedisLite.Client;
-using RedisLite.Tests.TestConfigurations;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,7 +6,7 @@ using System.Threading.Tasks;
 namespace RedisLite.Tests.TestsWithRedisServer
 {
     [TestClass]
-    public class ScriptTester
+    public class ScriptTester : TestBase
     {
         private const int ShaLength = 40;
 
@@ -29,18 +27,22 @@ namespace RedisLite.Tests.TestsWithRedisServer
                                                           "table.insert(t, p) " +
                                                           "return t";
 
+        [ClassInitialize]
+        public static async Task Setup(TestContext context) => await SetupTestContainerAsync();
+
+        [ClassCleanup]
+        public static async Task ClassCleanup() => await DisposeTestContainerAsync();
+
         [TestMethod]
         public async Task TestScriptLoadAndRun_SingleString()
         {
-            var dut = new AsyncRedisClient();
+            var underTest = await CreateAndConnectRedisClientAsync();
 
-            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
-
-            var sha = await dut.LoadScript(ScriptWithoutParameter);
+            var sha = await underTest.LoadScript(ScriptWithoutParameter);
 
             Assert.AreEqual(ShaLength, sha.Length);
 
-            var res = (await dut.EvalSha(sha, new string[0])).ToList();
+            var res = (await underTest.EvalSha(sha, new string[0])).ToList();
             var resString = res[0];
 
             Assert.AreEqual("it works", resString);
@@ -49,15 +51,13 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task TestScriptLoadAndRun_List()
         {
-            var dut = new AsyncRedisClient();
+            var underTest = await CreateAndConnectRedisClientAsync();
 
-            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
-
-            var sha = await dut.LoadScript(ScriptWithListResult);
+            var sha = await underTest.LoadScript(ScriptWithListResult);
 
             Console.WriteLine(sha);
 
-            var res = await dut.EvalSha(sha, new string[0]);
+            var res = await underTest.EvalSha(sha, new string[0]);
             var resList = res as object[];
 
             Assert.AreEqual(2, resList?.Length);
@@ -68,17 +68,15 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task TestScriptLoadAndRun_ListInList()
         {
-            var dut = new AsyncRedisClient();
+            var underTest = await CreateAndConnectRedisClientAsync();
 
-            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
-
-            var sha = await dut.LoadScript(ScriptWithListInListResult);
+            var sha = await underTest.LoadScript(ScriptWithListInListResult);
 
             Console.WriteLine(sha);
 
-            var result = (await dut.EvalSha(sha, new string[0])).ToArray();
+            var result = (await underTest.EvalSha(sha, new string[0])).ToArray();
 
-            Assert.AreEqual(2, result?.Length);
+            Assert.AreEqual(2, result.Length);
 
             var embeddedArray1 = result[0] as object[];
             var embeddedArray2 = result[1] as object[];
@@ -94,20 +92,17 @@ namespace RedisLite.Tests.TestsWithRedisServer
             Assert.AreEqual("40", embeddedArray2?[3]?.ToString());
         }
 
-
         [TestCleanup]
         public async Task Cleanup()
         {
             try
             {
-                var dut = new AsyncRedisClient();
+                var client = await CreateAndConnectRedisClientAsync();
 
-                await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+                await client.Del("foo");
 
-                await dut.Del("foo");
-
-                await dut.Select(9);
-                await dut.Del("tmp01");
+                await client.Select(9);
+                await client.Del("tmp01");
             }
             catch (Exception ex)
             {

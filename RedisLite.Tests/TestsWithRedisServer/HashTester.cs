@@ -1,6 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RedisLite.Client;
-using RedisLite.Tests.TestConfigurations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +7,7 @@ using System.Threading.Tasks;
 namespace RedisLite.Tests.TestsWithRedisServer
 {
     [TestClass]
-    public class HashTester
+    public class HashTester : TestBase
     {
         private readonly List<string> _keys =
             Enumerable
@@ -24,14 +22,19 @@ namespace RedisLite.Tests.TestsWithRedisServer
         private const string Field3 = "h3";
         private const string Value3 = "X5DwYJaVUuVEb8m6";
 
+        [ClassInitialize]
+        public static async Task Setup(TestContext context) => await SetupTestContainerAsync();
+
+        [ClassCleanup]
+        public static async Task ClassCleanup() => await DisposeTestContainerAsync();
+
         [TestMethod]
         public async Task Test_SetAndGetHash()
         {
-            var dut = new AsyncRedisClient();
-            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            var underTest = await CreateAndConnectRedisClientAsync();
 
-            await dut.HSet(_keys[0], Field1, Value1);
-            var res = await dut.HGet(_keys[0], Field1);
+            await underTest.HSet(_keys[0], Field1, Value1);
+            var res = await underTest.HGet(_keys[0], Field1);
 
             Assert.AreEqual(Value1, res);
         }
@@ -39,8 +42,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Test_SetMultipleHash()
         {
-            var dut = new AsyncRedisClient();
-            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            var underTest = await CreateAndConnectRedisClientAsync();
 
             var additionalFields = new Dictionary<string, string>
             {
@@ -49,11 +51,11 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 {Field3, Value3}
             };
 
-            await dut.HMSet(_keys[1], additionalFields);
+            await underTest.HMSet(_keys[1], additionalFields);
 
-            var res1 = await dut.HGet(_keys[1], Field1);
-            var res2 = await dut.HGet(_keys[1], Field2);
-            var res3 = await dut.HGet(_keys[1], Field3);
+            var res1 = await underTest.HGet(_keys[1], Field1);
+            var res2 = await underTest.HGet(_keys[1], Field2);
+            var res3 = await underTest.HGet(_keys[1], Field3);
 
             Assert.AreEqual(Value1, res1);
             Assert.AreEqual(Value2, res2);
@@ -63,14 +65,13 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Test_GetMultipleHash()
         {
-            var dut = new AsyncRedisClient();
-            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            var underTest = await CreateAndConnectRedisClientAsync();
 
-            await dut.HSet(_keys[2], Field1, Value1);
-            await dut.HSet(_keys[2], Field2, Value2);
-            await dut.HSet(_keys[2], Field3, Value3);
+            await underTest.HSet(_keys[2], Field1, Value1);
+            await underTest.HSet(_keys[2], Field2, Value2);
+            await underTest.HSet(_keys[2], Field3, Value3);
 
-            var res = (await dut.HMGet(_keys[2], new[] { Field1, Field2, Field3 })).ToList();
+            var res = (await underTest.HMGet(_keys[2], new[] { Field1, Field2, Field3 })).ToList();
 
             Assert.AreEqual(Value1, res[0]);
             Assert.AreEqual(Value2, res[1]);
@@ -80,14 +81,13 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Test_GetAllHash()
         {
-            var dut = new AsyncRedisClient();
-            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            var underTest = await CreateAndConnectRedisClientAsync();
 
-            await dut.HSet(_keys[3], Field1, Value1);
-            await dut.HSet(_keys[3], Field2, Value2);
-            await dut.HSet(_keys[3], Field3, Value3);
+            await underTest.HSet(_keys[3], Field1, Value1);
+            await underTest.HSet(_keys[3], Field2, Value2);
+            await underTest.HSet(_keys[3], Field3, Value3);
 
-            var res = await dut.HGetAll(_keys[3]);
+            var res = await underTest.HGetAll(_keys[3]);
 
             Assert.AreEqual(3, res.Count);
             Assert.AreEqual(Value1, res[Field1]);
@@ -98,10 +98,9 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Test_GetAllHash_Null()
         {
-            var dut = new AsyncRedisClient();
-            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            var underTest = await CreateAndConnectRedisClientAsync();
 
-            var res = await dut.HGetAll(_keys[3]);
+            var res = await underTest.HGetAll(_keys[3]);
 
             Assert.AreEqual(0, res.Count);
         }
@@ -109,27 +108,24 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Test_GeHash_Null()
         {
-            var dut = new AsyncRedisClient();
-            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+            var underTest = await CreateAndConnectRedisClientAsync();
 
-            var res = (await dut.HMGet(_keys[3], new[] { Field1, Field2 })).ToList();
+            var res = (await underTest.HMGet(_keys[3], new[] { Field1, Field2 })).ToList();
 
             Assert.AreEqual(2, res.Count);
             Assert.IsNull(res[0]);
             Assert.IsNull(res[1]);
         }
 
-
         [TestCleanup]
         public async Task Cleanup()
         {
             try
             {
-                var dut = new AsyncRedisClient();
-                await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
+                var client = await CreateAndConnectRedisClientAsync();
 
-                await dut.Select(0);
-                _keys.ForEach(k => dut.Del(k).GetAwaiter().GetResult());
+                await client.Select(0);
+                _keys.ForEach(k => client.Del(k).GetAwaiter().GetResult());
             }
             catch (Exception ex)
             {

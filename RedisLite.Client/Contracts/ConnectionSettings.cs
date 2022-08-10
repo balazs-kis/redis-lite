@@ -22,7 +22,7 @@ namespace RedisLite.Client.Contracts
             {
                 throw new ArgumentException("Address cannot be null, empty or whitespace", nameof(address));
             }
-            
+
             Address = address;
             Port = port;
             Secret = secret;

@@ -1,8 +1,6 @@
 ﻿using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RedisLite.Client;
 using RedisLite.Client.Exceptions;
-using RedisLite.Tests.TestConfigurations;
 using System.Linq;
 using System.Threading.Tasks;
 using TestLite;
@@ -10,15 +8,21 @@ using TestLite;
 namespace RedisLite.Tests.TestsWithRedisServer
 {
     [TestClass]
-    public class SetTester
+    public class SetTester : TestBase
     {
         private const string SetKey = "SetKey";
         private const string SetValue1 = "SetValue1";
         private const string SetValue2 = "SetValue2";
 
+        [ClassInitialize]
+        public static async Task Setup(TestContext context) => await SetupTestContainerAsync();
+
+        [ClassCleanup]
+        public static async Task ClassCleanup() => await DisposeTestContainerAsync();
+
         [TestMethod]
         public void Test_SAdd() => Test
-            .ArrangeAsync(LocalHostDefaultPort.CreateAndConnectClientAsync)
+            .ArrangeAsync(CreateAndConnectRedisClientAsync)
             .ActAsync(async underTest =>
             {
                 await underTest.SAdd(SetKey, SetValue1);
@@ -30,7 +34,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
         [TestMethod]
         public void TestWrongOperation_SAddThrowsException() => Test
-            .ArrangeAsync(LocalHostDefaultPort.CreateAndConnectClientAsync)
+            .ArrangeAsync(CreateAndConnectRedisClientAsync)
             .ActAsync(async underTest =>
             {
                 await underTest.Set(SetKey, SetValue1);
@@ -40,7 +44,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
         [TestMethod]
         public void Test_SRem() => Test
-            .ArrangeAsync(LocalHostDefaultPort.CreateAndConnectClientAsync)
+            .ArrangeAsync(CreateAndConnectRedisClientAsync)
             .ActAsync(async underTest =>
             {
                 await underTest.SAdd(SetKey, SetValue1);
@@ -51,7 +55,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
         [TestMethod]
         public void TestWrongOperation_SRemThrowsException() => Test
-            .ArrangeAsync(LocalHostDefaultPort.CreateAndConnectClientAsync)
+            .ArrangeAsync(CreateAndConnectRedisClientAsync)
             .ActAsync(async underTest =>
             {
                 await underTest.Set(SetKey, SetValue1);
@@ -61,7 +65,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
         [TestMethod]
         public void Test_SMembers() => Test
-            .ArrangeAsync(LocalHostDefaultPort.CreateAndConnectClientAsync)
+            .ArrangeAsync(CreateAndConnectRedisClientAsync)
             .ActAsync(async underTest =>
             {
                 await underTest.SAdd(SetKey, SetValue1, SetValue2);
@@ -74,7 +78,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
         [TestMethod]
         public void TestWrongOperation_SMembersThrowsException() => Test
-            .ArrangeAsync(LocalHostDefaultPort.CreateAndConnectClientAsync)
+            .ArrangeAsync(CreateAndConnectRedisClientAsync)
             .ActAsync(async underTest =>
             {
                 await underTest.Set(SetKey, SetValue1);
@@ -84,7 +88,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
         [TestMethod]
         public void Test_SIsMember() => Test
-            .ArrangeAsync(LocalHostDefaultPort.CreateAndConnectClientAsync)
+            .ArrangeAsync(CreateAndConnectRedisClientAsync)
             .ActAsync(async underTest =>
             {
                 await underTest.SAdd(SetKey, SetValue1);
@@ -98,7 +102,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
         [TestMethod]
         public void TestWrongOperation_SIsMemberThrowsException() => Test
-            .ArrangeAsync(LocalHostDefaultPort.CreateAndConnectClientAsync)
+            .ArrangeAsync(CreateAndConnectRedisClientAsync)
             .ActAsync(async underTest =>
             {
                 await underTest.Set(SetKey, SetValue1);
@@ -108,7 +112,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
         [TestMethod]
         public void Test_SCard() => Test
-            .ArrangeAsync(LocalHostDefaultPort.CreateAndConnectClientAsync)
+            .ArrangeAsync(CreateAndConnectRedisClientAsync)
             .ActAsync(async underTest =>
             {
                 await underTest.SAdd(SetKey, SetValue1);
@@ -119,7 +123,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
         [TestMethod]
         public void TestWrongOperation_SCardThrowsException() => Test
-            .ArrangeAsync(LocalHostDefaultPort.CreateAndConnectClientAsync)
+            .ArrangeAsync(CreateAndConnectRedisClientAsync)
             .ActAsync(async underTest =>
             {
                 await underTest.Set(SetKey, SetValue1);
@@ -127,15 +131,12 @@ namespace RedisLite.Tests.TestsWithRedisServer
             })
             .Assert().ThrewException<RedisException>();
 
-
         [TestCleanup]
         public async Task Cleanup()
         {
-            var dut = new AsyncRedisClient();
+            var client = await CreateAndConnectRedisClientAsync();
 
-            await dut.Connect(LocalHostDefaultPort.AsConnectionSettings());
-
-            await dut.Del(SetKey);
+            await client.Del(SetKey);
         }
     }
 }
