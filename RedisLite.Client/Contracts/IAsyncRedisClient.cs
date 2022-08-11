@@ -18,6 +18,7 @@ namespace RedisLite.Client.Contracts
         Task Set(string key, string value);
         Task<string> Get(string key);
         Task<bool> Exists(string key);
+        Task<IEnumerable<string>> Keys(string pattern);
         Task<long> DbSize();
         Task Del(string key);
         Task FlushDb(bool async = false);

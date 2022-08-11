@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Authentication;
 using System.Threading.Tasks;
 using RedisLite.Client.CommandBuilders;
@@ -12,7 +14,14 @@ namespace RedisLite.Client.Clients
         public async Task<ISession> Connect(ConnectionSettings settings)
         {
             var session = new Session(settings.DisableParallelExecutionChecking);
-            await session.OpenAsync(settings.Address, settings.Port, settings.ReceiveTimeout);
+            await session.OpenAsync(
+                settings.Address,
+                settings.Port,
+                settings.ReceiveTimeout,
+                settings.SslOptions.UseSsl,
+                settings.SslOptions.UseDefaultServerName
+                    ? settings.Address
+                    : settings.SslOptions.ServerName);
 
             if (!settings.Authenticate)
             {
@@ -164,6 +173,24 @@ namespace RedisLite.Client.Clients
             catch (Exception ex)
             {
                 return Result.Fail<bool>(ex.Message, ex);
+            }
+        }
+
+        public async Task<Result<List<string>>> Keys(ISession session, string pattern)
+        {
+            try
+            {
+                var command =
+                    new BasicCommandBuilder(RedisCommands.KEYS)
+                        .WithKey(pattern)
+                        .ToString();
+
+                var result = await SendCommandAndReadResponseAsync(session, command);
+                return Result.Ok(result.Select(i => i.ToString()).ToList());
+            }
+            catch (Exception ex)
+            {
+                return Result.Fail<List<string>>(ex.Message, ex);
             }
         }
 

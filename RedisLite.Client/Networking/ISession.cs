@@ -11,7 +11,7 @@ namespace RedisLite.Client.Networking
         StreamReader StreamReader { get; }
         StreamWriter StreamWriter { get; }
 
-        Task<bool> OpenAsync(string address, int port, TimeSpan receiveTimeout);
+        Task<bool> OpenAsync(string address, int port, TimeSpan receiveTimeout, bool useSsl, string sslServerName);
         void SetInfiniteReadTimeout();
     }
 }
