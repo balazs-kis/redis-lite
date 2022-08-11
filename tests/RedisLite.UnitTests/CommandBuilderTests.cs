@@ -1,11 +1,6 @@
-﻿using FluentAssertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RedisLite.Client.CommandBuilders;
-using TestLite;
-using System;
-using System.Linq;
+﻿using RedisLite.Client.CommandBuilders;
 
-namespace RedisLite.Tests.UnitTests
+namespace RedisLite.UnitTests
 {
     [TestClass]
     public class CommandBuilderTests

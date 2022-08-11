@@ -1,18 +1,17 @@
 ﻿using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Configurations;
 using DotNet.Testcontainers.Containers;
-using System;
-using System.Threading.Tasks;
-using RedisLite.Client.Contracts;
 using RedisLite.Client;
+using RedisLite.Client.Contracts;
 
-namespace RedisLite.Tests.TestsWithRedisServer
+namespace RedisLite.IntegrationTests
 {
     public class TestBase
     {
-        private static RedisTestcontainer _redisTestcontainer;
-        protected static string RedisConnectionString { get; set; }
-        protected static ConnectionSettings RedisConnectionSettings { get; set; }
+        private static RedisTestcontainer? _redisTestcontainer;
+
+        protected static string? RedisConnectionString { get; set; }
+        protected static ConnectionSettings? RedisConnectionSettings { get; set; }
 
         protected static async Task<AsyncRedisClient> CreateAndConnectRedisClientAsync()
         {

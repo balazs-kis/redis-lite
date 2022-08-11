@@ -1,11 +1,6 @@
-﻿using FluentAssertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RedisLite.Client.Exceptions;
-using System.Linq;
-using System.Threading.Tasks;
-using TestLite;
+﻿using RedisLite.Client.Exceptions;
 
-namespace RedisLite.Tests.TestsWithRedisServer
+namespace RedisLite.IntegrationTests
 {
     [TestClass]
     public class SetTester : TestBase

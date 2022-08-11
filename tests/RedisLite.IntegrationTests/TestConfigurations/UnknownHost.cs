@@ -1,6 +1,6 @@
 ﻿using RedisLite.Client.Contracts;
 
-namespace RedisLite.Tests.TestConfigurations
+namespace RedisLite.IntegrationTests.TestConfigurations
 {
     internal static class UnknownHost
     {

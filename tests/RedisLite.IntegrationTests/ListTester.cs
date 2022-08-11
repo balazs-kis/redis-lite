@@ -1,10 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RedisLite.Client.Exceptions;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using RedisLite.Client.Exceptions;
 
-namespace RedisLite.Tests.TestsWithRedisServer
+namespace RedisLite.IntegrationTests
 {
     [TestClass]
     public class ListTester : TestBase
@@ -32,7 +28,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task TestWrongOperation_RPushThrowsException()
         {
-            Exception thrownException = null;
+            Exception? thrownException = null;
 
             var underTest = await CreateAndConnectRedisClientAsync();
 
@@ -41,7 +37,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 await underTest.Set(ListKey, ListItems[0]);
                 await underTest.RPush(ListKey, ListItems);
             }
-            catch (Exception ex)
+            catch (Exception? ex)
             {
                 thrownException = ex;
             }
@@ -66,7 +62,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task TestWrongOperation_LRangeThrowsException()
         {
-            Exception thrownException = null;
+            Exception? thrownException = null;
 
             var underTest = await CreateAndConnectRedisClientAsync();
 
@@ -83,7 +79,6 @@ namespace RedisLite.Tests.TestsWithRedisServer
             Assert.IsNotNull(thrownException);
             Assert.IsInstanceOfType(thrownException, typeof(RedisException));
         }
-
 
         [TestCleanup]
         public async Task Cleanup()

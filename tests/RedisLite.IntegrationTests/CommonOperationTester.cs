@@ -1,15 +1,9 @@
-﻿using FluentAssertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Net.Sockets;
 using RedisLite.Client;
 using RedisLite.Client.Exceptions;
-using RedisLite.Tests.TestConfigurations;
-using System;
-using System.Linq;
-using System.Net.Sockets;
-using System.Threading;
-using System.Threading.Tasks;
+using RedisLite.IntegrationTests.TestConfigurations;
 
-namespace RedisLite.Tests.TestsWithRedisServer
+namespace RedisLite.IntegrationTests
 {
     [TestClass]
     public class CommonOperationTester : TestBase

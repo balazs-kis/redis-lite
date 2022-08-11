@@ -1,9 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RedisLite.Client;
-using System;
-using System.Threading.Tasks;
+﻿using RedisLite.Client;
 
-namespace RedisLite.Tests.TestsWithRedisServer
+namespace RedisLite.IntegrationTests
 {
     [TestClass]
     public class EventTester : TestBase
@@ -22,7 +19,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         {
             var dut = new AsyncRedisClient();
 
-            string result = null;
+            string? result = null;
 
             dut.OnConnected += async c =>
             {

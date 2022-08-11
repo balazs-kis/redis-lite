@@ -1,10 +1,6 @@
-﻿using FluentAssertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RedisLite.Client;
-using TestLite;
-using System;
+﻿using RedisLite.Client;
 
-namespace RedisLite.Tests.UnitTests
+namespace RedisLite.UnitTests
 {
     [TestClass]
     public class ResultTests

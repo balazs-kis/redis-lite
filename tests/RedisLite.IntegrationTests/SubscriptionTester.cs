@@ -1,14 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RedisLite.Client;
+﻿using RedisLite.Client;
 using RedisLite.Client.Exceptions;
-using RedisLite.Tests.TestConfigurations;
-using System;
-using System.Collections.Generic;
+using RedisLite.IntegrationTests.TestConfigurations;
 using System.Net.Sockets;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace RedisLite.Tests.TestsWithRedisServer
+namespace RedisLite.IntegrationTests
 {
     [TestClass]
     public class SubscriptionTester : TestBase
@@ -29,7 +24,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Test_ConnectWithSubscriptionClient()
         {
-            Exception thrownException = null;
+            Exception? thrownException = null;
 
             var underTest = new AsyncRedisSubscriptionClient();
 
@@ -48,7 +43,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task TestUnknownHost_ConnectWithSubscriptionClientThrowsException()
         {
-            Exception thrownException = null;
+            Exception? thrownException = null;
 
             var underTest = new AsyncRedisSubscriptionClient();
 
@@ -68,7 +63,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task TestKnownHostBadPort_ConnectWithSubscriptionClientThrowsException()
         {
-            Exception thrownException = null;
+            Exception? thrownException = null;
 
             var underTest = new AsyncRedisSubscriptionClient();
 
@@ -88,7 +83,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task TestConnectTwice_ConnectWithSubscriptionClientThrowsException()
         {
-            Exception thrownException = null;
+            Exception? thrownException = null;
 
             var underTest = new AsyncRedisSubscriptionClient();
 
@@ -109,7 +104,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task TestCallingAfterDispose_SubscriptionClientThrowsException()
         {
-            Exception thrownException = null;
+            Exception? thrownException = null;
 
             var underTest = new AsyncRedisSubscriptionClient();
             await underTest.Connect(RedisConnectionSettings);
@@ -131,7 +126,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Test_SelectWithSubscriptionClient()
         {
-            Exception thrownException = null;
+            Exception? thrownException = null;
             var underTest = new AsyncRedisSubscriptionClient();
 
             try
@@ -150,7 +145,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task TestWrongDbIndex_SelectWithSubscriptionClientThrowsException()
         {
-            Exception thrownException = null;
+            Exception? thrownException = null;
             var underTest = new AsyncRedisSubscriptionClient();
 
             try
@@ -170,13 +165,13 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task TestEmptyChannelsList_SubscribeThrowsException()
         {
-            Exception thrownException = null;
+            Exception? thrownException = null;
             var underTest = new AsyncRedisSubscriptionClient();
 
             try
             {
                 await underTest.Connect(RedisConnectionSettings);
-                await underTest.Subscribe(new string[] { });
+                await underTest.Subscribe();
             }
             catch (Exception ex)
             {
@@ -190,7 +185,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task TestAlreadySubscribed_SubscribeThrowsException()
         {
-            Exception thrownException = null;
+            Exception? thrownException = null;
             var underTest = new AsyncRedisSubscriptionClient();
 
             try
@@ -211,14 +206,14 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task TestEmptyChannelsList_UnsubscribeThrowsException()
         {
-            Exception thrownException = null;
+            Exception? thrownException = null;
             var underTest = new AsyncRedisSubscriptionClient();
 
             try
             {
                 await underTest.Connect(RedisConnectionSettings);
                 await underTest.Subscribe("channel");
-                await underTest.Unsubscribe(new string[] { });
+                await underTest.Unsubscribe();
             }
             catch (Exception ex)
             {
@@ -232,7 +227,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task TestNotSubscribed_UnsubscribeThrowsException()
         {
-            Exception thrownException = null;
+            Exception? thrownException = null;
             var underTest = new AsyncRedisSubscriptionClient();
 
             try
@@ -258,8 +253,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
             await underTestPublisher.Connect(RedisConnectionSettings);
             await underTestSubscriber.Connect(RedisConnectionSettings);
 
-            string receivedChannel = null;
-            string receivedMessage = null;
+            string? receivedChannel = null;
+            string? receivedMessage = null;
 
             underTestSubscriber.OnMessageReceived += (ch, msg) =>
             {
@@ -285,8 +280,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
             await underTestPublisher.Connect(RedisConnectionSettings);
             await underTestSubscriber.Connect(RedisConnectionSettings);
 
-            string receivedChannel = null;
-            string receivedMessage = null;
+            string? receivedChannel = null;
+            string? receivedMessage = null;
 
             underTestSubscriber.OnMessageReceived += (ch, msg) =>
             {
@@ -324,7 +319,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 received.Add(Tuple.Create(ch, msg));
             };
 
-            await underTestSubscriber.Subscribe(new[] { Channel, OtherChannel });
+            await underTestSubscriber.Subscribe(Channel, OtherChannel);
 
             await underTestPublisher.Publish(Channel, Message);
             Thread.Sleep(100);
@@ -355,7 +350,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
                 received.Add(Tuple.Create(ch, msg));
             };
 
-            await underTestSubscriber.Subscribe(new[] { Channel, OtherChannel });
+            await underTestSubscriber.Subscribe(Channel, OtherChannel);
 
             await underTestPublisher.Publish(Channel, Message);
             Thread.Sleep(100);
@@ -363,7 +358,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
             await underTestPublisher.Publish(OtherChannel, OtherMessage);
             Thread.Sleep(100);
 
-            await underTestSubscriber.Unsubscribe(new[] { Channel, OtherChannel });
+            await underTestSubscriber.Unsubscribe(Channel, OtherChannel);
 
             await underTestPublisher.Publish(Channel, SecondMessage);
             Thread.Sleep(100);
@@ -387,8 +382,8 @@ namespace RedisLite.Tests.TestsWithRedisServer
             await underTestPublisher.Connect(RedisConnectionSettings);
             await underTestSubscriber.Connect(RedisConnectionSettings);
 
-            string receivedChannel = null;
-            string receivedMessage = null;
+            string? receivedChannel = null;
+            string? receivedMessage = null;
 
             underTestSubscriber.OnMessageReceived += (ch, msg) =>
             {

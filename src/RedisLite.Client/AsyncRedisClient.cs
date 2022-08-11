@@ -9,7 +9,8 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-[assembly: InternalsVisibleTo("RedisLite.Tests")]
+[assembly: InternalsVisibleTo("RedisLite.UnitTests")]
+[assembly: InternalsVisibleTo("RedisLite.IntegrationTests")]
 
 namespace RedisLite.Client
 {
