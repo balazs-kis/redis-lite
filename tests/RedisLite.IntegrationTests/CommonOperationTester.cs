@@ -1,7 +1,6 @@
-﻿using System.Net.Sockets;
-using RedisLite.Client;
+﻿using RedisLite.Client;
 using RedisLite.Client.Exceptions;
-using RedisLite.IntegrationTests.TestConfigurations;
+using System.Net.Sockets;
 
 namespace RedisLite.IntegrationTests
 {
@@ -21,111 +20,59 @@ namespace RedisLite.IntegrationTests
         public static async Task ClassCleanup() => await DisposeTestContainerAsync();
 
         [TestMethod]
-        public async Task Connect_ConnectsSuccessfully()
-        {
-            Exception thrownException = null;
-            var underTest = new AsyncRedisClient();
-
-            try
-            {
-                await underTest.Connect(RedisConnectionSettings);
-            }
-            catch (Exception ex)
-            {
-                thrownException = ex;
-            }
-
-            thrownException.Should().BeNull();
-        }
+        public void Connect_ConnectsSuccessfully() => Test
+            .Arrange(() => new AsyncRedisClient())
+            .ActAsync(async underTest => await underTest.Connect(RedisConnectionSettings))
+            .Assert().IsSuccess();
 
         [TestMethod]
-        public async Task ConnectToUnknownHost_ThrowsException()
-        {
-            Exception thrownException = null;
-            var underTest = new AsyncRedisClient();
-
-            try
-            {
-                await underTest.Connect(UnknownHost.AsConnectionSettings());
-            }
-            catch (Exception ex)
-            {
-                thrownException = ex;
-            }
-
-            thrownException.Should().NotBeNull().And.BeAssignableTo<SocketException>();
-        }
+        public void ConnectToUnknownHost_ThrowsException() => Test
+            .Arrange(() => new AsyncRedisClient())
+            .ActAsync(async underTest => await underTest.Connect(UnknownHostConnectionSettings))
+            .Assert().ThrewException<SocketException>();
 
         [TestMethod]
-        public async Task ConnectToKnownHostWrongPort_ThrowsException()
-        {
-            Exception thrownException = null;
-            var underTest = new AsyncRedisClient();
-
-            try
-            {
-                await underTest.Connect(LocalHostPort7000.AsConnectionSettings());
-            }
-            catch (Exception ex)
-            {
-                thrownException = ex;
-            }
-
-            thrownException.Should().NotBeNull().And.BeAssignableTo<SocketException>();
-        }
+        public void ConnectToKnownHostWrongPort_ThrowsException() => Test
+            .Arrange(() => new AsyncRedisClient())
+            .ActAsync(async underTest => await underTest.Connect(WrongPortConnectionSettings))
+            .Assert().ThrewException<SocketException>();
 
         [TestMethod]
-        public async Task ConnectCalledTwice_ThrowsException()
-        {
-            Exception thrownException = null;
-            var underTest = new AsyncRedisClient();
-
-            try
+        public void ConnectCalledTwice_ThrowsException() => Test
+            .Arrange(() => new AsyncRedisClient())
+            .ActAsync(async underTest =>
             {
                 await underTest.Connect(RedisConnectionSettings);
                 await underTest.Connect(RedisConnectionSettings);
-            }
-            catch (Exception ex)
-            {
-                thrownException = ex;
-            }
-
-            thrownException.Should().NotBeNull().And.BeOfType<InvalidOperationException>();
-        }
+            })
+            .Assert().ThrewException<InvalidOperationException>();
 
         [TestMethod]
-        public async Task CallingClientAfterDispose_ThrowsException()
-        {
-            Exception thrownException = null;
-            var underTest = await CreateAndConnectRedisClientAsync();
-            underTest.Dispose();
-
-            try
+        public void CallingClientAfterDispose_ThrowsException() => Test
+            .Arrange(() => new AsyncRedisClient())
+            .ActAsync(async underTest =>
             {
+                underTest.Dispose();
                 await underTest.Set(Key1, Value1);
-            }
-            catch (Exception ex)
-            {
-                thrownException = ex;
-            }
-
-            thrownException.Should().NotBeNull().And.BeOfType<InvalidOperationException>();
-        }
+            })
+            .Assert().ThrewException<InvalidOperationException>();
 
         [TestMethod]
-        public async Task Select_ClientSelectsNewDb()
-        {
-            var underTest = await CreateAndConnectRedisClientAsync();
+        public void Select_ClientSelectsNewDb() => Test
+            .ArrangeAsync(async () => await CreateAndConnectRedisClientAsync())
+            .ActAsync(async underTest =>
+            {
+                await underTest.Select(7);
+                await underTest.Set(Key1, Value1);
+                var fromDb7 = await underTest.Get(Key1);
+                await underTest.Select(8);
+                var fromDb8 = await underTest.Get(Key1);
 
-            await underTest.Select(7);
-            await underTest.Set(Key1, Value1);
-            var result1 = await underTest.Get(Key1);
-            await underTest.Select(8);
-            var result2 = await underTest.Get(Key1);
-
-            result1.Should().Be(Value1);
-            result2.Should().BeNull();
-        }
+                return (fromDb7, fromDb8);
+            })
+            .Assert()
+                .Validate(result => result.fromDb7.Should().Be(Value1))
+                .Validate(result => result.fromDb8.Should().BeNull());
 
         [TestMethod]
         public async Task SelectWrongDbNumber_ThrowsException()

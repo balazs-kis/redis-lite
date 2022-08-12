@@ -15,34 +15,33 @@ namespace RedisLite.IntegrationTests
         public static async Task ClassCleanup() => await DisposeTestContainerAsync();
 
         [TestMethod]
-        public async Task Test_ConnectedEvent()
-        {
-            var dut = new AsyncRedisClient();
-
-            string? result = null;
-
-            dut.OnConnected += async c =>
+        public void Test_ConnectedEvent() => Test
+            .Arrange(() => new AsyncRedisClient())
+            .ActAsync(async underTest =>
             {
-                await c.Set(Key, Value);
-                result = await dut.Get(Key);
-            };
+                string? result = null;
 
-            await dut.Connect(RedisConnectionSettings);
-            await Task.Delay(1250);
+                underTest.OnConnected += async c =>
+                {
+                    await c.Set(Key, Value);
+                    result = await underTest.Get(Key);
+                };
 
-            Assert.AreEqual(Value, result);
-        }
+                await underTest.Connect(RedisConnectionSettings);
+                await Task.Delay(1250);
+
+                return result;
+            })
+            .Assert().Validate(result => result.Should().Be(Value));
 
         [TestCleanup]
         public async Task Cleanup()
         {
             try
             {
-                var dut = new AsyncRedisClient();
+                var client = await CreateAndConnectRedisClientAsync();
 
-                await dut.Connect(RedisConnectionSettings);
-
-                await dut.Del(Key);
+                await client.Del(Key);
             }
             catch (Exception ex)
             {

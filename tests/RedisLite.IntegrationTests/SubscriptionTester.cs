@@ -1,6 +1,5 @@
 ﻿using RedisLite.Client;
 using RedisLite.Client.Exceptions;
-using RedisLite.IntegrationTests.TestConfigurations;
 using System.Net.Sockets;
 
 namespace RedisLite.IntegrationTests
@@ -49,7 +48,7 @@ namespace RedisLite.IntegrationTests
 
             try
             {
-                await underTest.Connect(UnknownHost.AsConnectionSettings());
+                await underTest.Connect(UnknownHostConnectionSettings);
             }
             catch (Exception ex)
             {
@@ -69,7 +68,7 @@ namespace RedisLite.IntegrationTests
 
             try
             {
-                await underTest.Connect(LocalHostPort7000.AsConnectionSettings());
+                await underTest.Connect(WrongPortConnectionSettings);
             }
             catch (Exception ex)
             {

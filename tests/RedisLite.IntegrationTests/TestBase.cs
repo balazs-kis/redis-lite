@@ -11,7 +11,14 @@ namespace RedisLite.IntegrationTests
         private static RedisTestcontainer? _redisTestcontainer;
 
         protected static string? RedisConnectionString { get; set; }
+
         protected static ConnectionSettings? RedisConnectionSettings { get; set; }
+
+        protected static ConnectionSettings UnknownHostConnectionSettings =>
+            new("host.not.correct", 9999);
+
+        protected static ConnectionSettings WrongPortConnectionSettings =>
+            new(RedisConnectionSettings.Address, RedisConnectionSettings.Port + 100);
 
         protected static async Task<AsyncRedisClient> CreateAndConnectRedisClientAsync()
         {
