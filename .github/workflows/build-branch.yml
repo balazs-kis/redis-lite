@@ -1,4 +1,4 @@
-name: .NET
+name: ci-branch
 
 on:
   push:
