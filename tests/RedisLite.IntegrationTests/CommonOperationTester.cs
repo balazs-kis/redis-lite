@@ -75,140 +75,149 @@ namespace RedisLite.IntegrationTests
                 .Validate(result => result.fromDb8.Should().BeNull());
 
         [TestMethod]
-        public async Task SelectWrongDbNumber_ThrowsException()
-        {
-            Exception thrownException = null;
-            var underTest = await CreateAndConnectRedisClientAsync();
+        public void SelectWrongDbNumber_ThrowsException() => Test
+            .ArrangeAsync(async () => await CreateAndConnectRedisClientAsync())
+            .ActAsync(async underTest => await underTest.Select(int.MaxValue))
+            .Assert().ThrewException<RedisException>();
 
-            try
+        [TestMethod]
+        public void Exists_ReturnsValueCorrectly() => Test
+            .ArrangeAsync(async () => await CreateAndConnectRedisClientAsync())
+            .ActAsync(async underTest =>
             {
-                await underTest.Select(int.MaxValue);
-            }
-            catch (Exception ex)
+                await underTest.Set(Key1, Value1);
+                var exists1 = await underTest.Exists(Key1);
+                var exists2 = await underTest.Exists("NotPresentKey");
+
+                return (exists1, exists2);
+            })
+            .Assert()
+                .Validate(result => result.exists1.Should().BeTrue())
+                .Validate(result => result.exists2.Should().BeFalse());
+
+        [TestMethod]
+        public void Del_DeletedSuccessfully() => Test
+            .ArrangeAsync(async () => await CreateAndConnectRedisClientAsync())
+            .ActAsync(async underTest =>
             {
-                thrownException = ex;
-            }
+                await underTest.Set(Key1, Value1);
+                var result1 = await underTest.Get(Key1);
 
-            thrownException.Should().NotBeNull().And.BeOfType<RedisException>();
-        }
+                await underTest.Del(Key1);
+                var result2 = await underTest.Get(Key1);
 
-        [TestMethod]
-        public async Task Exists_ReturnsValueCorrectly()
-        {
-            var underTest = await CreateAndConnectRedisClientAsync();
-
-            await underTest.Set(Key1, Value1);
-            var result1 = await underTest.Exists(Key1);
-            var result2 = await underTest.Exists("NotPresentKey");
-
-            result1.Should().BeTrue();
-            result2.Should().BeFalse();
-        }
+                return (result1, result2);
+            })
+            .Assert()
+                .Validate(result => result.result1.Should().Be(Value1))
+                .Validate(result => result.result2.Should().BeNull());
 
         [TestMethod]
-        public async Task Del_DeletedSuccessfully()
-        {
-            var underTest = await CreateAndConnectRedisClientAsync();
-
-            await underTest.Set(Key1, Value1);
-            var result1 = await underTest.Get(Key1);
-            await underTest.Del(Key1);
-            var result2 = await underTest.Get(Key1);
-
-            result1.Should().Be(Value1);
-            result2.Should().BeNull();
-        }
-
-        [TestMethod]
-        public async Task FlushDb_DbFlushedSuccessfully()
-        {
-            var underTest = await CreateAndConnectRedisClientAsync();
-
-            await underTest.Set(Key1, Value1);
-            await underTest.Set(Key2, Value2);
-            await underTest.FlushDb();
-            var result1 = await underTest.Get(Key1);
-            var result2 = await underTest.Get(Key2);
-
-            result1.Should().BeNull();
-            result2.Should().BeNull();
-        }
-
-        [TestMethod]
-        public async Task FlushDbAsync_DbFlushedSuccessfully()
-        {
-            var underTest = await CreateAndConnectRedisClientAsync();
-
-            await underTest.Set(Key1, Value1);
-            await underTest.Set(Key2, Value2);
-            await underTest.FlushDb(true);
-            Thread.Sleep(50);
-            var result1 = await underTest.Get(Key1);
-            var result2 = await underTest.Get(Key2);
-
-            result1.Should().BeNull();
-            result2.Should().BeNull();
-        }
-
-        [TestMethod]
-        public async Task DbSize_ReturnsValueCorrectly()
-        {
-            var underTest = await CreateAndConnectRedisClientAsync();
-
-            await underTest.Set(Key1, Value1);
-            await underTest.Set(Key2, Value2);
-            var result = await underTest.DbSize();
-
-            result.Should().Be(2);
-        }
-
-        [TestMethod]
-        public async Task SwapDb_ClientConnectedToCorrectDb()
-        {
-            var underTest = await CreateAndConnectRedisClientAsync();
-
-            await underTest.Select(0);
-            await underTest.Set(Key1, Value1);
-            await underTest.SwapDb(0, 7);
-            var existsOnDb0 = await underTest.Exists(Key1);
-            await underTest.Select(7);
-            var readValueFromDb7 = await underTest.Get(Key1);
-
-            existsOnDb0.Should().BeFalse();
-            readValueFromDb7.Should().Be(Value1);
-        }
-
-        [TestMethod]
-        public async Task SwapWithWrongDbNumbers_ThrowsException()
-        {
-            Exception thrownException = null;
-            var underTest = await CreateAndConnectRedisClientAsync();
-
-            try
+        public void FlushDb_DbFlushedSuccessfully() => Test
+            .ArrangeAsync(async () => await CreateAndConnectRedisClientAsync())
+            .ActAsync(async underTest =>
             {
-                await underTest.SwapDb(int.MaxValue, int.MaxValue - 1);
-            }
-            catch (Exception ex)
-            {
-                thrownException = ex;
-            }
+                await underTest.Set(Key1, Value1);
+                await underTest.Set(Key2, Value2);
 
-            thrownException.Should().NotBeNull().And.BeOfType<RedisException>();
-        }
+                await underTest.FlushDb();
+
+                var result1 = await underTest.Get(Key1);
+                var result2 = await underTest.Get(Key2);
+
+                return (result1, result2);
+            })
+            .Assert()
+                .Validate(result => result.result1.Should().BeNull())
+                .Validate(result => result.result2.Should().BeNull());
 
         [TestMethod]
-        public async Task Keys_ReturnsKeysCorrectly()
-        {
-            var underTest = await CreateAndConnectRedisClientAsync();
+        public void FlushDbAsync_DbFlushedSuccessfully() => Test
+            .ArrangeAsync(async () => await CreateAndConnectRedisClientAsync())
+            .ActAsync(async underTest =>
+            {
+                await underTest.Set(Key1, Value1);
+                await underTest.Set(Key2, Value2);
 
-            await underTest.Set(Key1, Value1);
-            await underTest.Set(Key2, Value2);
-            var result = await underTest.Keys("*");
-            var resultList = result.ToList();
+                await underTest.FlushDb(true);
+                await Task.Delay(50);
 
-            resultList.Count.Should().Be(2);
-            resultList.Should().Contain(Key1).And.Contain(Key2);
-        }
+                var result1 = await underTest.Get(Key1);
+                var result2 = await underTest.Get(Key2);
+
+                return (result1, result2);
+            })
+            .Assert()
+                .Validate(result => result.result1.Should().BeNull())
+                .Validate(result => result.result2.Should().BeNull());
+
+        [TestMethod]
+        public void DbSize_ReturnsValueCorrectly() => Test
+            .ArrangeAsync(async () => await CreateAndConnectRedisClientAsync())
+            .ActAsync(async underTest =>
+            {
+                await underTest.Set(Key1, Value1);
+                await underTest.Set(Key2, Value2);
+
+                return await underTest.DbSize();
+            })
+            .Assert()
+                .Validate(result => result.Should().Be(2));
+
+        [TestMethod]
+        public void SwapDb_ClientConnectedToCorrectDb() => Test
+            .ArrangeAsync(async () => await CreateAndConnectRedisClientAsync())
+            .ActAsync(async underTest =>
+            {
+                await underTest.Select(0);
+                await underTest.Set(Key1, Value1);
+
+                await underTest.SwapDb(0, 7);
+
+                var existsOnDb0 = await underTest.Exists(Key1);
+
+                await underTest.Select(7);
+                var readValueFromDb7 = await underTest.Get(Key1);
+
+                return (existsOnDb0, readValueFromDb7);
+            })
+            .Assert()
+                .Validate(result => result.existsOnDb0.Should().BeFalse())
+                .Validate(result => result.readValueFromDb7.Should().Be(Value1));
+
+        [TestMethod]
+        public void SwapWithWrongDbNumbers_ThrowsException() => Test
+            .ArrangeAsync(async () => await CreateAndConnectRedisClientAsync())
+            .ActAsync(async underTest => await underTest.SwapDb(int.MaxValue, int.MaxValue - 1))
+            .Assert().ThrewException<RedisException>();
+
+        [TestMethod]
+        public void Keys_ReturnsAllKeysKeysCorrectly() => Test
+            .ArrangeAsync(async () => await CreateAndConnectRedisClientAsync())
+            .ActAsync(async underTest =>
+            {
+                await underTest.Set(Key1, Value1);
+                await underTest.Set(Key2, Value2);
+
+                return (await underTest.Keys("*")).ToList();
+            })
+            .Assert()
+                .Validate(result => result.Count.Should().Be(2))
+                .Validate(result => result.Should().Contain(Key1).And.Contain(Key2));
+
+        [TestMethod]
+        public void Keys_ReturnsMatchingKeysKeysCorrectly() => Test
+            .ArrangeAsync(async () => await CreateAndConnectRedisClientAsync())
+            .ActAsync(async underTest =>
+            {
+                await underTest.Set(Key1, Value1);
+                await underTest.Set(Key2, Value2);
+
+                return (await underTest.Keys("*1")).ToList();
+            })
+            .Assert()
+                .Validate(result => result.Count.Should().Be(1))
+                .Validate(result => result.Should().Contain(Key1));
 
         [TestCleanup]
         public async Task TestCleanup()
