@@ -405,6 +405,6 @@ namespace RedisLite.IntegrationTests
             Assert.IsNull(receivedMessage);
         }
 
-        private static async Task Delay(int ms = 250) => await Task.Delay(250);
+        private static async Task Delay(int milliseconds = 250) => await Task.Delay(milliseconds);
     }
 }
