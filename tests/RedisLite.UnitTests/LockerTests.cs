@@ -59,5 +59,11 @@ namespace RedisLite.UnitTests
             .Assert()
                 .Validate(result => result.number1.Should().Be(Number))
                 .Validate(result => result.number2.Should().Be(Number));
+
+        [TestMethod]
+        public void TryToReleaseWhenNotLocked_LockerThrowsException() => Test
+            .Arrange(() => new Locker())
+            .Act(locker => locker.Release())
+            .Assert().ThrewException<InvalidOperationException>();
     }
 }
