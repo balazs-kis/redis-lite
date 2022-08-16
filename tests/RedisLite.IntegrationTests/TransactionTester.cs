@@ -1,11 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RedisLite.Client;
+﻿using RedisLite.Client;
 using RedisLite.Client.Exceptions;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace RedisLite.Tests.TestsWithRedisServer
+namespace RedisLite.IntegrationTests
 {
     [TestClass]
     public class TransactionTester : TestBase
@@ -24,7 +20,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task TestInvalidKeyList_WatchThrowsException()
         {
-            Exception thrownException = null;
+            Exception? thrownException = null;
 
             var underTest = await CreateAndConnectRedisClientAsync();
 
@@ -114,7 +110,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Test_TransactionFailed_SimpleSetGet()
         {
-            Exception exception = null;
+            Exception? exception = null;
 
             var underTest1 = new AsyncRedisClient();
             var underTest2 = new AsyncRedisClient();
@@ -122,7 +118,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
             await underTest1.Connect(RedisConnectionSettings);
             await underTest2.Connect(RedisConnectionSettings);
 
-            await underTest1.Watch(new[] { Key });
+            await underTest1.Watch(Key);
 
             await underTest1.Multi();
             await underTest1.Set(Key, Value1);
@@ -155,7 +151,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
             var five = "50000";
             var six = "600000";
 
-            Exception exception = null;
+            Exception? exception = null;
 
             var underTest1 = new AsyncRedisClient();
             var underTest2 = new AsyncRedisClient();
@@ -165,7 +161,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
 
             await underTest1.RPush(Key, items);
 
-            await underTest1.Watch(new[] { Key });
+            await underTest1.Watch(Key);
 
             await underTest1.Multi();
             await underTest1.RPush(Key, six);

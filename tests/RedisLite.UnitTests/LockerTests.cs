@@ -1,12 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RedisLite.Client.Networking;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using FluentAssertions;
-using TestLite;
+﻿using RedisLite.Client.Networking;
 
-namespace RedisLite.Tests.UnitTests
+namespace RedisLite.UnitTests
 {
     [TestClass]
     public class LockerTests

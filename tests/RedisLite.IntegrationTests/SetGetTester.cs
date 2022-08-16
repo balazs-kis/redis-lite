@@ -1,10 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RedisLite.Client;
+﻿using RedisLite.Client;
 using RedisLite.Client.Exceptions;
-using System;
-using System.Threading.Tasks;
 
-namespace RedisLite.Tests.TestsWithRedisServer
+namespace RedisLite.IntegrationTests
 {
     [TestClass]
     public class SetGetTester : TestBase
@@ -32,7 +29,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task TestWrongOperation_GetThrowsException()
         {
-            Exception thrownException = null;
+            Exception? thrownException = null;
 
             var underTest = await CreateAndConnectRedisClientAsync();
 
@@ -53,7 +50,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task TestUnconnectedClient_GetThrowsException()
         {
-            Exception thrownException = null;
+            Exception? thrownException = null;
 
             var underTest = new AsyncRedisClient();
 
@@ -73,9 +70,10 @@ namespace RedisLite.Tests.TestsWithRedisServer
         [TestMethod]
         public async Task Test_Ping()
         {
+            Exception? thrownException = null;
+
             var underTest = await CreateAndConnectRedisClientAsync();
 
-            Exception thrownException = null;
             try
             {
                 await underTest.Ping();

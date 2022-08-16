@@ -1,10 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace RedisLite.Tests.TestsWithRedisServer
+﻿namespace RedisLite.IntegrationTests
 {
     [TestClass]
     public class HashTester : TestBase
@@ -12,7 +6,7 @@ namespace RedisLite.Tests.TestsWithRedisServer
         private readonly List<string> _keys =
             Enumerable
                 .Range(1, 4)
-                .Select(i => Guid.NewGuid().ToString("N"))
+                .Select(_ => Guid.NewGuid().ToString("N"))
                 .ToList();
 
         private const string Field1 = "h1";
