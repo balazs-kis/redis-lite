@@ -46,7 +46,6 @@ namespace RedisLite.IntegrationTests
             {
                 if (_redisTestcontainer != null)
                 {
-                    await _redisTestcontainer.StopAsync();
                     await _redisTestcontainer.DisposeAsync();
                 }
             }
