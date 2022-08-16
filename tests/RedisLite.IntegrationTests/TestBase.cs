@@ -12,7 +12,7 @@ namespace RedisLite.IntegrationTests
 
         protected static string? RedisConnectionString { get; set; }
 
-        protected static ConnectionSettings RedisConnectionSettings { get; set; } = new("localhost");
+        protected static ConnectionSettings? RedisConnectionSettings { get; set; }
 
         protected static ConnectionSettings UnknownHostConnectionSettings =>
             new("host.not.correct", 9999);
