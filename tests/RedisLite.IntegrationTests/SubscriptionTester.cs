@@ -321,10 +321,10 @@ namespace RedisLite.IntegrationTests
             await underTestSubscriber.Subscribe(Channel, OtherChannel);
 
             await underTestPublisher.Publish(Channel, Message);
-            Thread.Sleep(100);
+            Thread.Sleep(250);
 
             await underTestPublisher.Publish(OtherChannel, OtherMessage);
-            Thread.Sleep(100);
+            Thread.Sleep(250);
 
             Assert.AreEqual(2, received.Count);
             Assert.AreEqual(Channel, received[0].Item1);
