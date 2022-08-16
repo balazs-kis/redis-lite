@@ -24,8 +24,5 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
       
-    - name: Run unit tests
-      run: dotnet test ./tests/RedisLite.UnitTests/RedisLite.UnitTests.csproj --no-build --verbosity normal
-      
-    - name: Run integration tests
-      run: dotnet test ./tests/RedisLite.IntegrationTests/RedisLite.IntegrationTests.csproj --no-build --verbosity normal
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
