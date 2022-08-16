@@ -25,4 +25,9 @@ jobs:
       run: dotnet build --no-restore
       
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --no-build --collect:"XPlat Code Coverage" --settings coverlet.runsettings --verbosity normal
+
+    - name: Upload coverage
+      uses: codecov/codecov-action@v3
+      with:
+        file: "!**/.nuget/packages/**/*.*"
