@@ -14,7 +14,7 @@ namespace RedisLite.UnitTests
 
         [TestMethod]
         public void NullConnectionString_ThrowsException() => Test
-            .Arrange(() => (string)null)
+            .Arrange(() => (string?)null)
             .Act(ConnectionStringParser.ParseConnectionString)
             .Assert().ThrewException<ArgumentException>();
 
