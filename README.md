@@ -2,8 +2,8 @@
 
 Redis Lite is a small, simple redis client for .NET (Standard). It implements the often used redis commands, and then some.
 
-[![Build Status](https://travis-ci.com/balazs-kis/redis-lite.svg?branch=master)](https://travis-ci.com/balazs-kis/redis-lite)
-[![Coverage Status](https://coveralls.io/repos/github/balazs-kis/redis-lite/badge.svg?branch=master)](https://coveralls.io/github/balazs-kis/redis-lite?branch=master)
+[![Build Status](https://github.com/balazs-kis/redis-lite/workflows/ci-master/badge.svg "Build Status")](https://github.com/balazs-kis/redis-lite/actions?query=workflow%3A%22ci-master%22)
+[![Coverage Status](https://codecov.io/gh/balazs-kis/redis-lite/branch/master/graph/badge.svg)](https://codecov.io/gh/balazs-kis/redis-lite)
 [![Nuget](https://img.shields.io/nuget/v/RedisLite)](https://www.nuget.org/packages/RedisLite)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blueviolet)](https://opensource.org/licenses/MIT)
 [![pull requests: welcome](https://img.shields.io/badge/pull%20requests-welcome-brightgreen)](https://github.com/balazs-kis/redis-lite/fork)
