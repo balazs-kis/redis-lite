@@ -264,7 +264,7 @@ namespace RedisLite.IntegrationTests
             await underTestSubscriber.Subscribe(Channel);
 
             await underTestPublisher.Publish(Channel, Message);
-            Thread.Sleep(100);
+            await Delay();
 
             Assert.AreEqual(Channel, receivedChannel);
             Assert.AreEqual(Message, receivedMessage);
@@ -291,12 +291,12 @@ namespace RedisLite.IntegrationTests
             await underTestSubscriber.Subscribe(Channel);
 
             await underTestPublisher.Publish(Channel, Message);
-            Thread.Sleep(100);
+            await Delay();
 
             await underTestSubscriber.Unsubscribe(Channel);
 
             await underTestPublisher.Publish(Channel, SecondMessage);
-            Thread.Sleep(100);
+            await Delay();
 
             Assert.AreEqual(Channel, receivedChannel);
             Assert.AreEqual(Message, receivedMessage);
@@ -321,10 +321,10 @@ namespace RedisLite.IntegrationTests
             await underTestSubscriber.Subscribe(Channel, OtherChannel);
 
             await underTestPublisher.Publish(Channel, Message);
-            Thread.Sleep(250);
+            await Delay();
 
             await underTestPublisher.Publish(OtherChannel, OtherMessage);
-            Thread.Sleep(250);
+            await Delay();
 
             Assert.AreEqual(2, received.Count);
             Assert.AreEqual(Channel, received[0].Item1);
@@ -352,18 +352,18 @@ namespace RedisLite.IntegrationTests
             await underTestSubscriber.Subscribe(Channel, OtherChannel);
 
             await underTestPublisher.Publish(Channel, Message);
-            Thread.Sleep(100);
+            await Delay();
 
             await underTestPublisher.Publish(OtherChannel, OtherMessage);
-            Thread.Sleep(100);
+            await Delay();
 
             await underTestSubscriber.Unsubscribe(Channel, OtherChannel);
 
             await underTestPublisher.Publish(Channel, SecondMessage);
-            Thread.Sleep(100);
+            await Delay();
 
             await underTestPublisher.Publish(OtherChannel, SecondMessage);
-            Thread.Sleep(100);
+            await Delay();
 
             Assert.AreEqual(2, received.Count);
             Assert.AreEqual(Channel, received[0].Item1);
@@ -391,18 +391,20 @@ namespace RedisLite.IntegrationTests
             };
 
             await underTestSubscriber.Subscribe(Channel);
-            Thread.Sleep(100);
+            await Delay();
 
             await underTestSubscriber.Unsubscribe(Channel);
-            Thread.Sleep(100);
+            await Delay();
             await underTestSubscriber.Unsubscribe(Channel);
-            Thread.Sleep(100);
+            await Delay();
 
             await underTestPublisher.Publish(Channel, Message);
-            Thread.Sleep(100);
+            await Delay();
 
             Assert.IsNull(receivedChannel);
             Assert.IsNull(receivedMessage);
         }
+
+        private static async Task Delay(int ms = 250) => await Task.Delay(250);
     }
 }
